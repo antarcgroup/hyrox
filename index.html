@@ -123,6 +123,9 @@
   .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
   @keyframes sp{to{transform:rotate(360deg)}}
   .hide{display:none}
+  .sync{margin-top:13px;font-size:13px;font-weight:700;color:var(--mute)}
+  .sync.good{color:var(--ok)}
+  .sync.bad{color:var(--hot)}
   .note{font-size:14px;color:var(--mute);background:var(--card);border-left:3px solid var(--line);padding:11px 14px;border-radius:0 7px 7px 0;margin-top:13px;line-height:1.55}
 
   /* rationale */
@@ -164,6 +167,7 @@
     <div class="cd"><b id="cd-done">—</b><span data-i="cdn"></span></div>
     <div class="cd"><b id="cd-rate">—</b><span data-i="cdr"></span></div>
   </div>
+  <div id="sync" class="sync">—</div>
 </header>
 
 <nav>
@@ -230,16 +234,51 @@ const RACE=new Date(2026,11,5), START=new Date(2026,6,13);
 let LANG='zh', ME='lulu';
 const NAMES={lulu:'Lulu',yelu:'Ye Lu'};
 
-/* ---------- shared storage ---------- */
+/* ---------- shared cloud storage (Netlify Blobs) ---------- */
+const DATA_API='/api/data';
 let DB={done:{},logs:{}};
+let syncState='ok';
+
 async function load(){
-  try{const r=await window.storage.get('hyrox125',true);if(r&&r.value)DB=JSON.parse(r.value);}catch(e){}
+  try{
+    const r=await fetch(DATA_API,{cache:'no-store'});
+    if(!r.ok)throw new Error('http '+r.status);
+    const d=await r.json();
+    DB={done:d.done||{},logs:d.logs||{}};
+    syncState='ok';
+  }catch(e){
+    syncState='err';
+    // Fall back to a local copy so a network blip doesn't look like data loss.
+    try{const l=localStorage.getItem('hyrox_backup');if(l)DB=JSON.parse(l);}catch(_){}
+  }
+  paintSync();
 }
-let saving=false;
+
+let saveTimer=null,saving=false;
 async function persist(){
-  if(saving)return;saving=true;
-  try{await window.storage.set('hyrox125',JSON.stringify(DB),true);}catch(e){}
-  saving=false;
+  // Optimistic local backup first, so nothing is ever lost mid-flight.
+  try{localStorage.setItem('hyrox_backup',JSON.stringify(DB));}catch(_){}
+  syncState='saving';paintSync();
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    if(saving)return;saving=true;
+    try{
+      const r=await fetch(DATA_API,{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(DB)});
+      if(!r.ok)throw new Error('http '+r.status);
+      syncState='ok';
+    }catch(e){syncState='err';}
+    saving=false;paintSync();
+  },500);
+}
+
+function paintSync(){
+  const el=document.getElementById('sync');if(!el)return;
+  const zh=LANG==='zh';
+  if(syncState==='saving'){el.textContent=zh?'保存中…':'Saving…';el.className='sync';}
+  else if(syncState==='err'){el.textContent=zh?'⚠ 云端未连接 — 已存本地':'⚠ Offline — saved locally';el.className='sync bad';}
+  else{el.textContent=zh?'✓ 已同步(与搭档共享)':'✓ Synced (shared with partner)';el.className='sync good';}
 }
 
 /* ---------- i18n ---------- */
@@ -412,7 +451,7 @@ function render(){
       </div><div class="wbody">${rows}</div></div>`;
   }).join('');
 
-  renderZones();renderWhy();renderStats();
+  renderZones();renderWhy();renderStats();paintSync();
 }
 
 function lgTxt(l){const p=[];
