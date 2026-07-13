@@ -79,7 +79,7 @@
   .t-run{background:var(--run)} .t-lift{background:var(--lift)} .t-move{background:var(--move)} .t-rest{background:var(--rest)}
   .dttl{font-size:17px;font-weight:800;margin-top:6px}
   .dttl.done{text-decoration:line-through;color:var(--mute)}
-  .ddet{font-size:16px;color:#41403A;margin-top:5px;white-space:pre-line;line-height:1.55}
+  .ddet{font-size:16px;color:#33322D;margin-top:8px;line-height:1.7;letter-spacing:.01em}
   .dwhy{font-size:14px;color:var(--mute);margin-top:7px;padding-left:11px;border-left:2px solid var(--line);line-height:1.45}
   .logbtn{background:none;border:1px solid var(--line);border-radius:7px;padding:6px 12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--mute);white-space:nowrap;margin-top:2px}
   .logbtn:hover{border-color:var(--ink);color:var(--ink)}
@@ -207,7 +207,7 @@
     <h3 id="m-t"></h3>
     <div class="ms" id="m-s"></div>
     <div class="drop" id="drop">
-      <input type="file" id="file" accept="image/*" style="display:none">
+      <input type="file" id="file" accept="image/*" multiple style="display:none">
       <div class="d1" id="drop-t"></div>
       <div class="d2" id="drop-s"></div>
     </div>
@@ -236,7 +236,7 @@
     <h3 id="fm-t">记录饮食</h3>
     <div class="ms" id="fm-s"></div>
     <div class="drop" id="fdrop">
-      <input type="file" id="ffile" accept="image/*" style="display:none">
+      <input type="file" id="ffile" accept="image/*" multiple style="display:none">
       <div class="d1" id="fdrop-t">📸 拍下这餐,自动估算营养</div>
       <div class="d2" id="fdrop-s">点击选择食物照片</div>
     </div>
@@ -360,44 +360,91 @@ const blockOf=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1]);
 
 /* ---------- sessions ---------- */
 const S={
- liftA:{zh:['力量 · 下肢 + 对比配对','【热身 8分钟】臀中肌:弹力带侧走 2×15m · 侧卧外展 2×15/侧\n落地准备:落地稳定 2×5(跳起→稳稳落地→停住3秒)\n\n【主课】深蹲 4×5(重,RIR 1-2)\n硬拉 / 六角杠 4×4\n臀推 4×6 → 雪橇推 12.5m ×3\n保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n\n【收尾】HSR 提踵 3×6-8(重!3秒上/3秒下,屈膝+直膝各做)\n胫骨前肌:脚尖上抬 2×15\n哥本哈根内收 2×8/侧','大重量低次数 = 围绝经期保骨保肌。提踵要「更重」不是「更多次」——你20次后提不高,是力量储备不足。'],
-   en:['Strength · Lower + contrast pairs','【Warm-up 8min】Glute med: banded lateral walk 2×15m · side-lying abduction 2×15/side\nLanding prep: stick-the-landing 2×5 (jump → land → hold 3s)\n\n【Main】Squat 4×5 (heavy, RIR 1-2)\nDeadlift / trap-bar 4×4\nHip thrust 4×6 → Sled push 12.5m ×3\nBulgarian split squat 3×8/leg → Walking lunge 20m\n\n【Finish】HSR calf raise 3×6-8 (HEAVY! 3s up/3s down, bent + straight knee)\nTib raises 2×15\nCopenhagen adduction 2×8/side','Heavy + low reps = bone and muscle in perimenopause. Calf raises must get HEAVIER, not longer — you lose height after 20 reps, which means low strength reserve.']},
- liftB:{zh:['力量 · 上肢/全身 + 对比配对','【热身】臀中肌:蚌式 2×15/侧 · 单腿平衡 2×30秒\n\n【主课】站姿推举 4×5\n引体 / 划船 4×6\n罗马尼亚硬拉 4×5 → 绳索拉 ×3\n农夫行走 3×40m(重)\n\n【肌腱刚度收尾】原地弹跳(pogo hops)3×20 —— 脚踝像弹簧,膝盖别弯太多\n跳绳 3×30秒\n(骨密度 + 跟腱弹性,一举两得)','弹跳练的是「肌腱刚度」——跑步经济性靠跟腱像弹簧一样储能回弹。这和HSR是两种不同刺激,都要。'],
-   en:['Strength · Upper/full + contrast pairs','【Warm-up】Glute med: clamshells 2×15/side · single-leg balance 2×30s\n\n【Main】Overhead press 4×5\nPull-ups / rows 4×6\nRDL 4×5 → Cable pull ×3\nFarmers carry 3×40m (heavy)\n\n【Tendon stiffness finish】Pogo hops 3×20 — ankles like springs, minimal knee bend\nSkipping rope 3×30s\n(bone density + Achilles elasticity, two birds)','Pogo hops build TENDON STIFFNESS — running economy depends on the Achilles storing and returning energy like a spring. Different stimulus from HSR; you need both.']},
- pila:{zh:['普拉提 + 拳击','普拉提:肩 / 髋 / 内收肌(教练课)\n拳击:体能 + 乐趣\n\n补充:X-plank 2×20秒/侧(侧板 + 上腿抬起)\n腓骨肌:弹力带足外翻 2×15/侧','这天已是中等强度 — 别再叠加高强度。X-plank 同时练臀中肌和稳定。'],
-   en:['Pilates + Boxing','Pilates: shoulders / hips / adductors\nBoxing: conditioning + fun\n\nAdd: X-plank 2×20s/side (side plank + top leg raised)\nPeroneals: banded eversion 2×15/side','Already a moderate day — don\'t stack more intensity. X-plank trains glute med + stability together.']},
- rest:{zh:['休息','散步、拉伸、睡觉。','恢复是训练的一部分,不是偷懒。'],en:['Rest','Walk, stretch, sleep.','Recovery is part of the training, not a day off from it.']}
+ liftA:{zh:['力量 · 下肢 + 对比配对','热身 8分钟\n• 弹力带侧走 2×15m\n• 侧卧外展 2×15/侧\n• 落地稳定 2×5 — 跳起,稳稳落地,停3秒\n\n主课\n• 深蹲 4×5 — 重,留1-2次余力\n• 硬拉或六角杠 4×4\n• 臀推 4×6 → 雪橇推 12.5m ×3\n• 保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n\n收尾\n• HSR提踵 3×6-8 — 重!3秒上,3秒下\n• 屈膝和直膝各做一组\n• 脚尖上抬 2×15 — 练胫骨前肌\n• 哥本哈根内收 2×8/侧','大重量低次数,是围绝经期保骨保肌的关键。提踵要更重,不是更多次 — 你20次后提不高,说明力量储备不足。'],
+   en:['Strength · Lower + contrast pairs','Warm-up 8min\n• Banded lateral walk 2×15m\n• Side-lying abduction 2×15/side\n• Stick-the-landing 2×5 — jump, land, hold 3s\n\nMain\n• Squat 4×5 — heavy, leave 1-2 reps in reserve\n• Deadlift or trap-bar 4×4\n• Hip thrust 4×6 → Sled push 12.5m ×3\n• Bulgarian split squat 3×8/leg → Walking lunge 20m\n\nFinish\n• HSR calf raise 3×6-8 — HEAVY. 3s up, 3s down\n• Do both bent-knee and straight-knee\n• Tib raises 2×15\n• Copenhagen adduction 2×8/side','Heavy and low-rep is what protects bone and muscle in perimenopause. Calf raises must get heavier, not longer — you lose height after 20 reps, which means low strength reserve.']},
+ liftB:{zh:['力量 · 上肢/全身 + 对比配对','热身\n• 蚌式 2×15/侧\n• 单腿平衡 2×30秒\n\n主课\n• 站姿推举 4×5\n• 引体或划船 4×6\n• 罗马尼亚硬拉 4×5 → 绳索拉 ×3\n• 农夫行走 3×40m — 重\n\n肌腱刚度收尾\n• 原地弹跳 3×20 — 脚踝像弹簧,膝盖别弯太多\n• 跳绳 3×30秒','弹跳练的是肌腱刚度。跑步经济性靠跟腱像弹簧一样储能回弹 — 这和HSR是两种不同刺激,两个都要。顺带也是骨密度刺激。'],
+   en:['Strength · Upper/full + contrast pairs','Warm-up\n• Clamshells 2×15/side\n• Single-leg balance 2×30s\n\nMain\n• Overhead press 4×5\n• Pull-ups or rows 4×6\n• RDL 4×5 → Cable pull ×3\n• Farmers carry 3×40m — heavy\n\nTendon stiffness finish\n• Pogo hops 3×20 — ankles like springs, minimal knee bend\n• Skipping rope 3×30s','Pogo hops build tendon stiffness. Running economy depends on the Achilles storing and returning energy like a spring — a different stimulus from HSR, and you need both. Doubles as bone loading.']},
+ pila:{zh:['普拉提 + 拳击','普拉提 · 教练课\n• 肩 / 髋 / 内收肌\n\n拳击\n• 体能 + 乐趣\n\n自己补充\n• X-plank 2×20秒/侧 — 侧板,上腿抬起\n• 弹力带足外翻 2×15/侧 — 练腓骨肌','这天已经是中等强度,别再叠加高强度。X-plank 同时练臀中肌和稳定性。'],
+   en:['Pilates + Boxing','Pilates · with your coach\n• Shoulders / hips / adductors\n\nBoxing\n• Conditioning + fun\n\nAdd yourself\n• X-plank 2×20s/side — side plank, top leg raised\n• Banded eversion 2×15/side — peroneals','Already a moderate day — don\'t stack more intensity on it. X-plank trains glute med and stability together.']},
+ rest:{zh:['休息','• 散步\n• 拉伸\n• 睡觉','恢复是训练的一部分,不是偷懒。'],
+   en:['Rest','• Walk\n• Stretch\n• Sleep','Recovery is part of the training, not a day off from it.']}
 };
-const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`${m} 分钟轻松跑 @ 心率 125–143(二区)\n配速约 7'30"–8'20" — 慢到你觉得"太慢"为止\n必要时走路把心率压下来\n跑后:4–6 × 20秒加速跑(放松,不冲刺)\n\n【步频】开手表节拍器,目标 172–175(你现在165偏低)`+(extra?'\n'+extra.zh:''),'心率压不到143就走路。步频低=触地久=肌肉多做功=心率飙。提步频是最快的杠杆。'],
-  en:['Easy run + strides',`${m} min easy @ HR 125–143 (Zone 2)\nPace ~7'30"–8'20" — slow enough that it feels "too slow"\nWalk if you need to keep HR down\nAfter: 4–6 × 20s strides (relaxed, not sprints)\n\n【Cadence】Use the watch metronome, target 172–175 (yours is 165 — too low)`+(extra?'\n'+extra.en:''),'If HR won\'t stay under 143, walk. Low cadence = long ground contact = more muscular work = HR spikes. Cadence is the fastest lever you have.']});
-const long=m=>({zh:['长轻松跑',`${m} 分钟持续轻松跑 @ 二区(125–143)\n全程能正常说话\n补充:踝背屈松动 + 内收肌`,'这是建有氧基础的一课,不是比谁快。'],
-  en:['Long easy run',`${m} min continuous easy @ Z2 (125–143)\nYou should be able to talk the whole way\nAdd: ankle dorsiflexion + adductor work`,'This builds the aerobic base. It is not a race.']});
+const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`• ${m} 分钟轻松跑\n• 心率 125–143,二区\n• 配速约 7\'30"–8\'20"\n• 慢到你觉得太慢为止\n• 心率压不下来就走路\n\n跑后\n• 4–6 × 20秒加速跑 — 放松,不是冲刺\n\n步频\n• 开手表节拍器,目标 172–175\n• 你现在165,偏低`+(extra?'\n\n'+extra.zh:''),'心率压不到143就走路。步频低等于触地久,肌肉多做功,心率就飙 — 提步频是最快的杠杆。'],
+  en:['Easy run + strides',`• ${m} min easy\n• HR 125–143, Zone 2\n• Pace ~7\'30"–8\'20"\n• Slow enough that it feels too slow\n• Walk if HR won\'t come down\n\nAfter\n• 4–6 × 20s strides — relaxed, not sprints\n\nCadence\n• Watch metronome, target 172–175\n• Yours is 165 — too low`+(extra?'\n\n'+extra.en:''),'If HR won\'t stay under 143, walk. Low cadence means long ground contact, more muscular work, spiking HR — cadence is the fastest lever you have.']});
+const long=m=>({zh:['长轻松跑',`• ${m} 分钟持续轻松跑\n• 心率二区 125–143\n• 全程能正常说话\n\n补充\n• 内收肌训练`,'这是建有氧基础的一课,不是比谁快。'],
+  en:['Long easy run',`• ${m} min continuous easy\n• Zone 2, HR 125–143\n• You should be able to talk the whole way\n\nAdd\n• Adductor work`,'This builds the aerobic base. It is not a race.']});
+
 
 const T={
- 5:{zh:['阈值 · 巡航间歇(第一次)',`热身 10分钟\n4 × 4分钟 @ 6'30"–6'45"/km\n组间 90秒慢跑\n放松 10分钟`,'你人生第一次阈值课。心率会到 156–165。宁慢勿快。'],en:['Threshold · cruise intervals (first ever)',`10 min warm-up\n4 × 4 min @ 6'30"–6'45"/km\n90s jog between\n10 min cool-down`,'Your first-ever threshold session. HR will hit 156–165. Err slow.']},
- 6:{zh:['阈值 · 巡航间歇',`热身 10分钟\n4 × 5分钟 @ 6'30"–6'45"\n组间 75秒慢跑\n放松 10分钟`,'配速要能均匀撑完 — 第一组别冲。'],en:['Threshold · cruise intervals',`10 min warm-up\n4 × 5 min @ 6'30"–6'45"\n75s jog\n10 min cool-down`,'Even splits. Don\'t blow the first rep.']},
- 7:{zh:['阈值 · 巡航间歇',`热身 10分钟\n3 × 7分钟 @ 6'30"–6'45"\n组间 90秒慢跑\n放松 10分钟`,''],en:['Threshold · cruise intervals',`10 min warm-up\n3 × 7 min @ 6'30"–6'45"\n90s jog\n10 min cool-down`,'']},
- 8:{zh:['减量周 · 轻阈值',`热身 10分钟\n3 × 4分钟 @ 6'30"–6'45"\n组间 90秒慢跑\n放松 10分钟`,'减量周 — 保强度,砍容量。'],en:['Deload · light threshold',`10 min warm-up\n3 × 4 min @ 6'30"–6'45"\n90s jog\n10 min cool-down`,'Deload — keep intensity, cut volume.']},
- 9:{zh:['阈值 · 巡航间歇',`热身 10分钟\n3 × 8分钟 @ 6'30"–6'45"\n组间 60秒慢跑\n放松 10分钟`,''],en:['Threshold · cruise intervals',`10 min warm-up\n3 × 8 min @ 6'30"–6'45"\n60s jog\n10 min cool-down`,'']},
- 10:{zh:['阈值 · 长段落',`热身 10分钟\n2 × 12分钟 @ 6'30"–6'45"\n组间 2分钟慢跑\n放松 10分钟`,'第2块收官。能均匀跑完 = 可以进第3块。'],en:['Threshold · long reps',`10 min warm-up\n2 × 12 min @ 6'30"–6'45"\n2 min jog\n10 min cool-down`,'End of Block 2. Even splits = cleared for Block 3.']},
- 11:{zh:['最大摄氧 · 间歇(第一次)',`热身 12分钟\n5 × 2分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,'心率会到 165+。新刺激,会不舒服。这是正常的。'],en:['VO2max · intervals (first)',`12 min warm-up\n5 × 2 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'HR will hit 165+. New stimulus, will feel bad. Normal.']},
- 12:{zh:['最大摄氧 · 间歇',`热身 12分钟\n5 × 3分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,''],en:['VO2max · intervals',`12 min warm-up\n5 × 3 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'']},
- 13:{zh:['阈值 · 维持',`热身 10分钟\n2 × 15分钟 @ 6'25"–6'40"\n组间 2分钟慢跑\n放松 10分钟`,'阈值配速该变快了 — 测测看。'],en:['Threshold · maintain',`10 min warm-up\n2 × 15 min @ 6'25"–6'40"\n2 min jog\n10 min cool-down`,'Threshold pace should be dropping by now. Check it.']},
- 14:{zh:['减量周 · 轻间歇',`热身 10分钟\n4 × 2分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,'减量周。'],en:['Deload · light intervals',`10 min warm-up\n4 × 2 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'Deload week.']},
- 15:{zh:['最大摄氧 · 间歇',`热身 12分钟\n4 × 4分钟 @ 6'00"–6'15"\n组间 2分半慢跑\n放松 10分钟`,''],en:['VO2max · intervals',`12 min warm-up\n4 × 4 min @ 6'00"–6'15"\n2.5 min jog\n10 min cool-down`,'']},
- 16:{zh:['阈值 · 长段落',`热身 10分钟\n2 × 15分钟 @ 6'20"–6'35"\n组间 2分钟慢跑\n放松 10分钟`,'第3块收官。'],en:['Threshold · long reps',`10 min warm-up\n2 × 15 min @ 6'20"–6'35"\n2 min jog\n10 min cool-down`,'End of Block 3.']},
- 17:{zh:['比赛配速 · 1公里重复',`热身 12分钟\n6 × 1km @ 6'30"–6'50"\n每组之间:200m 走 或 一个站点\n放松 10分钟`,'这就是比赛日的配速。记住这个感觉。'],en:['Race pace · 1km repeats',`12 min warm-up\n6 × 1km @ 6'30"–6'50"\nBetween: 200m walk or one station\n10 min cool-down`,'This is race-day pace. Memorise how it feels.']},
- 18:{zh:['比赛配速 · 1公里重复',`热身 12分钟\n8 × 1km @ 6'30"–6'50"\n每组之间:200m 走 或 一个站点\n放松 10分钟`,'最接近比赛的一课。8个1km — 和比赛一样。'],en:['Race pace · 1km repeats',`12 min warm-up\n8 × 1km @ 6'30"–6'50"\nBetween: 200m walk or one station\n10 min cool-down`,'Closest thing to the race. 8 × 1km — same as race day.']},
- 19:{zh:['比赛配速 · 锐化',`热身 12分钟\n5 × 1km @ 6'25"–6'45"\n组间 200m 走\n放松 10分钟`,'开始减量 — 保强度,砍量。'],en:['Race pace · sharpening',`12 min warm-up\n5 × 1km @ 6'25"–6'45"\n200m walk between\n10 min cool-down`,'Taper begins — keep intensity, cut volume.']},
- 20:{zh:['减量 · 短锐化',`热身 10分钟\n4 × 800m @ 比赛配速\n组间 2分钟走\n放松 10分钟`,'最后一次高强度。之后只保鲜。'],en:['Taper · short sharpening',`10 min warm-up\n4 × 800m @ race pace\n2 min walk between\n10 min cool-down`,'Last hard session. After this, just stay sharp.']},
- 21:{zh:['比赛周 · 抖动跑',`20分钟轻松跑\n中间穿插 4 × 20秒 比赛配速\n就这些。别多练。`,'会觉得练太少。那是对的。'],en:['Race week · shakeout',`20 min easy\n4 × 20s at race pace mixed in\nThat\'s it. Don\'t add more.`,'It will feel like too little. That is correct.']}
+ 5:{zh:['阈值 · 巡航间歇 · 第一次','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 4分钟 @ 6\'30"–6\'45"/km\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟','你人生第一次阈值课。心率会到156–165,会不舒服,这是正常的。宁慢勿快。'],en:['Threshold · cruise intervals · first ever','Warm-up\n• 10 min easy\n\nMain\n• 4 × 4 min @ 6\'30"–6\'45"/km\n• 90s jog between\n\nCool-down\n• 10 min','Your first-ever threshold session. HR will hit 156–165 and it will feel uncomfortable. That is normal. Err on the slow side.']},
+ 6:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 5分钟 @ 6\'30"–6\'45"\n• 组间 75秒 慢跑\n\n放松\n• 10 分钟','配速要能均匀撑完。第一组别冲。'],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 4 × 5 min @ 6\'30"–6\'45"\n• 75s jog between\n\nCool-down\n• 10 min','Even splits. Do not blow the first rep.']},
+ 7:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 7分钟 @ 6\'30"–6\'45"\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟',''],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 3 × 7 min @ 6\'30"–6\'45"\n• 90s jog between\n\nCool-down\n• 10 min','']},
+ 8:{zh:['减量周 · 轻阈值','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 4分钟 @ 6\'30"–6\'45"\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟','减量周。保强度,砍容量。'],en:['Deload · light threshold','Warm-up\n• 10 min easy\n\nMain\n• 3 × 4 min @ 6\'30"–6\'45"\n• 90s jog between\n\nCool-down\n• 10 min','Deload week. Keep intensity, cut volume.']},
+ 9:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 8分钟 @ 6\'30"–6\'45"\n• 组间 60秒 慢跑\n\n放松\n• 10 分钟',''],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 3 × 8 min @ 6\'30"–6\'45"\n• 60s jog between\n\nCool-down\n• 10 min','']},
+ 10:{zh:['阈值 · 长段落','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 12分钟 @ 6\'30"–6\'45"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','第2块收官。能均匀跑完,就可以进第3块。'],en:['Threshold · long reps','Warm-up\n• 10 min easy\n\nMain\n• 2 × 12 min @ 6\'30"–6\'45"\n• 2 min jog between\n\nCool-down\n• 10 min','End of Block 2. Even splits means you are cleared for Block 3.']},
+ 11:{zh:['最大摄氧 · 间歇 · 第一次','热身\n• 12 分钟轻松跑\n\n主课\n• 5 × 2分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','心率会到165以上。新刺激,会很难受。这是正常的。'],en:['VO2max · intervals · first','Warm-up\n• 12 min easy\n\nMain\n• 5 × 2 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','HR will go above 165. New stimulus, will feel bad. Normal.']},
+ 12:{zh:['最大摄氧 · 间歇','热身\n• 12 分钟轻松跑\n\n主课\n• 5 × 3分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟',''],en:['VO2max · intervals','Warm-up\n• 12 min easy\n\nMain\n• 5 × 3 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','']},
+ 13:{zh:['阈值 · 维持','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 15分钟 @ 6\'25"–6\'40"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','阈值配速这时候该变快了。测测看。'],en:['Threshold · maintain','Warm-up\n• 10 min easy\n\nMain\n• 2 × 15 min @ 6\'25"–6\'40"\n• 2 min jog between\n\nCool-down\n• 10 min','Threshold pace should be dropping by now. Check it.']},
+ 14:{zh:['减量周 · 轻间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 2分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','减量周。'],en:['Deload · light intervals','Warm-up\n• 10 min easy\n\nMain\n• 4 × 2 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','Deload week.']},
+ 15:{zh:['最大摄氧 · 间歇','热身\n• 12 分钟轻松跑\n\n主课\n• 4 × 4分钟 @ 6\'00"–6\'15"\n• 组间 2分半 慢跑\n\n放松\n• 10 分钟',''],en:['VO2max · intervals','Warm-up\n• 12 min easy\n\nMain\n• 4 × 4 min @ 6\'00"–6\'15"\n• 2.5 min jog between\n\nCool-down\n• 10 min','']},
+ 16:{zh:['阈值 · 长段落','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 15分钟 @ 6\'20"–6\'35"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','第3块收官。'],en:['Threshold · long reps','Warm-up\n• 10 min easy\n\nMain\n• 2 × 15 min @ 6\'20"–6\'35"\n• 2 min jog between\n\nCool-down\n• 10 min','End of Block 3.']},
+ 17:{zh:['比赛配速 · 1公里重复','热身\n• 12 分钟\n\n主课\n• 6 × 1公里 @ 6\'30"–6\'50"\n• 每组之间走200m,或做一个站点\n\n放松\n• 10 分钟','这就是比赛日的配速。记住这个感觉。'],en:['Race pace · 1km repeats','Warm-up\n• 12 min\n\nMain\n• 6 × 1km @ 6\'30"–6\'50"\n• 200m walk or one station between\n\nCool-down\n• 10 min','This is race-day pace. Memorise how it feels.']},
+ 18:{zh:['比赛配速 · 1公里重复','热身\n• 12 分钟\n\n主课\n• 8 × 1公里 @ 6\'30"–6\'50"\n• 每组之间走200m,或做一个站点\n\n放松\n• 10 分钟','最接近比赛的一课。8个1公里,和比赛一样。'],en:['Race pace · 1km repeats','Warm-up\n• 12 min\n\nMain\n• 8 × 1km @ 6\'30"–6\'50"\n• 200m walk or one station between\n\nCool-down\n• 10 min','Closest thing to the race. 8 × 1km, same as race day.']},
+ 19:{zh:['比赛配速 · 锐化','热身\n• 12 分钟\n\n主课\n• 5 × 1公里 @ 6\'25"–6\'45"\n• 组间走200m\n\n放松\n• 10 分钟','开始减量。保强度,砍量。'],en:['Race pace · sharpening','Warm-up\n• 12 min\n\nMain\n• 5 × 1km @ 6\'25"–6\'45"\n• 200m walk between\n\nCool-down\n• 10 min','Taper begins. Keep intensity, cut volume.']},
+ 20:{zh:['减量 · 短锐化','热身\n• 10 分钟\n\n主课\n• 4 × 800m @ 比赛配速\n• 组间走2分钟\n\n放松\n• 10 分钟','最后一次高强度。之后只保鲜。'],en:['Taper · short sharpening','Warm-up\n• 10 min\n\nMain\n• 4 × 800m @ race pace\n• 2 min walk between\n\nCool-down\n• 10 min','Last hard session. After this, just stay sharp.']},
+ 21:{zh:['比赛周 · 抖动跑','• 20 分钟轻松跑\n• 中间穿插 4 × 20秒比赛配速\n\n就这些。别加。','会觉得练太少。那是对的。'],en:['Race week · shakeout','• 20 min easy\n• 4 × 20s at race pace mixed in\n\nThat is all. Do not add more.','It will feel like too little. That is correct.']}
 };
-const brick=n=>({zh:['砖式 · HYROX 疲劳跑',`${n} 轮:\n  1km @ 6'45"–7'00"\n  → 1个站点(墙球50 / 沙袋弓步50m / 雪橇 / 波比×10)\n  → 直接接下一个 1km\n中间不休息`,'练的是"在累腿上跑步"。比赛就是这个感觉。'],
-  en:['Brick · compromised running',`${n} rounds:\n  1km @ 6'45"–7'00"\n  → 1 station (50 wall balls / 50m sandbag lunge / sled / 10 burpees)\n  → straight into the next 1km\nNo rest between`,'This trains running on dead legs. That IS the race.']});
-const sim={zh:['搭档模拟 · Lulu + Ye Lu','完整或半程模拟(4跑+4站,或 8跑+8站)\n重点:分工、交接、配速同步\n记录:每个 1km 分段 + 每站用时','不协调的换人,8个站累计能丢 40–80 秒。'],
-  en:['Partner simulation · Lulu + Ye Lu','Full or half sim (4 runs + 4 stations, or 8+8)\nFocus: splits, transitions, pace sync\nLog: every 1km split + time per station','Sloppy transitions cost 40–80s across 8 stations.']};
-const raceday={zh:['🏁 比赛日 · 12月5日','HYROX 女子双人 Open\n\n配速纪律:前2个1km宁可慢5秒\n跑5–8最难 — 那时你会想放弃,但你练过了\n和搭档保持在一起(分开>15秒罚3分钟)','你从7月13日走到这里。相信训练。'],
-  en:['🏁 Race day · 5 Dec','HYROX Women\'s Doubles Open\n\nPacing: go 5s slower on the first two 1kms\nRuns 5–8 hurt most — you\'ll want to quit. You trained for this.\nStay with your partner (>15s apart = 3 min penalty)','You started 13 July. Trust the training.']};
+const brick=n=>({zh:['砖式 · HYROX疲劳跑',`${n} 轮,中间不休息:
+
+• 跑 1公里 @ 6'45"–7'00"
+• 接一个站点 — 墙球50 / 沙袋弓步50m / 雪橇 / 波比×10
+• 直接接下一个1公里`,'练的是在累腿上跑步。比赛就是这个感觉。'],
+  en:['Brick · compromised running',`${n} rounds, no rest between:
+
+• Run 1km @ 6'45"–7'00"
+• One station — 50 wall balls / 50m sandbag lunge / sled / 10 burpees
+• Straight into the next 1km`,'This trains running on dead legs. That IS the race.']});
+const sim={zh:['搭档模拟 · Lulu + Ye Lu',`• 完整或半程模拟
+• 4跑+4站,或 8跑+8站
+
+重点
+• 分工
+• 交接
+• 配速同步
+
+记录
+• 每个1公里分段
+• 每站用时`,'不协调的换人,8个站累计能丢40–80秒。'],
+  en:['Partner simulation · Lulu + Ye Lu',`• Full or half sim
+• 4 runs + 4 stations, or 8+8
+
+Focus
+• Splits
+• Transitions
+• Pace sync
+
+Log
+• Every 1km split
+• Time per station`,'Sloppy transitions cost 40–80s across 8 stations.']};
+const raceday={zh:['🏁 比赛日 · 12月5日',`HYROX 女子双人 Open
+
+配速纪律
+• 前2个1公里宁可慢5秒
+• 跑5到8最难 — 那时你会想放弃,但你练过了
+
+搭档
+• 保持在一起
+• 分开超过15秒罚3分钟`,'你从7月13日走到这里。相信训练。'],
+  en:['🏁 Race day · 5 Dec',`HYROX Women's Doubles Open
+
+Pacing
+• Go 5s slower on the first two 1kms
+• Runs 5–8 hurt most. You will want to quit. You trained for this.
+
+Partner
+• Stay together
+• More than 15s apart = 3 min penalty`,'You started 13 July. Trust the training.']};
+
 
 /* ---------- build 21 weeks ---------- */
 const PLAN=[];
@@ -463,7 +510,7 @@ function render(){
         <div class="dmain">
           <div class="dtop"><span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span><span class="ddate">${fmt(dateOf(wk.w,i))}</span></div>
           <div class="dttl ${ok?'done':''}">${x[0]}</div>
-          <div class="ddet">${x[1]}</div>
+          <div class="ddet">${fmtBody(x[1])}</div>
           ${x[2]?`<div class="dwhy">${x[2]}</div>`:''}
           ${both?`<div class="logs">${both}</div>`:''}
         </div>
@@ -481,6 +528,18 @@ function render(){
   }).join('');
 
   renderZones();renderWhy();renderStats();renderFood();paintSync();
+}
+
+
+/* Turn plain session text into readable blocks: headings bold, bullets indented. */
+function fmtBody(s){
+  return s.split('\n').map(l=>{
+    const t=l.trim();
+    if(!t)return '<div style="height:7px"></div>';
+    if(t.startsWith('•'))
+      return `<div style="padding-left:2px">${t}</div>`;
+    return `<div style="font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:4px">${t}</div>`;
+  }).join('');
 }
 
 function lgTxt(l){const p=[];
@@ -740,34 +799,82 @@ document.getElementById('m-del').onclick=async()=>{
   document.getElementById('mask').classList.remove('on');render();
 };
 
-/* ---------- OCR ---------- */
+
+/* ---- image helpers: iPhone HEIC etc -> JPEG, so the API always accepts it ---- */
+function toJpeg(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      // Downscale big phone screenshots: faster upload, still readable.
+      const MAX=1600;
+      let {width:w,height:h}=img;
+      if(Math.max(w,h)>MAX){const s=MAX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      const ctx=c.getContext('2d');
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      const d=c.toDataURL('image/jpeg',0.85);
+      const b64=d.split(',')[1];
+      if(!b64)return rej(new Error('could not read image'));
+      res(b64);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('unsupported image format'));};
+    img.src=url;
+  });
+}
+
+async function askClaude(b64,prompt){
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
+      {type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},
+      {type:"text",text:prompt}
+    ]}]})});
+  const data=await r.json();
+  if(!r.ok||data.error){
+    const msg=(data.error&&(data.error.message||data.error))||('HTTP '+r.status);
+    throw new Error(typeof msg==='string'?msg:JSON.stringify(msg));
+  }
+  if(!data.content)throw new Error('empty response');
+  let txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+  const a=txt.indexOf('{'),b=txt.lastIndexOf('}');
+  if(a<0||b<0)throw new Error('no JSON in response');
+  return JSON.parse(txt.slice(a,b+1));
+}
+
+/* ---------- OCR: workout screenshots (multi-file, HEIC-safe) ---------- */
 document.getElementById('drop').onclick=()=>document.getElementById('file').click();
 document.getElementById('file').onchange=async e=>{
-  const file=e.target.files[0];if(!file)return;
+  const files=[...e.target.files];if(!files.length)return;
   const drop=document.getElementById('drop');drop.classList.add('busy');
-  document.getElementById('drop-t').innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在读取…':'Reading…');
-  document.getElementById('drop-s').textContent='';
-  try{
-    const b64=await new Promise((res,rej)=>{const r=new FileReader();
-      r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej();r.readAsDataURL(file);});
-    const resp=await fetch(API,{method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
-        {type:"text",text:`Workout screenshot. Extract data. Return ONLY raw JSON, no markdown, no other text:
-{"km":"3.81","min":"24.3","pace":"6'22\\"","hr":"153","load":"","note":""}
-Rules: km=distance in km (number as string). min=duration in minutes (decimal). pace=avg pace like 6'22". hr=avg heart rate (number). load=weights/sets if a strength screenshot, else "". note=anything notable (cadence, elevation), else "". Empty string for anything unreadable. JSON only.`}
-      ]}]})});
-    const data=await resp.json();
-    let txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
-    const o=JSON.parse(txt);
-    ['km','min','pace','hr','load'].forEach(k=>{if(o[k])document.getElementById('f-'+k).value=o[k];});
-    if(o.note){const c=gv('note');document.getElementById('f-note').value=c?c+' · '+o.note:o.note;}
-    document.getElementById('drop-t').textContent=t('dropOK');
-    document.getElementById('drop-s').textContent=t('dropOK2');
-  }catch(err){
-    document.getElementById('drop-t').textContent=t('dropErr');
-    document.getElementById('drop-s').textContent=t('dropErr2');
+  const zh=LANG==='zh';
+  let ok=0,lastErr='';
+  for(let n=0;n<files.length;n++){
+    document.getElementById('drop-t').innerHTML='<span class="spin"></span>'+
+      (zh?`正在读取 ${n+1}/${files.length}…`:`Reading ${n+1}/${files.length}…`);
+    document.getElementById('drop-s').textContent='';
+    try{
+      const b64=await toJpeg(files[n]);
+      const o=await askClaude(b64,`Workout screenshot from a running watch or fitness app. Extract the data.
+Return ONLY raw JSON, no markdown:
+{"km":"3.81","min":"24.3","pace":"6'22\"","hr":"153","load":"","note":""}
+Rules: km=distance in km. min=duration in minutes (decimal). pace=avg pace like 6'22". hr=AVERAGE heart rate (not max). load=weights/sets if it's a strength screenshot, else "". note=anything notable such as cadence or elevation, else "". Use "" for anything you cannot read. JSON only.`);
+      // Merge across multiple screenshots: fill blanks, don't overwrite good data.
+      ['km','min','pace','hr','load'].forEach(k=>{
+        const el=document.getElementById('f-'+k);
+        if(o[k]&&!el.value)el.value=o[k];
+      });
+      if(o.note){const c=gv('note');document.getElementById('f-note').value=c?c+' · '+o.note:o.note;}
+      ok++;
+    }catch(err){lastErr=err.message||String(err);}
+  }
+  if(ok){
+    document.getElementById('drop-t').textContent=zh?`✓ 读了 ${ok}/${files.length} 张 — 检查一下数字`:`✓ Read ${ok}/${files.length} — check the numbers`;
+    document.getElementById('drop-s').textContent=zh?'可以再传,或直接保存':'Add more, or just save';
+  }else{
+    document.getElementById('drop-t').textContent=zh?'✕ 没读出来':'✕ Could not read it';
+    document.getElementById('drop-s').textContent=lastErr?(zh?'原因: ':'Reason: ')+lastErr:(zh?'手动填一下':'Fill it in manually');
   }
   drop.classList.remove('busy');e.target.value='';
 };
@@ -1016,43 +1123,49 @@ document.getElementById('fm-del').onclick=async()=>{
   document.getElementById('fmask').classList.remove('on');renderFood();
 };
 
-/* ---- food photo -> macros ---- */
+/* ---- food photo -> macros (multi-dish, HEIC-safe, totals up) ---- */
 document.getElementById('fdrop').onclick=()=>document.getElementById('ffile').click();
 document.getElementById('ffile').onchange=async e=>{
-  const file=e.target.files[0];if(!file)return;
+  const files=[...e.target.files];if(!files.length)return;
   const drop=document.getElementById('fdrop');drop.classList.add('busy');
-  document.getElementById('fdrop-t').innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在估算…':'Estimating…');
-  document.getElementById('fdrop-s').textContent='';
-  try{
-    const b64=await new Promise((res,rej)=>{const r=new FileReader();
-      r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej();r.readAsDataURL(file);});
-    const resp=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
-        {type:"text",text:`This is a photo of a meal (likely Chinese/Asian food: rice, noodles, salmon sashimi, shrimp, tofu, greens, Greek yogurt, congee, tremella soup, etc).
+  const zh=LANG==='zh';
+  let ok=0,lastErr='';
+  const sum={kcal:0,carb:0,pro:0,fat:0},descs=[];
+  for(let n=0;n<files.length;n++){
+    document.getElementById('fdrop-t').innerHTML='<span class="spin"></span>'+
+      (zh?`正在估算 ${n+1}/${files.length}…`:`Estimating ${n+1}/${files.length}…`);
+    document.getElementById('fdrop-s').textContent='';
+    try{
+      const b64=await toJpeg(files[n]);
+      const o=await askClaude(b64,`Photo of a meal, likely Chinese/Asian food (rice, rice noodles, congee, salmon sashimi, shrimp, tofu, greens, Greek yogurt, tremella soup, jiuniang/fermented rice, toast, fruit).
 
-Estimate the nutrition. Return ONLY raw JSON, no markdown, no other text:
-{"desc":"1 bowl rice + salmon sashimi 150g + broccoli","kcal":"650","carb":"85","pro":"35","fat":"18"}
+Estimate the nutrition of what is shown. Return ONLY raw JSON, no markdown:
+{"desc":"1 bowl rice + salmon sashimi ~150g + broccoli","kcal":"650","carb":"85","pro":"35","fat":"18"}
 
 Rules:
-- desc = short description of what you see, with estimated portions
-- kcal = total calories (number as string)
-- carb = carbohydrate grams (number as string) — BE CAREFUL AND ACCURATE, this is the key number
-- pro = protein grams
-- fat = fat grams
-- Estimate portion sizes from the photo. A standard bowl of cooked rice ~ 200g cooked = ~55g carbs.
-- If you truly cannot tell, give your best estimate anyway — do not return empty.
-JSON only.`}
-      ]}]})});
-    const data=await resp.json();
-    let txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
-    const o=JSON.parse(txt);
-    ['desc','kcal','carb','pro','fat'].forEach(k=>{if(o[k])document.getElementById('n-'+k).value=o[k];});
-    document.getElementById('fdrop-t').textContent=LANG==='zh'?'✓ 估算好了 — 核对一下':'✓ Estimated — check it';
-    document.getElementById('fdrop-s').textContent=LANG==='zh'?'不准可以手动改':'Adjust manually if off';
-  }catch(err){
-    document.getElementById('fdrop-t').textContent=LANG==='zh'?'✕ 没认出来 — 手动填':'✕ Couldn\'t read it — fill manually';
-    document.getElementById('fdrop-s').textContent='';
+- desc = short description with estimated portions
+- carb = carbohydrate in grams. BE ACCURATE — this is the most important number.
+- Reference: 1 standard bowl cooked rice (~200g) is about 55g carbs. 1 slice toast ~15g carbs. 1 banana ~27g carbs.
+- If the plate has little or no staple/starch, say so in desc and give a low carb number honestly.
+- Estimate portions from the photo. Always give your best estimate; never return empty.
+JSON only.`);
+      sum.kcal+=+o.kcal||0; sum.carb+=+o.carb||0; sum.pro+=+o.pro||0; sum.fat+=+o.fat||0;
+      if(o.desc)descs.push(o.desc);
+      ok++;
+    }catch(err){lastErr=err.message||String(err);}
+  }
+  if(ok){
+    // Add to whatever is already typed in, so several photos build one meal.
+    const add=(id,v)=>{const el=document.getElementById(id);const cur=+el.value||0;el.value=Math.round(cur+v);};
+    add('n-kcal',sum.kcal);add('n-carb',sum.carb);add('n-pro',sum.pro);add('n-fat',sum.fat);
+    const d=document.getElementById('n-desc');
+    const joined=descs.join(' + ');
+    d.value=d.value?d.value+' + '+joined:joined;
+    document.getElementById('fdrop-t').textContent=zh?`✓ 估算了 ${ok}/${files.length} 张 — 核对一下`:`✓ Estimated ${ok}/${files.length} — check it`;
+    document.getElementById('fdrop-s').textContent=zh?'可以再拍一道菜,会自动累加':'Add another dish — it totals up';
+  }else{
+    document.getElementById('fdrop-t').textContent=zh?'✕ 估算失败':'✕ Could not estimate';
+    document.getElementById('fdrop-s').textContent=lastErr?(zh?'原因: ':'Reason: ')+lastErr:(zh?'手动填一下':'Fill it in manually');
   }
   drop.classList.remove('busy');e.target.value='';
 };
