@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HYROX 21W · 12.5</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --ink:#12130F; --paper:#EDEAE3; --card:#F7F5F0; --line:#D5D1C7; --mute:#6E6B62;
+    --run:#2E5C4D; --lift:#8A3D2E; --move:#4A5568; --rest:#A9A498; --hot:#C2410C; --ok:#2E5C4D;
+    --lulu:#8A3D2E; --yelu:#2E5C4D;
+  }
+  body{background:var(--paper);color:var(--ink);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;
+    font-size:17px;line-height:1.6;padding:22px 16px 80px}
+  .wrap{max-width:1100px;margin:0 auto}
+
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:20px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  h1{font-size:clamp(32px,5.5vw,48px);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:8px 0 10px}
+  .sub{color:var(--mute);font-size:16px}
+  .lang{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex-shrink:0}
+  .lang button{background:none;border:none;padding:8px 16px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--mute)}
+  .lang button.on{background:var(--ink);color:var(--paper)}
+
+  .who{display:flex;gap:8px;margin-top:16px;align-items:center;flex-wrap:wrap}
+  .who .lb{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .who button{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 20px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;color:var(--mute)}
+  .who button.on{background:#fff;color:var(--ink)}
+  .who button[data-p="lulu"].on{border-color:var(--lulu);color:var(--lulu)}
+  .who button[data-p="yelu"].on{border-color:var(--yelu);color:var(--yelu)}
+
+  .countdown{display:flex;gap:26px;flex-wrap:wrap;margin-top:16px}
+  .cd b{display:block;font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .cd span{font-size:13px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+
+  nav{display:flex;gap:5px;margin:22px 0;flex-wrap:wrap}
+  nav>button{background:none;border:1px solid var(--line);border-radius:999px;padding:9px 18px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;color:var(--mute)}
+  nav>button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  .zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:11px;margin-bottom:18px}
+  .z{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .z .t{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .z .v{font-size:23px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .z .n{font-size:14px;color:var(--mute);margin-top:3px}
+
+  .blockbar{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
+  .bb{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:11px 14px}
+  .bb.cur{border-left-color:var(--hot);background:#fff}
+  .bb .k{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .bb .l{font-size:16px;font-weight:800;margin-top:3px}
+  .bb .d{font-size:13px;color:var(--mute);line-height:1.4}
+
+  .week{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .week.now{border-color:var(--hot);border-width:2px}
+  .whead{display:flex;align-items:center;gap:13px;padding:14px 17px;cursor:pointer;user-select:none}
+  .whead:hover{background:#fff}
+  .wno{font-size:24px;font-weight:800;min-width:38px;font-variant-numeric:tabular-nums}
+  .wmeta{flex:1;min-width:0}
+  .wmeta .a{font-size:16px;font-weight:800}
+  .wmeta .b{font-size:13px;color:var(--mute)}
+  .wtag{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--line);white-space:nowrap}
+  .wtag.hot{background:var(--hot);color:#fff}
+  .prog{font-size:14px;color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+  .wbody{display:none;border-top:1px solid var(--line)}
+  .week.open .wbody{display:block}
+
+  .day{display:flex;gap:13px;padding:14px 17px;border-bottom:1px solid var(--line);align-items:flex-start}
+  .day:last-child{border-bottom:none}
+  .day.done{background:#fff}
+  .day.rest{opacity:.6}
+  .cbx{width:23px;height:23px;flex-shrink:0;margin-top:3px;cursor:pointer;accent-color:var(--ink)}
+  .dmain{flex:1;min-width:0}
+  .dtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .ddate{font-size:13px;color:var(--mute);font-weight:700;font-variant-numeric:tabular-nums}
+  .dtype{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:4px;color:#fff}
+  .t-run{background:var(--run)} .t-lift{background:var(--lift)} .t-move{background:var(--move)} .t-rest{background:var(--rest)}
+  .dttl{font-size:17px;font-weight:800;margin-top:6px}
+  .dttl.done{text-decoration:line-through;color:var(--mute)}
+  .ddet{font-size:16px;color:#41403A;margin-top:5px;white-space:pre-line;line-height:1.55}
+  .dwhy{font-size:14px;color:var(--mute);margin-top:7px;padding-left:11px;border-left:2px solid var(--line);line-height:1.45}
+  .logbtn{background:none;border:1px solid var(--line);border-radius:7px;padding:6px 12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--mute);white-space:nowrap;margin-top:2px}
+  .logbtn:hover{border-color:var(--ink);color:var(--ink)}
+  .logbtn.has{border-color:var(--ok);color:var(--ok);background:#fff}
+  .logs{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+  .lg{font-size:14px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:7px 11px;font-variant-numeric:tabular-nums}
+  .lg.lulu{border-left-color:var(--lulu)}
+  .lg.yelu{border-left-color:var(--yelu)}
+  .lg .nm{font-weight:800;font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-right:7px}
+  .lg.lulu .nm{color:var(--lulu)} .lg.yelu .nm{color:var(--yelu)}
+  .lg .fb{color:var(--mute);font-style:italic;margin-top:3px;font-size:14px}
+
+  .mask{position:fixed;inset:0;background:rgba(18,19,15,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .mask.on{display:flex}
+  .modal{background:var(--paper);border-radius:14px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:24px}
+  .modal h3{font-size:21px;font-weight:800;margin-bottom:4px}
+  .modal .ms{font-size:14px;color:var(--mute);margin-bottom:16px}
+  .drop{border:2px dashed var(--line);border-radius:10px;padding:22px;text-align:center;cursor:pointer;margin-bottom:16px;background:var(--card)}
+  .drop:hover{border-color:var(--ink)}
+  .drop.busy{opacity:.6;pointer-events:none}
+  .drop .d1{font-size:16px;font-weight:800}
+  .drop .d2{font-size:13px;color:var(--mute);margin-top:4px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  label{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+  input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:17px;background:#fff;color:var(--ink)}
+  textarea{resize:vertical;min-height:64px}
+  .fld{margin-bottom:12px}
+  .acts{display:flex;gap:9px;margin-top:18px}
+  .btn{flex:1;padding:12px;border:1px solid var(--ink);border-radius:8px;font:inherit;font-size:16px;font-weight:800;cursor:pointer;background:none;color:var(--ink)}
+  .btn.pri{background:var(--ink);color:var(--paper)}
+  .btn.del{flex:0 0 auto;padding:12px 16px;border-color:var(--line);color:var(--mute)}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px}
+  .panel h2{font-size:21px;font-weight:800;margin-bottom:5px}
+  .panel .ps{font-size:15px;color:var(--mute);margin-bottom:15px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:11px;margin-bottom:16px}
+  .st{background:#fff;border:1px solid var(--line);border-radius:9px;padding:13px 15px}
+  .st b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+  .st span{font-size:13px;color:var(--mute)}
+  .out{background:#fff;border:1px solid var(--line);border-radius:9px;padding:18px;font-size:16px;white-space:pre-wrap;line-height:1.7;margin-top:15px}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hide{display:none}
+  .note{font-size:14px;color:var(--mute);background:var(--card);border-left:3px solid var(--line);padding:11px 14px;border-radius:0 7px 7px 0;margin-top:13px;line-height:1.55}
+
+  /* rationale */
+  .why{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:13px}
+  .why .n{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--hot)}
+  .why h3{font-size:22px;font-weight:800;margin:5px 0 10px;letter-spacing:-.01em;line-height:1.25}
+  .why p{font-size:16px;line-height:1.65;margin-bottom:11px}
+  .why .cite{font-size:14px;color:var(--mute);border-top:1px solid var(--line);padding-top:11px;margin-top:13px;line-height:1.5}
+  .why .cite b{color:var(--ink)}
+  .warn{background:#fff;border:1px solid var(--hot);border-left:4px solid var(--hot);border-radius:0 8px 8px 0;padding:13px 16px;margin:13px 0;font-size:15px;line-height:1.6}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr}.day{flex-wrap:wrap}body{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" data-i="eyebrow"></div>
+      <h1 data-i="h1"></h1>
+      <div class="sub" data-i="sub"></div>
+    </div>
+    <div class="lang">
+      <button data-l="zh" class="on">中文</button>
+      <button data-l="en">EN</button>
+    </div>
+  </div>
+
+  <div class="who">
+    <span class="lb" data-i="who"></span>
+    <button data-p="lulu" class="on">Lulu</button>
+    <button data-p="yelu">Ye Lu</button>
+  </div>
+
+  <div class="countdown">
+    <div class="cd"><b id="cd-w">—</b><span data-i="cdw"></span></div>
+    <div class="cd"><b id="cd-d">—</b><span data-i="cdd"></span></div>
+    <div class="cd"><b id="cd-done">—</b><span data-i="cdn"></span></div>
+    <div class="cd"><b id="cd-rate">—</b><span data-i="cdr"></span></div>
+  </div>
+</header>
+
+<nav>
+  <button class="on" data-v="plan" data-i="tab1"></button>
+  <button data-v="zones" data-i="tab2"></button>
+  <button data-v="why" data-i="tab3"></button>
+  <button data-v="ai" data-i="tab4"></button>
+</nav>
+
+<section id="v-plan">
+  <div class="blockbar" id="blockbar"></div>
+  <div id="weeks"></div>
+</section>
+
+<section id="v-zones" class="hide"></section>
+<section id="v-why" class="hide"></section>
+
+<section id="v-ai" class="hide">
+  <div class="panel">
+    <h2 data-i="aih"></h2>
+    <div class="ps" data-i="ais"></div>
+    <div class="stats" id="stats"></div>
+    <div class="acts" style="margin-top:0">
+      <button class="btn pri" id="run-ai" data-i="aibtn"></button>
+    </div>
+    <div id="ai-out" class="hide"></div>
+    <div class="note" data-i="ainote"></div>
+  </div>
+</section>
+
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="m-t"></h3>
+    <div class="ms" id="m-s"></div>
+    <div class="drop" id="drop">
+      <input type="file" id="file" accept="image/*" style="display:none">
+      <div class="d1" id="drop-t"></div>
+      <div class="d2" id="drop-s"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label data-i="fkm"></label><input id="f-km" type="number" step="0.01" placeholder="3.81"></div>
+      <div class="fld"><label data-i="fmin"></label><input id="f-min" type="number" step="0.1" placeholder="24.3"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label data-i="fpace"></label><input id="f-pace" placeholder="6'22&quot;"></div>
+      <div class="fld"><label data-i="fhr"></label><input id="f-hr" type="number" placeholder="153"></div>
+    </div>
+    <div class="fld"><label data-i="fload"></label><input id="f-load" placeholder="Squat 4×5 @ 50kg"></div>
+    <div class="fld"><label data-i="frpe"></label><select id="f-rpe"></select></div>
+    <div class="fld"><label data-i="fnote"></label><textarea id="f-note"></textarea></div>
+    <div class="acts">
+      <button class="btn del" id="m-del" data-i="bdel"></button>
+      <button class="btn" id="m-x" data-i="bcx"></button>
+      <button class="btn pri" id="m-ok" data-i="bok"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='/.netlify/functions/claude';
+const RACE=new Date(2026,11,5), START=new Date(2026,6,13);
+let LANG='zh', ME='lulu';
+const NAMES={lulu:'Lulu',yelu:'Ye Lu'};
+
+/* ---------- shared storage ---------- */
+let DB={done:{},logs:{}};
+async function load(){
+  try{const r=await window.storage.get('hyrox125',true);if(r&&r.value)DB=JSON.parse(r.value);}catch(e){}
+}
+let saving=false;
+async function persist(){
+  if(saving)return;saving=true;
+  try{await window.storage.set('hyrox125',JSON.stringify(DB),true);}catch(e){}
+  saving=false;
+}
+
+/* ---------- i18n ---------- */
+const I={
+ zh:{eyebrow:'HYROX 女子双人 · OPEN 组',h1:'21 周 · 通向 12.5',sub:'2026年7月13日 → 12月5日 · Lulu & Ye Lu · 首次参赛',
+  who:'当前身份',cdw:'剩余周数',cdd:'剩余天数',cdn:'已完成',cdr:'完成率',
+  tab1:'训练日历',tab2:'我的区间',tab3:'训练原理',tab4:'AI 分析',
+  aih:'AI 训练分析',ais:'读你们两人的真实数据,告诉你计划有没有在起作用',aibtn:'分析训练数据',
+  ainote:'分析会看:同配速下心率有没有下降(有氧效率)、轻松跑是不是又跑太快、有没有断档、阈值有没有推进、以及你们两人的配速差距和双人赛分工。记录越多越准。',
+  fkm:'距离 km',fmin:'时长 分钟',fpace:'平均配速',fhr:'平均心率',fload:'重量 / 组次',frpe:'感受',fnote:'备注',
+  bdel:'删除',bcx:'取消',bok:'保存',
+  dropT:'📸 上传运动截图,自动读取',dropS:'Apple Fitness / COROS / 咕咚 — 点击选图',
+  dropOK:'✓ 读到了 — 检查一下数字',dropOK2:'可以再传一张,或直接保存',
+  dropErr:'✕ 没读出来 — 手动填一下',dropErr2:'截图可能太模糊,或数据不在画面里',
+  rpe:['—','很轻松','轻松','刚好','偏累','很吃力'],
+  wd:['周一','周二','周三','周四','周五','周六','周日'],
+  klbl:{run:'跑步',lift:'力量',move:'恢复',rest:'休息'},
+  deload:'减量周',raceweek:'比赛周',thisweek:'本周',
+  aifew:'数据还不够。\n\n先去记录几次训练 — 至少 2 周(4-6 次课),我才能看出趋势。\n\n最有价值的是跑步记录:配速 + 心率。这两个数字放在一起,才能告诉我有氧效率有没有在改善。',
+  aifail:'分析失败了,再试一次。',
+  stat:['已记录','累计公里','跑步记录','平均心率']},
+ en:{eyebrow:'HYROX WOMEN\'S DOUBLES · OPEN',h1:'21 Weeks to 12.5',sub:'13 Jul → 5 Dec 2026 · Lulu & Ye Lu · First race',
+  who:'Logging as',cdw:'weeks left',cdd:'days left',cdn:'sessions done',cdr:'completion',
+  tab1:'Calendar',tab2:'My Zones',tab3:'Why This Plan',tab4:'AI Analysis',
+  aih:'AI Training Analysis',ais:'Reads both your real data and tells you if the plan is working',aibtn:'Analyse our data',
+  ainote:'It checks: is HR falling at the same pace (aerobic efficiency), are easy runs too fast again, are there gaps, is threshold pace improving, and the pace gap between you two for doubles strategy. More logs = better analysis.',
+  fkm:'Distance km',fmin:'Duration min',fpace:'Avg pace',fhr:'Avg HR',fload:'Load / sets',frpe:'Effort',fnote:'Notes',
+  bdel:'Delete',bcx:'Cancel',bok:'Save',
+  dropT:'📸 Upload a workout screenshot',dropS:'Apple Fitness / COROS / any app — tap to choose',
+  dropOK:'✓ Read it — check the numbers',dropOK2:'Upload another, or just save',
+  dropErr:'✕ Couldn\'t read it — fill in manually',dropErr2:'Screenshot may be blurry or missing the data',
+  rpe:['—','Very easy','Easy','Just right','Hard','Very hard'],
+  wd:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  klbl:{run:'RUN',lift:'STRENGTH',move:'RECOVERY',rest:'REST'},
+  deload:'Deload',raceweek:'Race week',thisweek:'This week',
+  aifew:'Not enough data yet.\n\nLog a few sessions first — at least 2 weeks (4–6 sessions) before I can see a trend.\n\nThe most valuable logs are runs: pace + heart rate. Those two numbers together are what tell me whether aerobic efficiency is improving.',
+  aifail:'Analysis failed. Try again.',
+  stat:['logged','total km','runs','avg HR']}
+};
+const t=k=>I[LANG][k];
+
+/* ---------- blocks ---------- */
+const BLOCKS=[
+ {w:[1,4],zh:['第1块','重建基础','每周3次,全部轻松二区。唯一目标:不断。'],en:['Block 1','Rebuild base','3 runs/wk, all easy Z2. One job: don\'t stop.']},
+ {w:[5,10],zh:['第2块','引入阈值','每周1次阈值。最大的空白,收益最高。'],en:['Block 2','Add threshold','1 threshold/wk. The biggest gap, the biggest gain.']},
+ {w:[11,16],zh:['第3块','摄氧 + 砖式','最大摄氧间歇 + HYROX 疲劳跑。'],en:['Block 3','VO2 + bricks','VO2 intervals + compromised running.']},
+ {w:[17,21],zh:['第4块','专项 + 减量','比赛配速、搭档模拟、减量。'],en:['Block 4','Race-specific + taper','Race pace, partner sims, taper.']}
+];
+const blockOf=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1]);
+
+/* ---------- sessions ---------- */
+const S={
+ liftA:{zh:['力量 · 下肢 + 对比配对','深蹲 4×5(重,RIR 1-2)\n硬拉 / 六角杠 4×4\n臀推 4×6 → 雪橇推 12.5m ×3\n保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n收尾:HSR 提踵 3组(3秒上 / 3秒下)','大重量低次数 = 围绝经期保骨保肌。配对是让力量能在疲劳下用出来。'],
+   en:['Strength · Lower + contrast pairs','Squat 4×5 (heavy, RIR 1-2)\nDeadlift / trap-bar 4×4\nHip thrust 4×6 → Sled push 12.5m ×3\nBulgarian split squat 3×8/leg → Walking lunge 20m\nFinish: HSR calf raise 3 sets (3s up / 3s down)','Heavy + low reps = bone and muscle in perimenopause. Pairing makes strength show up under fatigue.']},
+ liftB:{zh:['力量 · 上肢/全身 + 对比配对','站姿推举 4×5\n引体 / 划船 4×6\n罗马尼亚硬拉 4×5 → 绳索拉 ×3\n农夫行走 3×40m(重)\n跳跃收尾:3×8 跳跃深蹲','上肢为主 = 减少对跑步的干扰。跳跃是给骨密度的。'],
+   en:['Strength · Upper/full + contrast pairs','Overhead press 4×5\nPull-ups / rows 4×6\nRDL 4×5 → Cable pull ×3\nFarmers carry 3×40m (heavy)\nFinish: 3×8 jump squats','Upper-focused = less interference with running. Jumps are for bone density.']},
+ pila:{zh:['普拉提 + 拳击','普拉提:肩 / 髋 / 踝背屈 / 内收肌\n拳击:体能 + 乐趣\n补充:哥本哈根内收练习 2–3组','这天已经是中等强度 — 别再叠加高强度。'],
+   en:['Pilates + Boxing','Pilates: shoulders / hips / ankle dorsiflexion / adductors\nBoxing: conditioning + fun\nAdd: Copenhagen adduction 2–3 sets','This is already a moderate day — don\'t stack more intensity on it.']},
+ rest:{zh:['休息','散步、拉伸、睡觉。','恢复是训练的一部分,不是偷懒。'],en:['Rest','Walk, stretch, sleep.','Recovery is part of the training, not a day off from it.']}
+};
+const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`${m} 分钟轻松跑 @ 心率 125–143(二区)\n配速约 7'30"–8'20" — 慢到你觉得"太慢"为止\n必要时走路把心率压下来\n跑后:4–6 × 20秒加速跑(放松,不冲刺)`+(extra?'\n'+extra.zh:''),'心率压不到143就走路。这条没得商量 — 你的老毛病就是轻松跑太快。'],
+  en:['Easy run + strides',`${m} min easy @ HR 125–143 (Zone 2)\nPace ~7'30"–8'20" — slow enough that it feels "too slow"\nWalk if you need to keep HR down\nAfter: 4–6 × 20s strides (relaxed, not sprints)`+(extra?'\n'+extra.en:''),'If HR won\'t stay under 143, walk. Non-negotiable — running easy days too hard is the old habit.']});
+const long=m=>({zh:['长轻松跑',`${m} 分钟持续轻松跑 @ 二区(125–143)\n全程能正常说话\n补充:踝背屈松动 + 内收肌`,'这是建有氧基础的一课,不是比谁快。'],
+  en:['Long easy run',`${m} min continuous easy @ Z2 (125–143)\nYou should be able to talk the whole way\nAdd: ankle dorsiflexion + adductor work`,'This builds the aerobic base. It is not a race.']});
+
+const T={
+ 5:{zh:['阈值 · 巡航间歇(第一次)',`热身 10分钟\n4 × 4分钟 @ 6'30"–6'45"/km\n组间 90秒慢跑\n放松 10分钟`,'你人生第一次阈值课。心率会到 156–165。宁慢勿快。'],en:['Threshold · cruise intervals (first ever)',`10 min warm-up\n4 × 4 min @ 6'30"–6'45"/km\n90s jog between\n10 min cool-down`,'Your first-ever threshold session. HR will hit 156–165. Err slow.']},
+ 6:{zh:['阈值 · 巡航间歇',`热身 10分钟\n4 × 5分钟 @ 6'30"–6'45"\n组间 75秒慢跑\n放松 10分钟`,'配速要能均匀撑完 — 第一组别冲。'],en:['Threshold · cruise intervals',`10 min warm-up\n4 × 5 min @ 6'30"–6'45"\n75s jog\n10 min cool-down`,'Even splits. Don\'t blow the first rep.']},
+ 7:{zh:['阈值 · 巡航间歇',`热身 10分钟\n3 × 7分钟 @ 6'30"–6'45"\n组间 90秒慢跑\n放松 10分钟`,''],en:['Threshold · cruise intervals',`10 min warm-up\n3 × 7 min @ 6'30"–6'45"\n90s jog\n10 min cool-down`,'']},
+ 8:{zh:['减量周 · 轻阈值',`热身 10分钟\n3 × 4分钟 @ 6'30"–6'45"\n组间 90秒慢跑\n放松 10分钟`,'减量周 — 保强度,砍容量。'],en:['Deload · light threshold',`10 min warm-up\n3 × 4 min @ 6'30"–6'45"\n90s jog\n10 min cool-down`,'Deload — keep intensity, cut volume.']},
+ 9:{zh:['阈值 · 巡航间歇',`热身 10分钟\n3 × 8分钟 @ 6'30"–6'45"\n组间 60秒慢跑\n放松 10分钟`,''],en:['Threshold · cruise intervals',`10 min warm-up\n3 × 8 min @ 6'30"–6'45"\n60s jog\n10 min cool-down`,'']},
+ 10:{zh:['阈值 · 长段落',`热身 10分钟\n2 × 12分钟 @ 6'30"–6'45"\n组间 2分钟慢跑\n放松 10分钟`,'第2块收官。能均匀跑完 = 可以进第3块。'],en:['Threshold · long reps',`10 min warm-up\n2 × 12 min @ 6'30"–6'45"\n2 min jog\n10 min cool-down`,'End of Block 2. Even splits = cleared for Block 3.']},
+ 11:{zh:['最大摄氧 · 间歇(第一次)',`热身 12分钟\n5 × 2分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,'心率会到 165+。新刺激,会不舒服。这是正常的。'],en:['VO2max · intervals (first)',`12 min warm-up\n5 × 2 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'HR will hit 165+. New stimulus, will feel bad. Normal.']},
+ 12:{zh:['最大摄氧 · 间歇',`热身 12分钟\n5 × 3分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,''],en:['VO2max · intervals',`12 min warm-up\n5 × 3 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'']},
+ 13:{zh:['阈值 · 维持',`热身 10分钟\n2 × 15分钟 @ 6'25"–6'40"\n组间 2分钟慢跑\n放松 10分钟`,'阈值配速该变快了 — 测测看。'],en:['Threshold · maintain',`10 min warm-up\n2 × 15 min @ 6'25"–6'40"\n2 min jog\n10 min cool-down`,'Threshold pace should be dropping by now. Check it.']},
+ 14:{zh:['减量周 · 轻间歇',`热身 10分钟\n4 × 2分钟 @ 6'00"–6'15"\n组间 2分钟慢跑\n放松 10分钟`,'减量周。'],en:['Deload · light intervals',`10 min warm-up\n4 × 2 min @ 6'00"–6'15"\n2 min jog\n10 min cool-down`,'Deload week.']},
+ 15:{zh:['最大摄氧 · 间歇',`热身 12分钟\n4 × 4分钟 @ 6'00"–6'15"\n组间 2分半慢跑\n放松 10分钟`,''],en:['VO2max · intervals',`12 min warm-up\n4 × 4 min @ 6'00"–6'15"\n2.5 min jog\n10 min cool-down`,'']},
+ 16:{zh:['阈值 · 长段落',`热身 10分钟\n2 × 15分钟 @ 6'20"–6'35"\n组间 2分钟慢跑\n放松 10分钟`,'第3块收官。'],en:['Threshold · long reps',`10 min warm-up\n2 × 15 min @ 6'20"–6'35"\n2 min jog\n10 min cool-down`,'End of Block 3.']},
+ 17:{zh:['比赛配速 · 1公里重复',`热身 12分钟\n6 × 1km @ 6'30"–6'50"\n每组之间:200m 走 或 一个站点\n放松 10分钟`,'这就是比赛日的配速。记住这个感觉。'],en:['Race pace · 1km repeats',`12 min warm-up\n6 × 1km @ 6'30"–6'50"\nBetween: 200m walk or one station\n10 min cool-down`,'This is race-day pace. Memorise how it feels.']},
+ 18:{zh:['比赛配速 · 1公里重复',`热身 12分钟\n8 × 1km @ 6'30"–6'50"\n每组之间:200m 走 或 一个站点\n放松 10分钟`,'最接近比赛的一课。8个1km — 和比赛一样。'],en:['Race pace · 1km repeats',`12 min warm-up\n8 × 1km @ 6'30"–6'50"\nBetween: 200m walk or one station\n10 min cool-down`,'Closest thing to the race. 8 × 1km — same as race day.']},
+ 19:{zh:['比赛配速 · 锐化',`热身 12分钟\n5 × 1km @ 6'25"–6'45"\n组间 200m 走\n放松 10分钟`,'开始减量 — 保强度,砍量。'],en:['Race pace · sharpening',`12 min warm-up\n5 × 1km @ 6'25"–6'45"\n200m walk between\n10 min cool-down`,'Taper begins — keep intensity, cut volume.']},
+ 20:{zh:['减量 · 短锐化',`热身 10分钟\n4 × 800m @ 比赛配速\n组间 2分钟走\n放松 10分钟`,'最后一次高强度。之后只保鲜。'],en:['Taper · short sharpening',`10 min warm-up\n4 × 800m @ race pace\n2 min walk between\n10 min cool-down`,'Last hard session. After this, just stay sharp.']},
+ 21:{zh:['比赛周 · 抖动跑',`20分钟轻松跑\n中间穿插 4 × 20秒 比赛配速\n就这些。别多练。`,'会觉得练太少。那是对的。'],en:['Race week · shakeout',`20 min easy\n4 × 20s at race pace mixed in\nThat\'s it. Don\'t add more.`,'It will feel like too little. That is correct.']}
+};
+const brick=n=>({zh:['砖式 · HYROX 疲劳跑',`${n} 轮:\n  1km @ 6'45"–7'00"\n  → 1个站点(墙球50 / 沙袋弓步50m / 雪橇 / 波比×10)\n  → 直接接下一个 1km\n中间不休息`,'练的是"在累腿上跑步"。比赛就是这个感觉。'],
+  en:['Brick · compromised running',`${n} rounds:\n  1km @ 6'45"–7'00"\n  → 1 station (50 wall balls / 50m sandbag lunge / sled / 10 burpees)\n  → straight into the next 1km\nNo rest between`,'This trains running on dead legs. That IS the race.']});
+const sim={zh:['搭档模拟 · Lulu + Ye Lu','完整或半程模拟(4跑+4站,或 8跑+8站)\n重点:分工、交接、配速同步\n记录:每个 1km 分段 + 每站用时','不协调的换人,8个站累计能丢 40–80 秒。'],
+  en:['Partner simulation · Lulu + Ye Lu','Full or half sim (4 runs + 4 stations, or 8+8)\nFocus: splits, transitions, pace sync\nLog: every 1km split + time per station','Sloppy transitions cost 40–80s across 8 stations.']};
+const raceday={zh:['🏁 比赛日 · 12月5日','HYROX 女子双人 Open\n\n配速纪律:前2个1km宁可慢5秒\n跑5–8最难 — 那时你会想放弃,但你练过了\n和搭档保持在一起(分开>15秒罚3分钟)','你从7月13日走到这里。相信训练。'],
+  en:['🏁 Race day · 5 Dec','HYROX Women\'s Doubles Open\n\nPacing: go 5s slower on the first two 1kms\nRuns 5–8 hurt most — you\'ll want to quit. You trained for this.\nStay with your partner (>15s apart = 3 min penalty)','You started 13 July. Trust the training.']};
+
+/* ---------- build 21 weeks ---------- */
+const PLAN=[];
+for(let w=1;w<=21;w++){
+  const dl=[4,8,14,20].includes(w);
+  let mon,fri,sat;
+  if(w<=4)mon=easy(w<=2?30:35);
+  else if(w<=10)mon=easy(35);
+  else if(w<=16)mon=easy(dl?30:40);
+  else if(w<=19)mon=easy(35);
+  else if(w===20)mon=easy(25);
+  else mon={zh:['赛前 · 轻松走跑','20分钟轻松,心率二区以下\n拉伸、松动、别练新东西','储备,不是消耗。'],en:['Pre-race · easy shakeout','20 min easy, below Z2\nStretch, mobilise, nothing new','Store energy. Don\'t spend it.']};
+
+  if(w<=4)fri=easy(w<=2?35:40,{zh:'这一块不做强度 — 先把连续性建起来',en:'No intensity this block — build consistency first'});
+  else fri=T[w];
+
+  if(w<=4)sat=long(w<=2?45:55);
+  else if(w<=10)sat=long(dl?40:60);
+  else if(w<=16)sat=(w%2===1)?brick(Math.min(w-10,6)):long(dl?40:60);
+  else if(w<=19)sat=sim;
+  else if(w===20)sat={zh:['减量 · 短轻松跑','30分钟轻松 @ 二区\n和搭档过一遍分工计划',''],en:['Taper · short easy run','30 min easy @ Z2\nWalk through the split plan with your partner','']};
+  else sat=raceday;
+
+  PLAN.push({w,dl,days:[
+    {...mon,k:'run'},{...S.liftA,k:'lift'},{...S.pila,k:'move'},
+    {...S.liftB,k:'lift'},{...fri,k:'run'},{...sat,k:w===21?'run':'lift'},{...S.rest,k:'rest'}
+  ]});
+}
+const dateOf=(w,d)=>{const x=new Date(START);x.setDate(x.getDate()+(w-1)*7+d);return x;};
+const fmt=x=>LANG==='zh'?`${x.getMonth()+1}月${x.getDate()}日`:`${x.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]}`;
+const curWeek=()=>{const t=new Date();t.setHours(0,0,0,0);return Math.max(1,Math.min(21,Math.floor((t-START)/864e5/7)+1));};
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.dataset.i);if(typeof v==='string')el.textContent=v;});
+  document.getElementById('f-rpe').innerHTML=t('rpe').map(r=>`<option>${r}</option>`).join('');
+  document.getElementById('drop-t').textContent=t('dropT');
+  document.getElementById('drop-s').textContent=t('dropS');
+
+  const cw=curWeek(),now=new Date();now.setHours(0,0,0,0);
+  const days=Math.max(0,Math.ceil((RACE-now)/864e5));
+  document.getElementById('cd-d').textContent=days;
+  document.getElementById('cd-w').textContent=Math.ceil(days/7);
+  const mine=Object.keys(DB.done).filter(k=>k.startsWith(ME+'|')&&DB.done[k]).length;
+  document.getElementById('cd-done').textContent=mine;
+  document.getElementById('cd-rate').textContent=Math.round(mine/(21*6)*100)+'%';
+
+  document.getElementById('blockbar').innerHTML=BLOCKS.map(b=>{
+    const on=cw>=b.w[0]&&cw<=b.w[1],x=b[LANG];
+    return `<div class="bb ${on?'cur':''}"><div class="k">${x[0]} · W${b.w[0]}–${b.w[1]}</div><div class="l">${x[1]}</div><div class="d">${x[2]}</div></div>`;
+  }).join('');
+
+  document.getElementById('weeks').innerHTML=PLAN.map(wk=>{
+    const b=blockOf(wk.w)[LANG],isNow=wk.w===cw;
+    const n=wk.days.filter((_,i)=>DB.done[`${ME}|${wk.w}-${i}`]).length;
+    const rows=wk.days.map((d,i)=>{
+      const key=`${wk.w}-${i}`,id=`${ME}|${key}`;
+      const ok=!!DB.done[id],x=d[LANG],rest=d.k==='rest';
+      const both=['lulu','yelu'].map(p=>{const l=DB.logs[`${p}|${key}`];
+        return l?`<div class="lg ${p}"><span class="nm">${NAMES[p]}</span>${lgTxt(l)}${l.note?`<div class="fb">${l.note}</div>`:''}</div>`:'';}).join('');
+      return `<div class="day ${ok?'done':''} ${rest?'rest':''}">
+        <input type="checkbox" class="cbx" ${ok?'checked':''} onchange="tog('${key}')">
+        <div class="dmain">
+          <div class="dtop"><span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span><span class="ddate">${fmt(dateOf(wk.w,i))}</span></div>
+          <div class="dttl ${ok?'done':''}">${x[0]}</div>
+          <div class="ddet">${x[1]}</div>
+          ${x[2]?`<div class="dwhy">${x[2]}</div>`:''}
+          ${both?`<div class="logs">${both}</div>`:''}
+        </div>
+        ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎':'+'}</button>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="week ${isNow?'open now':''}" id="wk${wk.w}">
+      <div class="whead" onclick="this.parentElement.classList.toggle('open')">
+        <div class="wno">${wk.w}</div>
+        <div class="wmeta"><div class="a">${b[1]}${wk.dl?' · '+t('deload'):''}${wk.w===21?' · '+t('raceweek'):''}</div>
+        <div class="b">${fmt(dateOf(wk.w,0))} – ${fmt(dateOf(wk.w,6))}</div></div>
+        ${isNow?`<span class="wtag hot">${t('thisweek')}</span>`:''}
+        <span class="prog">${n}/6</span>
+      </div><div class="wbody">${rows}</div></div>`;
+  }).join('');
+
+  renderZones();renderWhy();renderStats();
+}
+
+function lgTxt(l){const p=[];
+  if(l.km)p.push(l.km+' km');if(l.pace)p.push(l.pace);
+  if(l.hr)p.push((LANG==='zh'?'心率 ':'HR ')+l.hr);
+  if(l.min)p.push(l.min+(LANG==='zh'?' 分':' min'));
+  if(l.load)p.push(l.load);if(l.rpe&&l.rpe!=='—')p.push(l.rpe);
+  return p.join(' · ')||'✓';}
+
+async function tog(key){const id=`${ME}|${key}`;DB.done[id]=!DB.done[id];await persist();render();}
+
+/* ---------- zones tab ---------- */
+function renderZones(){
+  const zh=LANG==='zh';
+  document.getElementById('v-zones').innerHTML=`
+  <div class="panel"><h2>${zh?'心率区间':'Heart-rate zones'}</h2>
+  <div class="ps">${zh?'基于 Lulu 实测最大心率 179(高于所有年龄公式,以实测为准)':'Based on Lulu\'s field-observed max HR of 179 — higher than any age formula, so we use the real number'}</div>
+  <div class="zones">
+    <div class="z"><div class="t">${zh?'一区 恢复':'Z1 Recovery'}</div><div class="v">&lt;125</div><div class="n">&lt;70%</div></div>
+    <div class="z" style="border-color:var(--run);border-width:2px"><div class="t">${zh?'二区 轻松 · 主战场':'Z2 Easy · home'}</div><div class="v">125–143</div><div class="n">${zh?'70–80% · 大部分跑量':'70–80% · most running'}</div></div>
+    <div class="z"><div class="t">${zh?'三区 灰色区':'Z3 Grey zone'}</div><div class="v">143–156</div><div class="n">${zh?'80–87% · 避开':'80–87% · avoid'}</div></div>
+    <div class="z" style="border-color:var(--hot);border-width:2px"><div class="t">${zh?'四区 阈值':'Z4 Threshold'}</div><div class="v">156–165</div><div class="n">${zh?'87–92% · 你的空白':'87–92% · the gap'}</div></div>
+    <div class="z"><div class="t">${zh?'五区 最大摄氧':'Z5 VO2max'}</div><div class="v">165–179</div><div class="n">92–100%</div></div>
+  </div></div>
+
+  <div class="panel"><h2>${zh?'配速目标':'Pace targets'}</h2>
+  <div class="ps">${zh?'起点:2026年7月12日实测 3.81km @ 6\'22" / 心率 153':'Baseline: 12 Jul 2026 — 3.81km @ 6\'22" / HR 153'}</div>
+  <div class="zones">
+    <div class="z"><div class="t">${zh?'轻松跑':'Easy'}</div><div class="v">7'30–8'20</div><div class="n">${zh?'你一直跑太快':'you keep running these too fast'}</div></div>
+    <div class="z"><div class="t">${zh?'阈值 T':'Threshold'}</div><div class="v">6'30–6'45</div><div class="n">→ 6'05–6'15</div></div>
+    <div class="z"><div class="t">${zh?'最大摄氧 I':'VO2max'}</div><div class="v">6'00–6'15</div><div class="n">→ 5'40–5'50</div></div>
+    <div class="z" style="border-color:var(--hot);border-width:2px"><div class="t">${zh?'比赛单公里':'Race 1km'}</div><div class="v">6'30–6'50</div><div class="n">${zh?'疲劳状态下':'under fatigue'}</div></div>
+  </div>
+  <div class="note"><b>${zh?'完赛目标 1:40–1:50':'Finish target 1:40–1:50'}</b>${zh?'(冲刺 1:35)。网上那些 4\'30–5\'30/km 的基准是给已有基础的人看的。诚实的目标比虚高的目标更能带你到终点。':' (stretch 1:35). Those 4\'30–5\'30/km benchmarks online are for people with an existing base. An honest target gets you to the finish line; an inflated one gets you injured.'}</div></div>
+
+  <div class="panel"><h2>${zh?'比赛日重量 · 女子 Open':'Race-day loads · Women\'s Open'}</h2>
+  <div class="zones">
+    <div class="z"><div class="t">${zh?'推雪橇':'Sled push'}</div><div class="v">102 kg</div><div class="n">50m (4×12.5m)</div></div>
+    <div class="z"><div class="t">${zh?'拉雪橇':'Sled pull'}</div><div class="v">78 kg</div><div class="n">50m (4×12.5m)</div></div>
+    <div class="z"><div class="t">${zh?'农夫行走':'Farmers carry'}</div><div class="v">2×16 kg</div><div class="n">200m</div></div>
+    <div class="z"><div class="t">${zh?'沙袋弓步':'Sandbag lunge'}</div><div class="v">10 kg</div><div class="n">100m</div></div>
+    <div class="z"><div class="t">${zh?'墙球':'Wall balls'}</div><div class="v">4 kg / 2.7m</div><div class="n">${zh?'按100次练(核实规则)':'train to 100 (verify rulebook)'}</div></div>
+  </div></div>`;
+}
+
+/* ---------- why tab ---------- */
+const WHY=[
+ {n:{zh:'诊断',en:'The diagnosis'},h:{zh:'你的问题不是"80/20",是"100/0"',en:'Your problem isn\'t 80/20 — it\'s 100/0'},
+  p:{zh:`2025年2月的半马数据说明了一切:配速 7'11"/km,平均心率 158 —— 那是你实测最大心率(179)的 88%。你在用<b>阈值的心率,跑恢复的配速</b>。
+
+手表的配速分布更直接:恢复区 90%,阈值区 <b>0%</b>,无氧区 <b>0%</b>。你从来没有练过阈值。
+
+流行的"两极化训练"(80/20)说:大部分轻松,小部分很难。多数业余跑者的错误是全卡在中间的"灰色区"。<b>你的错误相反 —— 你只有慢的那一极,完全没有快的那一极。</b>缺失的那 20% 意味着你的乳酸阈值和最大摄氧量从未被开发过。而因为基础也薄,连"轻松跑"都落在接近阈值的强度上。
+
+这不是意志力问题。这是训练结构里缺了一块。`,
+  en:`Your February 2025 half marathon says it all: 7'11"/km pace, average HR 158 — that's 88% of your measured max (179). You were running at <b>threshold heart rate but recovery pace</b>.
+
+The watch's pace distribution is even more direct: 90% in the recovery zone, <b>0%</b> at threshold, <b>0%</b> anaerobic. You have never trained threshold.
+
+Polarized training (80/20) says: mostly easy, some very hard. Most recreational runners get stuck in the moderate "grey zone" in between. <b>Your error is the opposite — you only have the slow pole, no hard pole at all.</b> That missing 20% means your lactate threshold and VO2max were never developed. And because the base is also thin, even your "easy" runs land near threshold effort.
+
+This is not a willpower problem. It's a missing piece of structure.`},
+  c:{zh:'<b>Seiler</b> 的两极化训练模型;<b>Stöggl & Sperlich</b>, Frontiers in Physiology (2014) —— 两极化训练在耐力表现的多数关键指标上带来最大改善。',en:'<b>Seiler\'s</b> polarized model; <b>Stöggl & Sperlich</b>, Frontiers in Physiology (2014) — polarized training produced the greatest improvements across most key endurance variables.'}},
+
+ {n:{zh:'为什么前4周不上强度',en:'Why no intensity for 4 weeks'},h:{zh:'你2025年不是练不动,是练一阵停一阵',en:'2025 wasn\'t a lack of effort. It was a lack of continuity'},
+  p:{zh:`看你的 2025:2–3月有节奏(每周1–2次,配速稳定在 6'43"–7'00"),4月开始散,之后 7月、8月、9月、11月各一两次,中间大段空白。配速一路退到 7'00"+。
+
+有氧适应(血浆容量、线粒体密度、每搏输出量)在停训 <b>2–4 周</b>内就开始衰退。你每次断档,都在把辛苦建起来的基础清零。
+
+所以第 1 块<b>只有一件事:每周跑 3 次,一次都不能少。</b>全部轻松二区。会觉得太简单 —— 那正是重点。你需要的不是更狠的训练,是<b>不断的训练</b>。
+
+这一块跑完,基础在,再谈强度。`,
+  en:`Look at 2025: Feb–Mar had rhythm (1–2 runs/week, steady 6'43"–7'00"). April it fell apart. Then one or two runs each in July, August, September, November — big gaps between. Pace drifted back to 7'00"+.
+
+Aerobic adaptations (plasma volume, mitochondrial density, stroke volume) start decaying within <b>2–4 weeks</b> of stopping. Every gap resets the base you worked to build.
+
+So Block 1 has exactly one job: <b>run 3× a week, every week, without fail.</b> All easy Zone 2. It will feel too easy — that's the point. You don't need harder training. You need <b>uninterrupted</b> training.
+
+Get through this block and the base is there. Then we talk intensity.`},
+  c:{zh:'脱训(detraining)研究;急慢性负荷比 —— <b>Gabbett</b>, BJSM。慢性负荷是你的"银行存款",断档就是取空。',en:'Detraining research; acute:chronic workload ratio — <b>Gabbett</b>, BJSM. Chronic load is the bank balance. Gaps empty the account.'}},
+
+ {n:{zh:'为什么大重量、低次数',en:'Why heavy weights, low reps'},h:{zh:'围绝经期改变了训练规则',en:'Perimenopause changes the rules'},
+  p:{zh:`雌激素下降会带走三样东西:<b>骨密度、瘦体重、肌腱的胶原</b>。
+
+SWAN 研究(全美女性健康研究)量化了紧迫性:在末次月经前1年到后2年的窗口内,骨量流失约为<b>腰椎每年 2.5%、股骨颈每年 1.8%</b>。
+
+Stacy Sims 的处方很直白:<b>"如果别的都不做,至少要举重物。"</b> 关键是<b>强度,不是容量</b> —— 3–5组、每组 ≤6 次、休息 2 分钟以上。当激素不再帮你,你需要一个足够强的外部信号来募集肌纤维、保住骨和肌肉。
+
+所以你的力量日全是 4×4、4×5、4×6 这种大重量低次数,而不是"三组十二次"的塑形训练。
+
+<b>跳跃收尾</b>也是为骨密度:每天 10–20 跳,16 周就能改善髋部骨密度。`,
+  en:`Falling estrogen takes three things: <b>bone density, lean muscle, and tendon collagen</b>.
+
+The SWAN study quantifies the urgency: in the window from one year before to two years after the final period, women lose roughly <b>2.5%/year in the lumbar spine and 1.8%/year at the femoral neck</b>.
+
+Stacy Sims is blunt: <b>"If they do nothing else, they should lift heavy."</b> The key is <b>intensity, not volume</b> — 3–5 sets of ≤6 reps, 2+ min rest. When hormones stop helping you, you need a strong external signal to recruit muscle fibres and hold onto bone and muscle.
+
+That's why every strength day here is 4×4, 4×5, 4×6 — heavy and low-rep — not "3 sets of 12" toning work.
+
+The <b>jump finishers</b> are for bone too: 10–20 jumps a day improved hip BMD in 16 weeks.`},
+  c:{zh:'<b>SWAN</b> 骨密度数据;<b>Stacy Sims</b>《Next Level》;<b>Smith-Ryan 等</b>, Menopause (2022) —— 围绝经期女性比绝经前同龄人多约7kg脂肪、少约6kg瘦体重。',en:'<b>SWAN</b> bone data; <b>Stacy Sims</b>, Next Level; <b>Smith-Ryan et al.</b>, Menopause (2022) — perimenopausal women carried ~7kg more fat and ~6kg less lean mass than premenopausal peers.'}},
+
+ {n:{zh:'为什么硬拉配雪橇',en:'Why deadlift → sled'},h:{zh:'力量只有能用出来才算数',en:'Strength only counts if it shows up'},
+  p:{zh:`你可以硬拉很重,但如果从来没把它和比赛动作连起来,<b>它在疲劳时就用不出来</b>。
+
+解法是配对:<b>大重量动作 → 休息约2分钟 → 立刻做依赖它的比赛动作</b>。
+
+• 硬拉 → 雪橇拉(后链,水平拉)
+• 臀推 → 雪橇推(髋伸,水平推)
+• 深蹲 → 墙球(蹲 + 三关节伸展)
+• 分腿蹲 → 沙袋弓步
+
+机制有两层:<b>PAPE(赛后激活增强)</b> —— 大重量组让神经系统"预热",随后的动作更有力;以及 <b>动态对应</b> —— 力量动作的发力方向必须匹配比赛动作,否则迁移不过去。
+
+两个实操要点:这个效应<b>在你越强壮时越明显</b>(所以它会随计划推进而放大),而且中间<b>必须休息约 90秒–2分钟</b> —— 让疲劳散掉,把增强留下。`,
+  en:`You can deadlift heavy all day, but if you never connect it to the race movement, <b>it won't show up under fatigue</b>.
+
+The fix is pairing: <b>heavy lift → ~2 min rest → immediately do the race movement that depends on it</b>.
+
+• Deadlift → Sled pull (posterior chain, horizontal pull)
+• Hip thrust → Sled push (hip extension, horizontal drive)
+• Squat → Wall balls (squat + triple extension)
+• Split squat → Sandbag lunges
+
+Two mechanisms: <b>PAPE (post-activation performance enhancement)</b> — the heavy set primes the nervous system so the next movement is more powerful; and <b>dynamic correspondence</b> — the force vector of the lift must match the race movement or it won't transfer.
+
+Two practical rules: the effect is <b>bigger the stronger you get</b> (so it grows across the plan), and you <b>must rest ~90s–2min</b> between them — long enough for fatigue to clear, short enough to keep the potentiation.`},
+  c:{zh:'<b>PAPE / 复合对比训练</b> meta 分析;<b>Verkhoshansky</b> 的"动态对应"原则。',en:'<b>PAPE / contrast training</b> meta-analyses; <b>Verkhoshansky\'s</b> principle of dynamic correspondence.'}},
+
+ {n:{zh:'为什么跑步和力量要分开',en:'Why runs and lifts are separated'},h:{zh:'周五是你最重要的一天',en:'Friday is your most important day'},
+  p:{zh:`同时练力量和耐力会互相削弱 —— 这叫<b>干扰效应</b>。而且<b>跑步的干扰比骑车更大</b>(离心负荷造成更多肌肉损伤),受影响最重的是爆发力和力量增长。
+
+干扰会随<b>时间间隔</b>缩小:至少 6 小时,最好隔一天。
+
+你的时间表(周二四力量、周三普拉提+拳击)其实很好排:
+
+• <b>周一</b> 轻松跑 —— 离周二力量隔一夜
+• <b>周五</b> 高质量跑 —— <b>这是全周最重要的一天</b>。离周四力量隔一夜,跑步状态最好。你人生第一次阈值课就在这里。
+• <b>周六</b> 长跑或砖式
+
+周三(普拉提+拳击)已经是中等强度日 —— <b>别再往上叠东西</b>。拳击的心率会进灰色区,它就是你那天的"硬"训练。`,
+  en:`Training strength and endurance together blunts both — the <b>interference effect</b>. And <b>running interferes more than cycling</b> (eccentric loading, more muscle damage), hitting power and strength gains hardest.
+
+Interference shrinks with <b>time separation</b>: minimum 6 hours, ideally a different day.
+
+Your schedule (Tue/Thu strength, Wed Pilates+boxing) actually lays out well:
+
+• <b>Monday</b> easy run — a night's separation from Tuesday's lift
+• <b>Friday</b> quality run — <b>the most important day of your week</b>. A night after Thursday's lift, freshest running legs. Your first-ever threshold session lives here.
+• <b>Saturday</b> long run or brick
+
+Wednesday (Pilates + boxing) is already a moderate day — <b>don't stack anything on it</b>. Boxing pushes HR into the grey zone; that IS your hard bit that day.`},
+  c:{zh:'<b>Hickson</b> (1980) 首次发现干扰效应;<b>Wilson 等</b>, JSCR (2012) meta 分析确认,并指出干扰程度取决于模式、频率和时长。',en:'<b>Hickson</b> (1980) first identified interference; <b>Wilson et al.</b>, JSCR (2012) meta-analysis confirmed it and showed the degree depends on modality, frequency and duration.'}},
+
+ {n:{zh:'为什么跟腱要"加负荷"而不是拉伸',en:'Why we load the Achilles, not stretch it'},h:{zh:'你的踝背屈受限正在偷走跑步经济性',en:'Your ankle mobility is stealing running economy'},
+  p:{zh:`高效跑步大约需要 <b>20° 的踝背屈</b>。小腿紧的人可能只有 <b>−5°</b>。
+
+代价是双重的:步幅变短、触地时间变长、制动力增加(<b>经济性变差</b>);同时代偿性过度内旋,<b>跟腱病风险上升</b>。
+
+而围绝经期让这件事更急:雌激素下降会减少 I 型胶原合成,<b>肌腱变弱、变僵、愈合更慢</b>。
+
+所以处方不是"多拉伸",是<b>给组织加负荷</b>:
+• <b>大重量慢速抗阻(HSR)提踵</b> —— 3秒上/3秒下,逐步加到 6–8RM。屈膝(比目鱼肌)和直膝(腓肠肌)都要练。
+• 膝碰墙背屈松动 —— 每天,在末端角度上用力
+• 台阶慢速离心提踵
+
+研究显示 HSR 和经典的 Alfredson 离心方案<b>效果一样好,但 HSR 的依从性和满意度更高</b> —— 所以我把它放进你每个下肢力量日的收尾。
+
+另外:<b>跳跃训练平均能改善跑步经济性 4.4%</b>(更硬的肌腱 = 更好的弹性回收)。这就是为什么周四有跳跃收尾。`,
+  en:`Efficient running needs roughly <b>20° of ankle dorsiflexion</b>. With tight calves you might have <b>−5°</b>.
+
+The cost is double: shorter stride, longer ground contact, more braking force (<b>worse economy</b>) — plus compensatory overpronation and <b>higher Achilles tendinopathy risk</b>.
+
+Perimenopause makes it urgent: falling estrogen reduces type-I collagen synthesis, so <b>tendons get weaker, stiffer, and heal slower</b>.
+
+So the prescription isn't "stretch more" — it's <b>load the tissue</b>:
+• <b>Heavy Slow Resistance (HSR) calf raises</b> — 3s up / 3s down, progressing to 6–8RM. Both bent-knee (soleus) and straight-knee (gastroc).
+• Knee-to-wall dorsiflexion mobilisation — daily, real effort at end range
+• Slow eccentric heel drops off a step
+
+Research shows HSR and the classic Alfredson eccentric protocol work <b>equally well, but HSR has better adherence and satisfaction</b> — so it's the finisher on every lower-body day.
+
+Also: <b>plyometrics improve running economy by ~4.4% on average</b> (stiffer tendons = better elastic return). That's why Thursday ends with jumps.`},
+  c:{zh:'<b>Beyer 等</b>, AJSM (2015) —— HSR vs 离心训练;<b>Berryman 等</b>, IJSPP (2018) 13:57–64 —— 跳跃训练平均改善跑步经济性 4.4%。',en:'<b>Beyer et al.</b>, AJSM (2015) — HSR vs eccentric; <b>Berryman et al.</b>, IJSPP (2018) 13:57–64 — plyometrics improve RE by 4.4% on average.'}},
+
+ {n:{zh:'为什么必须减量',en:'Why the taper is non-negotiable'},h:{zh:'"3周伤病悬崖"的真实解释',en:'What the "3-week injury cliff" actually is'},
+  p:{zh:`你发我的那组图说:赛前 3–4 周女性开始崩 —— 软组织发炎、膝髋疼、小毛病变成真伤。它把原因归给"女性生物力学"。
+
+<b>真实的解释更简单,而且不分性别:急慢性负荷比(ACWR)。</b>
+
+伤病风险随<b>负荷骤增</b>而上升。赛前恐慌性加量 —— "还没练够,再冲一把" —— 正好把急性负荷推到远超慢性基础的位置。那不是运气不好,是可预测的物理后果。
+
+所以:
+• 每 4 周一个<b>减量周</b>(第4、8、14、20周)
+• 最后 2 周<b>砍量 40–50%,但保持强度</b>(保神经和摄氧的锐度)
+• 最后一次高强度在赛前 <b>约 7 天</b>
+• 比赛周只有抖动跑
+
+<b>比赛周你会觉得练太少、心里发痒。忍住。</b> 那种"我该再练一次"的冲动,正是把人送进伤病悬崖的东西。
+
+围绝经期的肌腱适应更慢 —— 这条纪律对你比对别人更重要。`,
+  en:`Those slides you sent say women break down 3–4 weeks out — soft tissue flares, knees and hips inflame, niggles become real pain. They blame "female biomechanics."
+
+<b>The real explanation is simpler, and it isn't sex-specific: the acute:chronic workload ratio.</b>
+
+Injury risk rises with <b>spikes in load</b>. Panic-training before a race — "I haven't done enough, let me cram" — pushes acute load far above the chronic base. That's not bad luck. It's a predictable physical consequence.
+
+So:
+• A <b>deload week</b> every 4th week (weeks 4, 8, 14, 20)
+• Final 2 weeks: <b>cut volume 40–50%, keep intensity</b> (preserves neural drive and VO2 sharpness)
+• Last hard session ~<b>7 days out</b>
+• Race week is shakeouts only
+
+<b>During race week it will feel like too little and you'll itch to add one more session. Don't.</b> That exact urge is what drives people off the injury cliff.
+
+Perimenopausal tendons adapt more slowly — this discipline matters more for you than for most.`},
+  c:{zh:'<b>Gabbett</b>, BJSM —— 急慢性负荷比(注:该模型有学界批评,是参考而非公式);减量研究 —— 砍容量、保强度。',en:'<b>Gabbett</b>, BJSM — acute:chronic workload ratio (note: the model has published critics; it\'s a guide, not a formula); taper literature — cut volume, hold intensity.'}}
+];
+
+function renderWhy(){
+  const zh=LANG==='zh';
+  document.getElementById('v-why').innerHTML=`
+  <div class="warn">${zh?'<b>这份计划的每一个决定都有理由。</b>如果哪一天你觉得"这也太轻了"或"为什么要这样练",答案在下面。理解为什么练,比照着练更容易坚持 —— 这也是你2025年缺的东西。':'<b>Every decision in this plan has a reason.</b> If a session feels too easy, or you wonder why it\'s built this way, the answer is below. Understanding why beats blindly following — and that understanding is what 2025 was missing.'}</div>
+  ${WHY.map(w=>`<div class="why"><div class="n">${w.n[LANG]}</div><h3>${w.h[LANG]}</h3>
+    ${w.p[LANG].split('\n\n').map(x=>`<p>${x}</p>`).join('')}
+    <div class="cite">${zh?'依据:':'Source: '}${w.c[LANG]}</div></div>`).join('')}
+  <div class="note">${zh?'诚实说明:围绝经期的应用型训练建议(尤其 Stacy Sims 的具体数字)混合了同行评审研究与专家实践,不同访谈里数字会有出入。大重量、低次数、短冲刺、为骨而跳的<b>原则</b>是一致的;把具体数字当起点,按身体反应调。ACWR 模型也有学界批评 —— 它是参考,不是公式。':'Honest note: applied perimenopause training advice (especially Sims\' specific numbers) blends peer-reviewed research with expert practice, and her exact figures vary across interviews. The <b>principles</b> — heavy, low-rep, short sprints, jump for bone — are consistent. Treat the numbers as starting points and auto-regulate. The ACWR model also has published critics; it\'s a guide, not a formula.'}</div>`;
+}
+
+/* ---------- log modal ---------- */
+let curKey=null;
+function openLog(key){
+  curKey=key;
+  const [w,i]=key.split('-').map(Number);
+  const d=PLAN[w-1].days[i][LANG];
+  document.getElementById('m-t').textContent=d[0];
+  document.getElementById('m-s').textContent=`${NAMES[ME]} · W${w} ${t('wd')[i]} · ${fmt(dateOf(w,i))}`;
+  const l=DB.logs[`${ME}|${key}`]||{};
+  ['km','min','pace','hr','load','rpe','note'].forEach(k=>document.getElementById('f-'+k).value=l[k]||'');
+  document.getElementById('drop-t').textContent=t('dropT');
+  document.getElementById('drop-s').textContent=t('dropS');
+  document.getElementById('drop').classList.remove('busy');
+  document.getElementById('m-del').style.display=DB.logs[`${ME}|${key}`]?'block':'none';
+  document.getElementById('mask').classList.add('on');
+}
+const gv=id=>document.getElementById('f-'+id).value.trim();
+document.getElementById('m-x').onclick=()=>document.getElementById('mask').classList.remove('on');
+document.getElementById('mask').onclick=e=>{if(e.target.id==='mask')document.getElementById('mask').classList.remove('on');};
+document.getElementById('m-ok').onclick=async()=>{
+  const l={};['km','min','pace','hr','load','rpe','note'].forEach(k=>{const v=gv(k);if(v&&v!=='—')l[k]=v;});
+  if(Object.keys(l).length){DB.logs[`${ME}|${curKey}`]=l;DB.done[`${ME}|${curKey}`]=true;}
+  await persist();document.getElementById('mask').classList.remove('on');render();
+};
+document.getElementById('m-del').onclick=async()=>{
+  if(!confirm(LANG==='zh'?'删除这条记录?':'Delete this log?'))return;
+  delete DB.logs[`${ME}|${curKey}`];await persist();
+  document.getElementById('mask').classList.remove('on');render();
+};
+
+/* ---------- OCR ---------- */
+document.getElementById('drop').onclick=()=>document.getElementById('file').click();
+document.getElementById('file').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  const drop=document.getElementById('drop');drop.classList.add('busy');
+  document.getElementById('drop-t').innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在读取…':'Reading…');
+  document.getElementById('drop-s').textContent='';
+  try{
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej();r.readAsDataURL(file);});
+    const resp=await fetch(API,{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
+        {type:"text",text:`Workout screenshot. Extract data. Return ONLY raw JSON, no markdown, no other text:
+{"km":"3.81","min":"24.3","pace":"6'22\\"","hr":"153","load":"","note":""}
+Rules: km=distance in km (number as string). min=duration in minutes (decimal). pace=avg pace like 6'22". hr=avg heart rate (number). load=weights/sets if a strength screenshot, else "". note=anything notable (cadence, elevation), else "". Empty string for anything unreadable. JSON only.`}
+      ]}]})});
+    const data=await resp.json();
+    let txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+    const o=JSON.parse(txt);
+    ['km','min','pace','hr','load'].forEach(k=>{if(o[k])document.getElementById('f-'+k).value=o[k];});
+    if(o.note){const c=gv('note');document.getElementById('f-note').value=c?c+' · '+o.note:o.note;}
+    document.getElementById('drop-t').textContent=t('dropOK');
+    document.getElementById('drop-s').textContent=t('dropOK2');
+  }catch(err){
+    document.getElementById('drop-t').textContent=t('dropErr');
+    document.getElementById('drop-s').textContent=t('dropErr2');
+  }
+  drop.classList.remove('busy');e.target.value='';
+};
+
+/* ---------- stats + AI ---------- */
+function renderStats(){
+  const all=Object.entries(DB.logs);
+  const mine=all.filter(([k])=>k.startsWith(ME+'|')).map(([,v])=>v);
+  const km=mine.reduce((s,l)=>s+(parseFloat(l.km)||0),0);
+  const runs=mine.filter(l=>l.km&&l.hr);
+  const hrs=runs.map(l=>parseFloat(l.hr)).filter(Boolean);
+  const avg=hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):'—';
+  const L=t('stat');
+  const el=document.getElementById('stats');
+  if(el)el.innerHTML=`<div class="st"><b>${mine.length}</b><span>${L[0]}</span></div>
+    <div class="st"><b>${km.toFixed(1)}</b><span>${L[1]}</span></div>
+    <div class="st"><b>${runs.length}</b><span>${L[2]}</span></div>
+    <div class="st"><b>${avg}</b><span>${L[3]}</span></div>`;
+}
+
+document.getElementById('run-ai').onclick=async()=>{
+  const out=document.getElementById('ai-out');out.classList.remove('hide');out.className='out';
+  const all=Object.entries(DB.logs);
+  if(all.length<2){out.textContent=t('aifew');return;}
+  out.innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在读你们的训练数据…':'Reading your data…');
+  const rows=all.map(([k,l])=>{
+    const [p,key]=k.split('|');const [w,i]=key.split('-').map(Number);
+    const d=PLAN[w-1].days[i].zh;
+    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${d[0]} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
+  }).join('\n');
+
+  const prompt=`你是运动科学教练,分析两位女性的 HYROX 双人赛(Open组)备赛数据。比赛:2026年12月5日。当前第 ${curWeek()} 周(共21周)。
+
+【Lulu — 48岁,围绝经期,首次参赛】
+- 实测最大心率 179。二区 125–143,阈值区 156–165
+- 目标配速:轻松 7'30"–8'20";阈值 6'30"–6'45"(目标降到 6'05"–6'15");比赛单公里 6'30"–6'50"
+- 核心诊断:2025年半马 2:36:06,均配 7'11" 但均心率 158(88%最大心率)= 有氧效率差。配速分布:恢复区90%,阈值区 0% —— 从未练过阈值("100/0"而非"80/20")
+- 2025年跑量断续,练一阵停一阵 —— 连续性是她最大的敌人
+- 2026年7月12日基线:3.81km @ 6'22" / 心率153 —— 比一年前好,但"轻松跑"仍偏快
+- 弱点:踝背屈受限、内收肌薄弱
+
+【Ye Lu — 搭档】
+- 数据从她的记录里看,不做假设
+
+【关键规则】双人赛两人一起跑全部8km,<b>配速由慢的一方决定</b>。所以两人的配速差距是决定成绩的核心变量。
+
+【实际训练记录】
+${rows}
+
+【分析,中文,直接说结论,不要客套】
+1. **有氧效率** — 同配速下心率有没有下降?这是计划起作用最重要的信号。数据不足就直说。
+2. **强度纪律** — 轻松跑是不是又跑太快了(心率>143)?这是 Lulu 的老毛病。
+3. **连续性** — 有没有断档?这是2025年失败的原因,现在最该警惕的。
+4. **阈值推进** — 如果已进第2块,阈值配速有没有变快?
+5. **双人配速差距** — 两人跑步水平差多少?谁是瓶颈?这直接决定训练重心和比赛分工。数据不够就说不够。
+6. **下一步** — 具体调整什么。给数字。
+
+诚实、直接。做得好就说好;在重蹈覆辙就现在点破。不要为了鼓励而粉饰数据。`;
+
+  try{
+    const r=await fetch(API,{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
+    const d=await r.json();
+    out.textContent=d.content.filter(c=>c.type==='text').map(c=>c.text).join('');
+  }catch(e){out.textContent=t('aifail');}
+};
+
+/* ---------- nav ---------- */
+document.querySelectorAll('nav>button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav>button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  ['plan','zones','why','ai'].forEach(v=>document.getElementById('v-'+v).classList.toggle('hide',v!==b.dataset.v));
+});
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.lang button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  LANG=b.dataset.l;document.documentElement.lang=LANG;render();
+});
+document.querySelectorAll('.who button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.who button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  ME=b.dataset.p;render();
+});
+
+(async()=>{await load();render();
+  setTimeout(()=>{const e=document.getElementById('wk'+curWeek());if(e)e.scrollIntoView({behavior:'smooth',block:'center'});},400);
+})();
+</script>
+</body>
+</html>
