@@ -173,6 +173,7 @@
 <nav>
   <button class="on" data-v="plan" data-i="tab1"></button>
   <button data-v="zones" data-i="tab2"></button>
+  <button data-v="food" data-i="tab5"></button>
   <button data-v="why" data-i="tab3"></button>
   <button data-v="ai" data-i="tab4"></button>
 </nav>
@@ -183,6 +184,7 @@
 </section>
 
 <section id="v-zones" class="hide"></section>
+<section id="v-food" class="hide"></section>
 <section id="v-why" class="hide"></section>
 
 <section id="v-ai" class="hide">
@@ -228,6 +230,33 @@
   </div>
 </div>
 
+
+<div class="mask" id="fmask">
+  <div class="modal">
+    <h3 id="fm-t">记录饮食</h3>
+    <div class="ms" id="fm-s"></div>
+    <div class="drop" id="fdrop">
+      <input type="file" id="ffile" accept="image/*" style="display:none">
+      <div class="d1" id="fdrop-t">📸 拍下这餐,自动估算营养</div>
+      <div class="d2" id="fdrop-s">点击选择食物照片</div>
+    </div>
+    <div class="fld"><label id="fl-desc">吃了什么</label><textarea id="n-desc" placeholder="1碗米饭 + 三文鱼 150g + 西兰花"></textarea></div>
+    <div class="grid2">
+      <div class="fld"><label id="fl-kcal">热量 kcal</label><input id="n-kcal" type="number" placeholder="650"></div>
+      <div class="fld"><label id="fl-carb">碳水 g</label><input id="n-carb" type="number" placeholder="85"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label id="fl-pro">蛋白质 g</label><input id="n-pro" type="number" placeholder="35"></div>
+      <div class="fld"><label id="fl-fat">脂肪 g</label><input id="n-fat" type="number" placeholder="18"></div>
+    </div>
+    <div class="acts">
+      <button class="btn del" id="fm-del">删除</button>
+      <button class="btn" id="fm-x">取消</button>
+      <button class="btn pri" id="fm-ok">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API='/.netlify/functions/claude';
 const RACE=new Date(2026,11,5), START=new Date(2026,6,13);
@@ -236,7 +265,7 @@ const NAMES={lulu:'Lulu',yelu:'Ye Lu'};
 
 /* ---------- shared cloud storage (Netlify Blobs) ---------- */
 const DATA_API='/api/data';
-let DB={done:{},logs:{}};
+let DB={done:{},logs:{},meals:{}};
 let syncState='ok';
 
 async function load(){
@@ -244,7 +273,7 @@ async function load(){
     const r=await fetch(DATA_API,{cache:'no-store'});
     if(!r.ok)throw new Error('http '+r.status);
     const d=await r.json();
-    DB={done:d.done||{},logs:d.logs||{}};
+    DB={done:d.done||{},logs:d.logs||{},meals:d.meals||{}};
     syncState='ok';
   }catch(e){
     syncState='err';
@@ -299,7 +328,7 @@ const I={
   deload:'减量周',raceweek:'比赛周',thisweek:'本周',
   aifew:'数据还不够。\n\n先去记录几次训练 — 至少 2 周(4-6 次课),我才能看出趋势。\n\n最有价值的是跑步记录:配速 + 心率。这两个数字放在一起,才能告诉我有氧效率有没有在改善。',
   aifail:'分析失败了,再试一次。',
-  stat:['已记录','累计公里','跑步记录','平均心率']},
+  stat:['已记录','累计公里','跑步记录','平均心率'],tab5:'营养'},
  en:{eyebrow:'HYROX WOMEN\'S DOUBLES · OPEN',h1:'21 Weeks to 12.5',sub:'13 Jul → 5 Dec 2026 · Lulu & Ye Lu · First race',
   who:'Logging as',cdw:'weeks left',cdd:'days left',cdn:'sessions done',cdr:'completion',
   tab1:'Calendar',tab2:'My Zones',tab3:'Why This Plan',tab4:'AI Analysis',
@@ -316,7 +345,7 @@ const I={
   deload:'Deload',raceweek:'Race week',thisweek:'This week',
   aifew:'Not enough data yet.\n\nLog a few sessions first — at least 2 weeks (4–6 sessions) before I can see a trend.\n\nThe most valuable logs are runs: pace + heart rate. Those two numbers together are what tell me whether aerobic efficiency is improving.',
   aifail:'Analysis failed. Try again.',
-  stat:['logged','total km','runs','avg HR']}
+  stat:['logged','total km','runs','avg HR'],tab5:'Nutrition'}
 };
 const t=k=>I[LANG][k];
 
@@ -331,16 +360,16 @@ const blockOf=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1]);
 
 /* ---------- sessions ---------- */
 const S={
- liftA:{zh:['力量 · 下肢 + 对比配对','深蹲 4×5(重,RIR 1-2)\n硬拉 / 六角杠 4×4\n臀推 4×6 → 雪橇推 12.5m ×3\n保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n收尾:HSR 提踵 3组(3秒上 / 3秒下)','大重量低次数 = 围绝经期保骨保肌。配对是让力量能在疲劳下用出来。'],
-   en:['Strength · Lower + contrast pairs','Squat 4×5 (heavy, RIR 1-2)\nDeadlift / trap-bar 4×4\nHip thrust 4×6 → Sled push 12.5m ×3\nBulgarian split squat 3×8/leg → Walking lunge 20m\nFinish: HSR calf raise 3 sets (3s up / 3s down)','Heavy + low reps = bone and muscle in perimenopause. Pairing makes strength show up under fatigue.']},
- liftB:{zh:['力量 · 上肢/全身 + 对比配对','站姿推举 4×5\n引体 / 划船 4×6\n罗马尼亚硬拉 4×5 → 绳索拉 ×3\n农夫行走 3×40m(重)\n跳跃收尾:3×8 跳跃深蹲','上肢为主 = 减少对跑步的干扰。跳跃是给骨密度的。'],
-   en:['Strength · Upper/full + contrast pairs','Overhead press 4×5\nPull-ups / rows 4×6\nRDL 4×5 → Cable pull ×3\nFarmers carry 3×40m (heavy)\nFinish: 3×8 jump squats','Upper-focused = less interference with running. Jumps are for bone density.']},
- pila:{zh:['普拉提 + 拳击','普拉提:肩 / 髋 / 踝背屈 / 内收肌\n拳击:体能 + 乐趣\n补充:哥本哈根内收练习 2–3组','这天已经是中等强度 — 别再叠加高强度。'],
-   en:['Pilates + Boxing','Pilates: shoulders / hips / ankle dorsiflexion / adductors\nBoxing: conditioning + fun\nAdd: Copenhagen adduction 2–3 sets','This is already a moderate day — don\'t stack more intensity on it.']},
+ liftA:{zh:['力量 · 下肢 + 对比配对','【热身 8分钟】臀中肌:弹力带侧走 2×15m · 侧卧外展 2×15/侧\n落地准备:落地稳定 2×5(跳起→稳稳落地→停住3秒)\n\n【主课】深蹲 4×5(重,RIR 1-2)\n硬拉 / 六角杠 4×4\n臀推 4×6 → 雪橇推 12.5m ×3\n保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n\n【收尾】HSR 提踵 3×6-8(重!3秒上/3秒下,屈膝+直膝各做)\n胫骨前肌:脚尖上抬 2×15\n哥本哈根内收 2×8/侧','大重量低次数 = 围绝经期保骨保肌。提踵要「更重」不是「更多次」——你20次后提不高,是力量储备不足。'],
+   en:['Strength · Lower + contrast pairs','【Warm-up 8min】Glute med: banded lateral walk 2×15m · side-lying abduction 2×15/side\nLanding prep: stick-the-landing 2×5 (jump → land → hold 3s)\n\n【Main】Squat 4×5 (heavy, RIR 1-2)\nDeadlift / trap-bar 4×4\nHip thrust 4×6 → Sled push 12.5m ×3\nBulgarian split squat 3×8/leg → Walking lunge 20m\n\n【Finish】HSR calf raise 3×6-8 (HEAVY! 3s up/3s down, bent + straight knee)\nTib raises 2×15\nCopenhagen adduction 2×8/side','Heavy + low reps = bone and muscle in perimenopause. Calf raises must get HEAVIER, not longer — you lose height after 20 reps, which means low strength reserve.']},
+ liftB:{zh:['力量 · 上肢/全身 + 对比配对','【热身】臀中肌:蚌式 2×15/侧 · 单腿平衡 2×30秒\n\n【主课】站姿推举 4×5\n引体 / 划船 4×6\n罗马尼亚硬拉 4×5 → 绳索拉 ×3\n农夫行走 3×40m(重)\n\n【肌腱刚度收尾】原地弹跳(pogo hops)3×20 —— 脚踝像弹簧,膝盖别弯太多\n跳绳 3×30秒\n(骨密度 + 跟腱弹性,一举两得)','弹跳练的是「肌腱刚度」——跑步经济性靠跟腱像弹簧一样储能回弹。这和HSR是两种不同刺激,都要。'],
+   en:['Strength · Upper/full + contrast pairs','【Warm-up】Glute med: clamshells 2×15/side · single-leg balance 2×30s\n\n【Main】Overhead press 4×5\nPull-ups / rows 4×6\nRDL 4×5 → Cable pull ×3\nFarmers carry 3×40m (heavy)\n\n【Tendon stiffness finish】Pogo hops 3×20 — ankles like springs, minimal knee bend\nSkipping rope 3×30s\n(bone density + Achilles elasticity, two birds)','Pogo hops build TENDON STIFFNESS — running economy depends on the Achilles storing and returning energy like a spring. Different stimulus from HSR; you need both.']},
+ pila:{zh:['普拉提 + 拳击','普拉提:肩 / 髋 / 内收肌(教练课)\n拳击:体能 + 乐趣\n\n补充:X-plank 2×20秒/侧(侧板 + 上腿抬起)\n腓骨肌:弹力带足外翻 2×15/侧','这天已是中等强度 — 别再叠加高强度。X-plank 同时练臀中肌和稳定。'],
+   en:['Pilates + Boxing','Pilates: shoulders / hips / adductors\nBoxing: conditioning + fun\n\nAdd: X-plank 2×20s/side (side plank + top leg raised)\nPeroneals: banded eversion 2×15/side','Already a moderate day — don\'t stack more intensity. X-plank trains glute med + stability together.']},
  rest:{zh:['休息','散步、拉伸、睡觉。','恢复是训练的一部分,不是偷懒。'],en:['Rest','Walk, stretch, sleep.','Recovery is part of the training, not a day off from it.']}
 };
-const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`${m} 分钟轻松跑 @ 心率 125–143(二区)\n配速约 7'30"–8'20" — 慢到你觉得"太慢"为止\n必要时走路把心率压下来\n跑后:4–6 × 20秒加速跑(放松,不冲刺)`+(extra?'\n'+extra.zh:''),'心率压不到143就走路。这条没得商量 — 你的老毛病就是轻松跑太快。'],
-  en:['Easy run + strides',`${m} min easy @ HR 125–143 (Zone 2)\nPace ~7'30"–8'20" — slow enough that it feels "too slow"\nWalk if you need to keep HR down\nAfter: 4–6 × 20s strides (relaxed, not sprints)`+(extra?'\n'+extra.en:''),'If HR won\'t stay under 143, walk. Non-negotiable — running easy days too hard is the old habit.']});
+const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`${m} 分钟轻松跑 @ 心率 125–143(二区)\n配速约 7'30"–8'20" — 慢到你觉得"太慢"为止\n必要时走路把心率压下来\n跑后:4–6 × 20秒加速跑(放松,不冲刺)\n\n【步频】开手表节拍器,目标 172–175(你现在165偏低)`+(extra?'\n'+extra.zh:''),'心率压不到143就走路。步频低=触地久=肌肉多做功=心率飙。提步频是最快的杠杆。'],
+  en:['Easy run + strides',`${m} min easy @ HR 125–143 (Zone 2)\nPace ~7'30"–8'20" — slow enough that it feels "too slow"\nWalk if you need to keep HR down\nAfter: 4–6 × 20s strides (relaxed, not sprints)\n\n【Cadence】Use the watch metronome, target 172–175 (yours is 165 — too low)`+(extra?'\n'+extra.en:''),'If HR won\'t stay under 143, walk. Low cadence = long ground contact = more muscular work = HR spikes. Cadence is the fastest lever you have.']});
 const long=m=>({zh:['长轻松跑',`${m} 分钟持续轻松跑 @ 二区(125–143)\n全程能正常说话\n补充:踝背屈松动 + 内收肌`,'这是建有氧基础的一课,不是比谁快。'],
   en:['Long easy run',`${m} min continuous easy @ Z2 (125–143)\nYou should be able to talk the whole way\nAdd: ankle dorsiflexion + adductor work`,'This builds the aerobic base. It is not a race.']});
 
@@ -451,7 +480,7 @@ function render(){
       </div><div class="wbody">${rows}</div></div>`;
   }).join('');
 
-  renderZones();renderWhy();renderStats();paintSync();
+  renderZones();renderWhy();renderStats();renderFood();paintSync();
 }
 
 function lgTxt(l){const p=[];
@@ -770,6 +799,21 @@ document.getElementById('run-ai').onclick=async()=>{
     return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${d[0]} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
   }).join('\n');
 
+  // nutrition rows, grouped per day
+  const mealsByDay={};
+  Object.entries(DB.meals||{}).forEach(([k,m])=>{
+    const [p,day]=k.split('|');
+    const id=`${p}|${day}`;
+    if(!mealsByDay[id])mealsByDay[id]=[];
+    mealsByDay[id].push(m);
+  });
+  const foodRows=Object.entries(mealsByDay).map(([id,ms])=>{
+    const [p,day]=id.split('|');const [w,i]=day.split('-').map(Number);
+    const t=totals(ms);const load=dayLoad(w,i);const T=TARGETS[load];
+    const flag=t.carb<T.carb[0]?' ⚠碳水不足':'';
+    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} (${LOADNAME.zh[load]}) | 热量 ${Math.round(t.kcal)} | 碳水 ${Math.round(t.carb)}g (目标${T.carb[0]}-${T.carb[1]}) | 蛋白 ${Math.round(t.pro)}g | 脂肪 ${Math.round(t.fat)}g${flag}`;
+  }).join('\n') || '(暂无饮食记录)';
+
   const prompt=`你是运动科学教练,分析两位女性的 HYROX 双人赛(Open组)备赛数据。比赛:2026年12月5日。当前第 ${curWeek()} 周(共21周)。
 
 【Lulu — 48岁,围绝经期,首次参赛】
@@ -785,18 +829,26 @@ document.getElementById('run-ai').onclick=async()=>{
 
 【关键规则】双人赛两人一起跑全部8km,<b>配速由慢的一方决定</b>。所以两人的配速差距是决定成绩的核心变量。
 
+【营养背景 — 关键】
+Lulu 60kg。已知问题:**系统性碳水摄入不足**。她之前的饮食记录显示训练日碳水只有约130–150g,而训练日需要300–420g、高强度日360–480g。估算能量可用性 27–32 kcal/kg 去脂体重,危险线是 <30 —— 她可能就踩在线上。48岁围绝经期 + 高强度备赛 + 碳水不足 = 骨密度、甲状腺、肌腱的真实风险(REDs)。
+蛋白质目标 110–130g/天,每餐25–30g。她的老毛病是蛋白质集中在晚餐、早餐太少。
+
 【实际训练记录】
 ${rows}
 
-【分析,中文,直接说结论,不要客套】
-1. **有氧效率** — 同配速下心率有没有下降?这是计划起作用最重要的信号。数据不足就直说。
-2. **强度纪律** — 轻松跑是不是又跑太快了(心率>143)?这是 Lulu 的老毛病。
-3. **连续性** — 有没有断档?这是2025年失败的原因,现在最该警惕的。
-4. **阈值推进** — 如果已进第2块,阈值配速有没有变快?
-5. **双人配速差距** — 两人跑步水平差多少?谁是瓶颈?这直接决定训练重心和比赛分工。数据不够就说不够。
-6. **下一步** — 具体调整什么。给数字。
+【实际饮食记录】
+${foodRows}
 
-诚实、直接。做得好就说好;在重蹈覆辙就现在点破。不要为了鼓励而粉饰数据。`;
+【分析,中文,直接说结论,不要客套】
+1. **碳水够不够** — 这是最高优先级。训练日碳水达标了吗?如果没有,直接指出来。有没有出现"高强度训练日碳水不足"的组合?那是最危险的。
+2. **训练与营养的关联** — 有没有出现"前一天碳水不足 → 第二天课掉速/心率高"的模式?这是最有价值的洞察。
+3. **有氧效率** — 同配速下心率有没有下降?这是计划起作用最重要的信号。数据不足就直说。
+4. **强度纪律** — 轻松跑是不是又跑太快了(心率>143)?步频有没有提上来(目标172-175)?
+5. **连续性** — 有没有断档?这是2025年失败的原因。
+6. **双人配速差距** — 两人跑步水平差多少?谁是瓶颈?数据不够就说不够。
+7. **下一步** — 具体调整什么。给数字。
+
+诚实、直接。做得好就说好;在重蹈覆辙就现在点破。不要为了鼓励而粉饰数据。如果碳水持续不足,这件事要放在最前面说 —— 它比任何训练细节都重要。`;
 
   try{
     const r=await fetch(API,{method:"POST",
@@ -807,10 +859,209 @@ ${rows}
   }catch(e){out.textContent=t('aifail');}
 };
 
+
+/* ================= NUTRITION ================= */
+// Targets for 60kg. Training-day intensity drives carb needs.
+const KG=60;
+function dayLoad(w,i){
+  if(w<1||w>21)return 'easy';
+  const d=PLAN[w-1].days[i];
+  if(d.k==='rest')return 'rest';
+  if(d.k==='move')return 'easy';
+  if(d.k==='lift')return 'mod';
+  // runs: Friday quality + Saturday long/brick are hard
+  if(i===4||i===5)return 'hard';
+  return 'mod';
+}
+const TARGETS={
+  rest:{kcal:[1600,1750],carb:[180,240],pro:[110,130],fat:[55,70]},
+  easy:{kcal:[1800,2000],carb:[220,300],pro:[110,130],fat:[55,70]},
+  mod: {kcal:[2000,2300],carb:[300,420],pro:[110,130],fat:[60,75]},
+  hard:{kcal:[2300,2700],carb:[360,480],pro:[110,130],fat:[60,80]}
+};
+const LOADNAME={zh:{rest:'休息日',easy:'轻松日',mod:'训练日',hard:'高强度日'},
+                en:{rest:'Rest day',easy:'Easy day',mod:'Training day',hard:'Hard day'}};
+
+function todayKey(){
+  const t=new Date();t.setHours(0,0,0,0);
+  const diff=Math.floor((t-START)/864e5);
+  if(diff<0||diff>146)return null;
+  return [Math.floor(diff/7)+1, diff%7];
+}
+function mealsFor(w,i){
+  const pre=`${ME}|${w}-${i}|`;
+  return Object.entries(DB.meals||{}).filter(([k])=>k.startsWith(pre)).map(([k,v])=>({k,...v}));
+}
+function totals(ms){
+  return ms.reduce((a,m)=>({kcal:a.kcal+(+m.kcal||0),carb:a.carb+(+m.carb||0),pro:a.pro+(+m.pro||0),fat:a.fat+(+m.fat||0)}),{kcal:0,carb:0,pro:0,fat:0});
+}
+
+function renderFood(){
+  const el=document.getElementById('v-food');if(!el)return;
+  const zh=LANG==='zh';
+  const tk=todayKey();
+  let todayHTML='';
+  if(tk){
+    const [w,i]=tk;
+    const load=dayLoad(w,i);
+    const T=TARGETS[load];
+    const ms=mealsFor(w,i);
+    const tot=totals(ms);
+    const bar=(val,lo,hi,label,unit)=>{
+      const pct=Math.min(100,Math.round(val/lo*100));
+      const ok=val>=lo;
+      const over=val>hi;
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:4px">
+          <span>${label}</span>
+          <span style="font-variant-numeric:tabular-nums;color:${ok?'var(--ok)':'var(--hot)'}">${Math.round(val)} / ${lo}–${hi} ${unit}</span>
+        </div>
+        <div style="height:9px;background:var(--line);border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${over?'var(--move)':(ok?'var(--ok)':'var(--hot)')};border-radius:99px;transition:width .3s"></div>
+        </div>
+      </div>`;
+    };
+    todayHTML=`<div class="panel">
+      <h2>${zh?'今天':'Today'} · ${LOADNAME[LANG][load]}</h2>
+      <div class="ps">${zh?`第${w}周 ${I.zh.wd[i]} · 目标随训练强度自动调整`:`Week ${w} ${I.en.wd[i]} · targets adjust to training load`}</div>
+      ${bar(tot.carb,T.carb[0],T.carb[1],zh?'碳水 — 你的最大缺口':'Carbs — your biggest gap','g')}
+      ${bar(tot.pro,T.pro[0],T.pro[1],zh?'蛋白质':'Protein','g')}
+      ${bar(tot.fat,T.fat[0],T.fat[1],zh?'脂肪':'Fat','g')}
+      ${bar(tot.kcal,T.kcal[0],T.kcal[1],zh?'热量':'Energy','kcal')}
+      <div class="acts" style="margin-top:16px">
+        <button class="btn pri" onclick="openMeal(${w},${i})">${zh?'+ 记录一餐(可拍照)':'+ Log a meal (photo OK)'}</button>
+      </div>
+      ${ms.length?`<div class="logs" style="margin-top:14px">${ms.map(m=>`<div class="lg lulu"><span class="nm">${m.desc?m.desc.slice(0,28):(zh?'一餐':'meal')}</span>${Math.round(m.kcal||0)} kcal · ${zh?'碳水':'C'} ${Math.round(m.carb||0)}g · ${zh?'蛋白':'P'} ${Math.round(m.pro||0)}g<button class="logbtn" style="float:right;margin:0" onclick="editMeal('${m.k}')">✎</button></div>`).join('')}</div>`:''}
+      ${tot.carb>0&&tot.carb<T.carb[0]*0.7?`<div class="note" style="border-left-color:var(--hot);color:var(--hot)"><b>${zh?'碳水明显不足。':'Carbs well short.'}</b> ${zh?'这正是你2025年的老问题 — 把米饭吃完,别再剩。':'This is the 2025 pattern — finish the rice, stop leaving it.'}</div>`:''}
+    </div>`;
+  }
+
+  el.innerHTML=todayHTML+`
+  <div class="panel">
+    <h2>${zh?'你的每日目标 · 60kg':'Your daily targets · 60kg'}</h2>
+    <div class="ps">${zh?'碳水随训练强度变;蛋白质每天都要够':'Carbs scale with training load; protein stays high every day'}</div>
+    <div class="zones">
+      <div class="z"><div class="t">${zh?'休息日 碳水':'Rest day carbs'}</div><div class="v">180–240g</div><div class="n">3–4 g/kg</div></div>
+      <div class="z"><div class="t">${zh?'训练日 碳水':'Training day carbs'}</div><div class="v">300–420g</div><div class="n">5–7 g/kg</div></div>
+      <div class="z" style="border-color:var(--hot);border-width:2px"><div class="t">${zh?'高强度日 碳水':'Hard day carbs'}</div><div class="v">360–480g</div><div class="n">6–8 g/kg</div></div>
+      <div class="z"><div class="t">${zh?'蛋白质(每天)':'Protein (daily)'}</div><div class="v">110–130g</div><div class="n">${zh?'每餐 25–30g,分4次':'25–30g × 4 meals'}</div></div>
+      <div class="z"><div class="t">${zh?'脂肪(每天)':'Fat (daily)'}</div><div class="v">60–80g</div><div class="n">${zh?'激素需要它':'hormones need it'}</div></div>
+    </div>
+    <div class="note" style="border-left-color:var(--hot)"><b>${zh?'你的诊断:':'Your diagnosis: '}</b>${zh?'那份饮食记录里,训练日碳水只有约130–150g — 不到需要量的一半。能量可用性估算 27–32 kcal/kg 去脂体重,而危险线是 <30。<b>你可能就踩在线上。</b>':'Your diary showed ~130–150g carbs on a training day — under half of what you need. Estimated energy availability 27–32 kcal/kg FFM, against a danger line of <30. <b>You may have been sitting right on it.</b>'}</div>
+  </div>
+
+  <div class="panel">
+    <h2>${zh?'示范日 · 高强度训练日':'Sample day · hard training'}</h2>
+    <div class="ps">${zh?'用你实际吃的东西排的 — 约2400–2600 kcal,碳水380–420g':'Built from what you actually eat — ~2400–2600 kcal, 380–420g carbs'}</div>
+    <div style="font-size:16px;line-height:1.9">
+      <b>${zh?'早餐':'Breakfast'}</b><br>${zh?'银耳汤 + 酒酿50g + <b>2个蛋</b> + 草莓 + <b>2片吐司</b> + 花生酱 + 杏仁奶拿铁':'Tremella soup + jiuniang 50g + <b>2 eggs</b> + strawberries + <b>2 slices toast</b> + peanut butter + almond latte'}<br><br>
+      <b>${zh?'跑前(若早上有质量课)':'Pre-run (if AM quality session)'}</b><br>${zh?'1根香蕉 或 吐司抹蜂蜜':'1 banana or toast with honey'}<br><br>
+      <b>${zh?'午餐':'Lunch'}</b><br>${zh?'<b>1.5–2碗米饭</b> + 蛋 + 菠菜 + 香干 + 一掌心瘦肉 — <b>整份吃完,别剩</b>':'<b>1.5–2 bowls rice</b> + egg + spinach + dried tofu + a palm of lean meat — <b>finish it all</b>'}<br><br>
+      <b>${zh?'训练后(保留这一餐)':'Post-workout (keep this one)'}</b><br>${zh?'希腊酸奶200g + 莓果100g + 麦片40g + 酒酿50g':'Greek yogurt 200g + berries 100g + granola 40g + jiuniang 50g'}<br><br>
+      <b>${zh?'晚餐':'Dinner'}</b><br>${zh?'<b>1碗米饭或米粉</b> + 三文鱼/虾/豆腐 150–200g + 蔬菜 + 少量油':'<b>1 bowl rice or noodles</b> + salmon/shrimp/tofu 150–200g + greens + a little oil'}
+    </div>
+    <div class="note">${zh?'贯穿一切的一句话:<b>别再把主食剩下。</b>训练日晚餐必须有碳水,不能只有三文鱼。':'The one rule: <b>stop leaving the staple.</b> A training-day dinner must have carbs — not salmon alone.'}</div>
+  </div>
+
+  <div class="panel">
+    <h2>${zh?'该查的三个指标':'Three things to test'}</h2>
+    <div style="font-size:16px;line-height:1.9">
+      <b>${zh?'1. 铁蛋白(ferritin)— 最优先':'1. Ferritin — do this first'}</b><br>
+      ${zh?'近一半女性跑者铁缺乏。铁低会直接压住你的心率和耐力。<30 µg/L 算缺乏(耐力运动员常用 40–50 的界值)。<b>别在跑完后马上抽血</b>(会假性升高)。':'Nearly half of female runners are iron-deficient. Low iron directly caps your HR response and endurance. <30 µg/L = deficient (endurance athletes often use 40–50). <b>Don\'t test right after a run</b> — it falsely elevates.'}<br><br>
+      <b>${zh?'2. 维生素D + 钙':'2. Vitamin D + calcium'}</b><br>
+      ${zh?'围绝经期骨量在流失,你又在做冲击训练。钙 1000–1200mg/天。':'Bone is being lost in perimenopause and you\'re doing impact work. Calcium 1000–1200mg/day.'}<br><br>
+      <b>${zh?'3. 补剂(可选,低风险)':'3. Supplements (optional, low risk)'}</b><br>
+      ${zh?'肌酸 3–5g/天 · 胶原10–15g + 维C 50mg(跳跃/提踵前45分钟)':'Creatine 3–5g/day · Collagen 10–15g + vit C 50mg, 45min before jumps/calf work'}
+    </div>
+  </div>`;
+}
+
+/* ---- meal modal ---- */
+let curMeal=null;
+function openMeal(w,i,key){
+  curMeal=key||`${ME}|${w}-${i}|${Date.now()}`;
+  const zh=LANG==='zh';
+  document.getElementById('fm-t').textContent=zh?'记录一餐':'Log a meal';
+  document.getElementById('fm-s').textContent=`${NAMES[ME]} · ${fmt(dateOf(w,i))}`;
+  const m=(DB.meals||{})[curMeal]||{};
+  ['desc','kcal','carb','pro','fat'].forEach(k=>{const e=document.getElementById('n-'+k);if(e)e.value=m[k]||'';});
+  document.getElementById('fdrop-t').textContent=zh?'📸 拍下这餐,自动估算营养':'📸 Photo this meal — auto-estimate';
+  document.getElementById('fdrop-s').textContent=zh?'点击选择食物照片':'Tap to choose a food photo';
+  document.getElementById('fdrop').classList.remove('busy');
+  document.getElementById('fm-del').style.display=(DB.meals||{})[curMeal]?'block':'none';
+  document.getElementById('fm-x').textContent=zh?'取消':'Cancel';
+  document.getElementById('fm-ok').textContent=zh?'保存':'Save';
+  document.getElementById('fm-del').textContent=zh?'删除':'Delete';
+  document.getElementById('fl-desc').textContent=zh?'吃了什么':'What you ate';
+  document.getElementById('fl-kcal').textContent=zh?'热量 kcal':'Energy kcal';
+  document.getElementById('fl-carb').textContent=zh?'碳水 g':'Carbs g';
+  document.getElementById('fl-pro').textContent=zh?'蛋白质 g':'Protein g';
+  document.getElementById('fl-fat').textContent=zh?'脂肪 g':'Fat g';
+  document.getElementById('fmask').classList.add('on');
+}
+function editMeal(key){
+  const p=key.split('|')[1].split('-').map(Number);
+  openMeal(p[0],p[1],key);
+}
+document.getElementById('fm-x').onclick=()=>document.getElementById('fmask').classList.remove('on');
+document.getElementById('fmask').onclick=e=>{if(e.target.id==='fmask')document.getElementById('fmask').classList.remove('on');};
+document.getElementById('fm-ok').onclick=async()=>{
+  const m={};['desc','kcal','carb','pro','fat'].forEach(k=>{const v=document.getElementById('n-'+k).value.trim();if(v)m[k]=v;});
+  if(Object.keys(m).length){DB.meals=DB.meals||{};DB.meals[curMeal]=m;}
+  await persist();document.getElementById('fmask').classList.remove('on');renderFood();
+};
+document.getElementById('fm-del').onclick=async()=>{
+  if(!confirm(LANG==='zh'?'删除这一餐?':'Delete this meal?'))return;
+  delete DB.meals[curMeal];await persist();
+  document.getElementById('fmask').classList.remove('on');renderFood();
+};
+
+/* ---- food photo -> macros ---- */
+document.getElementById('fdrop').onclick=()=>document.getElementById('ffile').click();
+document.getElementById('ffile').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  const drop=document.getElementById('fdrop');drop.classList.add('busy');
+  document.getElementById('fdrop-t').innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在估算…':'Estimating…');
+  document.getElementById('fdrop-s').textContent='';
+  try{
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej();r.readAsDataURL(file);});
+    const resp=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:file.type,data:b64}},
+        {type:"text",text:`This is a photo of a meal (likely Chinese/Asian food: rice, noodles, salmon sashimi, shrimp, tofu, greens, Greek yogurt, congee, tremella soup, etc).
+
+Estimate the nutrition. Return ONLY raw JSON, no markdown, no other text:
+{"desc":"1 bowl rice + salmon sashimi 150g + broccoli","kcal":"650","carb":"85","pro":"35","fat":"18"}
+
+Rules:
+- desc = short description of what you see, with estimated portions
+- kcal = total calories (number as string)
+- carb = carbohydrate grams (number as string) — BE CAREFUL AND ACCURATE, this is the key number
+- pro = protein grams
+- fat = fat grams
+- Estimate portion sizes from the photo. A standard bowl of cooked rice ~ 200g cooked = ~55g carbs.
+- If you truly cannot tell, give your best estimate anyway — do not return empty.
+JSON only.`}
+      ]}]})});
+    const data=await resp.json();
+    let txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+    const o=JSON.parse(txt);
+    ['desc','kcal','carb','pro','fat'].forEach(k=>{if(o[k])document.getElementById('n-'+k).value=o[k];});
+    document.getElementById('fdrop-t').textContent=LANG==='zh'?'✓ 估算好了 — 核对一下':'✓ Estimated — check it';
+    document.getElementById('fdrop-s').textContent=LANG==='zh'?'不准可以手动改':'Adjust manually if off';
+  }catch(err){
+    document.getElementById('fdrop-t').textContent=LANG==='zh'?'✕ 没认出来 — 手动填':'✕ Couldn\'t read it — fill manually';
+    document.getElementById('fdrop-s').textContent='';
+  }
+  drop.classList.remove('busy');e.target.value='';
+};
+
 /* ---------- nav ---------- */
 document.querySelectorAll('nav>button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav>button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-  ['plan','zones','why','ai'].forEach(v=>document.getElementById('v-'+v).classList.toggle('hide',v!==b.dataset.v));
+  ['plan','zones','food','why','ai'].forEach(v=>document.getElementById('v-'+v).classList.toggle('hide',v!==b.dataset.v));
+  if(b.dataset.v==='food')renderFood();
 });
 document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.lang button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
