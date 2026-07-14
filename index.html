@@ -150,6 +150,24 @@
   .st b{display:block;font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
   .st span{font-size:13px;color:var(--mute)}
   .out{background:#fff;border:1px solid var(--line);border-radius:9px;padding:18px;font-size:16px;white-space:pre-wrap;line-height:1.7;margin-top:15px}
+
+  /* full-screen busy overlay — the page must never look frozen */
+  .busy{position:fixed;inset:0;background:rgba(18,19,15,.72);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:200;padding:24px}
+  .busy.on{display:flex}
+  .busycard{background:var(--paper);border-radius:16px;padding:30px 34px;text-align:center;
+    max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .orb{display:flex;gap:9px;justify-content:center;margin-bottom:18px}
+  .orb span{width:12px;height:12px;border-radius:50%;background:var(--ink);
+    animation:bounce 1.1s ease-in-out infinite}
+  .orb span:nth-child(2){animation-delay:.15s;background:var(--lulu)}
+  .orb span:nth-child(3){animation-delay:.3s;background:var(--yelu)}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.35}
+    40%{transform:translateY(-11px);opacity:1}}
+  .busyt{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  .busys{font-size:14px;color:var(--mute);margin-top:5px;min-height:20px}
+  .bar{height:4px;background:var(--line);border-radius:99px;margin-top:16px;overflow:hidden}
+  .barf{height:100%;width:0;background:var(--ink);border-radius:99px;transition:width .35s ease}
   .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
   @keyframes sp{to{transform:rotate(360deg)}}
   .hide{display:none}
@@ -232,6 +250,14 @@
 
 </div>
 
+<div class="busy" id="busy">
+  <div class="busycard">
+    <div class="orb"><span></span><span></span><span></span></div>
+    <div class="busyt" id="busy-t"></div>
+    <div class="busys" id="busy-s"></div>
+    <div class="bar"><div class="barf" id="busy-bar"></div></div>
+  </div>
+</div>
 <input type="file" id="exshot" accept="image/*" multiple style="display:none">
 <div class="mask" id="mask">
   <div class="modal">
@@ -505,7 +531,7 @@ const easy=(m,extra)=>({
   ex:[
    {n:'轻松跑',k:'run',tgt:`${m} 分钟 · 心率 125–143 · 配速 7'30"–8'20"`,
     tip:'慢到你觉得"太慢"为止。心率压不到143就走路 — 这条没得商量,你的老毛病就是轻松跑太快。'+(extra?' '+extra.zh:'')},
-   {n:'加速跑',k:'run',tgt:'4–6 次 × 20秒',tip:'放松地快,不是冲刺。练神经募集和跑姿,不增加有氧压力。'},
+   {n:'加速跑',k:'int',tgt:'4–6 次 × 20秒',tip:'放松地快,不是冲刺。\n\n20秒太短,心率来不及爬上去 — 所以别看心率区间,那不是有用指标。真正要记的是:峰值心率(图表最高点)和1分钟恢复心率(降到多少)。恢复越快,自主神经越健康。你上次1分钟降了28,这是好数字。'},
    {n:'步频',k:'run',tgt:'目标 172–175 spm',tip:'开手表节拍器。你现在165偏低 — 步频低等于触地久、肌肉多做功、心率就飙。这是最快的杠杆。'}
   ],
   why:'这一块唯一的目标:不断。会觉得太简单 — 那正是重点。'},
@@ -513,7 +539,7 @@ const easy=(m,extra)=>({
   ex:[
    {n:'Easy run',k:'run',tgt:`${m} min · HR 125–143 · pace 7'30"–8'20"`,
     tip:'Slow enough that it feels "too slow". If HR won\'t stay under 143, walk. Non-negotiable — running easy days too hard is the old habit.'+(extra?' '+extra.en:'')},
-   {n:'Strides',k:'run',tgt:'4–6 × 20s',tip:'Relaxed and fast, not sprints. Trains recruitment and form without aerobic cost.'},
+   {n:'Strides',k:'int',tgt:'4–6 × 20s',tip:'Relaxed and fast, not sprints.\n\nHR lags badly on 20s efforts, so zone time is meaningless here. What actually matters: peak HR (the chart high point) and 1-min recovery HR. Faster recovery = healthier autonomic system. You dropped 28bpm in 1 min last time — that is good.'},
    {n:'Cadence',k:'run',tgt:'Target 172–175 spm',tip:'Use the watch metronome. Yours is 165 — low cadence means long ground contact, more muscular work, spiking HR. Fastest lever you have.'}
   ],
   why:'The only job this block: don\'t stop. It will feel too easy — that is the point.'}
@@ -538,12 +564,12 @@ const long=m=>({
 const q=(zt,zw,et,ew,warm,main,cool,mtip,mtipEn)=>({
  zh:{t:zt,ex:[
    {n:'热身',k:'run',tgt:`${warm} 分钟轻松`,tip:'别跳过。冷着上阈值容易受伤。'},
-   {n:'主课',k:'run',tgt:main.zh,tip:mtip},
+   {n:'主课',k:'int',tgt:main.zh,tip:mtip},
    {n:'放松',k:'run',tgt:`${cool} 分钟轻松`,tip:''}
  ],why:zw},
  en:{t:et,ex:[
    {n:'Warm-up',k:'run',tgt:`${warm} min easy`,tip:'Don\'t skip it. Going into threshold cold invites injury.'},
-   {n:'Main set',k:'run',tgt:main.en,tip:mtipEn},
+   {n:'Main set',k:'int',tgt:main.en,tip:mtipEn},
    {n:'Cool-down',k:'run',tgt:`${cool} min easy`,tip:''}
  ],why:ew}
 });
@@ -772,11 +798,17 @@ function renderEx(w,i,e,n){
   const zh=LANG==='zh';
 
   // Which fields to show depends on the exercise type.
-  const f = e.k==='run'
-    ? [['dist',zh?'距离':'Dist','km'],['min',zh?'时间':'Time',zh?'分':'min'],
+  const f =
+    e.k==='int' ?
+      // Short reps: HR lags 20s efforts, so peak + 1-min recovery is what's real.
+      [['reps',zh?'组数':'Reps','6'],['pace',zh?'配速':'Pace',"5'40\""],
+       ['hrmax',zh?'峰值心率':'Peak HR','147'],['hrrec',zh?'1分恢复':'1min rec','114'],
+       ['spm',zh?'步频':'Cad','spm']]
+  : e.k==='run' ?
+      [['dist',zh?'距离':'Dist','km'],['min',zh?'时间':'Time',zh?'分':'min'],
        ['pace',zh?'配速':'Pace',"6'30\""],['hr',zh?'心率':'HR','bpm'],
        ['spm',zh?'步频':'Cad','spm']]
-    : [['sets',zh?'组数':'Sets','4'],['reps',zh?'次数':'Reps','5'],['kg',zh?'重量':'Load','kg']];
+  :   [['sets',zh?'组数':'Sets','4'],['reps',zh?'次数':'Reps','5'],['kg',zh?'重量':'Load','kg']];
 
   const filled=f.some(([k])=>d[k])||d.rpe;
   const chips=f.map(([k,lb,ph])=>
@@ -791,7 +823,7 @@ function renderEx(w,i,e,n){
     <div class="exhead">
       <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${key}',${n})">
       <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.edited?`<span class="ied">${zh?'已改':'edited'}</span>`:''}</span>
-      ${e.k==='run'?`<button class="tipbtn cam" onclick="shotFor('${key}',${n})" title="${zh?'上传手表截图':'Upload watch screenshot'}">📷</button>`:''}
+      ${(e.k==='run'||e.k==='int')?`<button class="tipbtn cam" onclick="shotFor('${key}',${n})" title="${zh?'上传手表截图':'Upload watch screenshot'}">📷</button>`:''}
       ${e.tip?`<button class="tipbtn" onclick="this.parentElement.parentElement.classList.toggle('showtip')">＋</button>`:''}
     </div>
     <div class="extgt">${e.tgt}</div>
@@ -816,6 +848,23 @@ function lgTxt(l){const p=[];
 async function tog(key){const id=`${ME}|${key}`;DB.done[id]=!DB.done[id];await persist();render();}
 
 
+
+/* Busy overlay. Any slow AI call must show this — never a frozen screen. */
+function busyOn(title,sub){
+  document.getElementById('busy-t').textContent=title||'';
+  document.getElementById('busy-s').textContent=sub||'';
+  document.getElementById('busy-bar').style.width='8%';
+  document.getElementById('busy').classList.add('on');
+}
+function busyStep(pct,sub){
+  document.getElementById('busy-bar').style.width=Math.min(99,pct)+'%';
+  if(sub!==undefined)document.getElementById('busy-s').textContent=sub;
+}
+function busyOff(){
+  document.getElementById('busy-bar').style.width='100%';
+  setTimeout(()=>document.getElementById('busy').classList.remove('on'),260);
+}
+
 /* Upload a watch screenshot directly onto one exercise. */
 let shotTarget=null;
 function shotFor(key,n){
@@ -828,40 +877,55 @@ document.getElementById('exshot').onchange=async e=>{
   const {key,n}=shotTarget;
   const zh=LANG==='zh';
   const id=`${ME}|${key}|${n}`;
-  const banner=document.getElementById('sync');
-  banner.textContent=zh?'正在读截图…':'Reading screenshot…';banner.className='sync';
+  busyOn(zh?'正在读取截图':'Reading screenshot', zh?'准备图片…':'Preparing image…');
   const got={};let err='';
+  let fi=0;
   for(const f of files){
+    fi++;
     try{
+      busyStep(15+((fi-1)/files.length)*70, zh?`压缩第 ${fi}/${files.length} 张…`:`Compressing ${fi}/${files.length}…`);
       const b64=await toJpeg(f);
-      const o=await askClaude(b64,`Screenshot from a running watch or fitness app.
-Return ONLY raw JSON, no markdown:
-{"km":"4.03","min":"30.6","pace":"7'35\"","hr":"139","spm":"154"}
+      busyStep(25+((fi-1)/files.length)*70, zh?`AI 正在识别第 ${fi}/${files.length} 张…`:`AI reading ${fi}/${files.length}…`);
+      const o=await askClaude(b64,`Screenshot from a running watch or fitness app (Apple Fitness, COROS, Garmin).
+Return ONLY raw JSON, no markdown, no commentary:
+{"km":"4.03","min":"30.6","pace":"7'35\"","hr":"139","spm":"154","hrmax":"147","hrrec":"114"}
+
 Rules:
-- km = distance in kilometres, number only
+- km  = distance in kilometres, number only
 - min = duration in MINUTES as a decimal (30:35 -> "30.6")
-- pace = AVERAGE pace like 7'35"
-- hr = AVERAGE heart rate, number only (NOT max)
-- spm = AVERAGE CADENCE in steps/min ("Cadence" / "步频"), number only
-Use "" if you cannot read a value. JSON only.`);
-      ['km','min','pace','hr','spm'].forEach(k=>{if(o[k]&&!got[k])got[k]=o[k];});
+- pace = AVERAGE pace, format like 7'35"
+- hr  = AVERAGE heart rate ("Avg. Heart Rate"), number only
+- spm = AVERAGE CADENCE in steps per minute ("Cadence" / "步频"), number only
+- hrmax = the PEAK heart rate. IMPORTANT: read this from the HEART RATE CHART itself — the highest number printed on the chart axis (e.g. "147" at the top right of the graph). Do NOT use the zone table.
+- hrrec = the "1 min." value under "Post-Workout Heart Rate" / recovery — the heart rate one minute after finishing (e.g. "114").
+
+CRITICAL: Ignore the "Zone 1 / Zone 2 / Zone 3..." table entirely. Those zone boundaries are the watch's own settings and are WRONG for this athlete. Only read actual measured numbers.
+Use "" for anything you genuinely cannot read. JSON only.`);
+      ['km','min','pace','hr','spm','hrmax','hrrec'].forEach(k=>{if(o[k]&&!got[k])got[k]=o[k];});
     }catch(x){err=x.message||String(x);}
   }
   e.target.value='';shotTarget=null;
   if(Object.keys(got).length){
     DB.ex[id]=DB.ex[id]||{};
-    const map={km:'dist',min:'min',pace:'pace',hr:'hr',spm:'spm'};
+    const map={km:'dist',min:'min',pace:'pace',hr:'hr',spm:'spm',hrmax:'hrmax',hrrec:'hrrec'};
     Object.entries(map).forEach(([f,t])=>{if(got[f])DB.ex[id][t]=got[f];});
     DB.items[id]=true;
+    busyStep(95, zh?'保存中…':'Saving…');
     await persist();render();
+    busyOff();
+    const banner=document.getElementById('sync');
     const b=[];
     if(got.km)b.push(got.km+'km');
     if(got.pace)b.push(got.pace);
     if(got.hr)b.push((zh?'心率':'HR')+got.hr);
+    if(got.hrmax)b.push((zh?'峰值':'peak')+got.hrmax);
+    if(got.hrrec)b.push((zh?'恢复':'rec')+got.hrrec);
     if(got.spm)b.push((zh?'步频':'cad')+got.spm);
     banner.textContent='✓ '+b.join(' · ');banner.className='sync good';
     setTimeout(paintSync,4000);
   }else{
+    busyOff();
+    const banner=document.getElementById('sync');
     banner.textContent=(zh?'✕ 读不出来':'✕ Could not read')+(err?' — '+err:'');
     banner.className='sync bad';
     setTimeout(paintSync,5000);
@@ -1198,13 +1262,12 @@ document.getElementById('file').onchange=async e=>{
   const files=[...e.target.files];if(!files.length)return;
   const drop=document.getElementById('drop');drop.classList.add('busy');
   const zh=LANG==='zh';
+  busyOn(zh?'正在读取截图':'Reading screenshot', zh?'准备图片…':'Preparing image…');
   let ok=0,lastErr='';
   const got={};
 
   for(let n=0;n<files.length;n++){
-    document.getElementById('drop-t').innerHTML='<span class="spin"></span>'+
-      (zh?`正在读取 ${n+1}/${files.length}…`:`Reading ${n+1}/${files.length}…`);
-    document.getElementById('drop-s').textContent='';
+    busyStep(15+(n/files.length)*70, zh?`第 ${n+1}/${files.length} 张…`:`${n+1}/${files.length}…`);
     try{
       const b64=await toJpeg(files[n]);
       const o=await askClaude(b64,`Screenshot from a running watch or fitness app (Apple Fitness, COROS, Garmin, etc).
@@ -1228,6 +1291,7 @@ Use "" for anything you genuinely cannot read. JSON only.`);
     }catch(err){lastErr=err.message||String(err);}
   }
 
+  busyOff();
   if(ok){
     // Fill the modal fields...
     ['km','min','pace','hr','load'].forEach(k=>{
@@ -1296,7 +1360,10 @@ document.getElementById('run-ai').onclick=async()=>{
   const out=document.getElementById('ai-out');out.classList.remove('hide');out.className='out';
   const all=Object.entries(DB.logs);
   if(all.length<2){out.textContent=t('aifew');return;}
-  out.innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在读你们的训练数据…':'Reading your data…');
+  const zh0=LANG==='zh';
+  busyOn(zh0?'AI 正在分析':'AI is analysing', zh0?'读取训练与营养记录…':'Reading training and nutrition logs…');
+  busyStep(35, zh0?'比对配速与心率趋势…':'Comparing pace and HR trends…');
+  out.innerHTML='<span class="spin"></span>'+(zh0?'正在读你们的训练数据…':'Reading your data…');
   const rows=all.map(([k,l])=>{
     const [p,key]=k.split('|');const [w,i]=key.split('-').map(Number);
     const d=PLAN[w-1].days[i].zh||{};
@@ -1361,9 +1428,11 @@ ${foodRows}
     const r=await fetch(API,{method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
+    busyStep(80, zh0?'生成结论…':'Writing the verdict…');
     const d=await r.json();
+    busyOff();
     out.textContent=d.content.filter(c=>c.type==='text').map(c=>c.text).join('');
-  }catch(e){out.textContent=t('aifail');}
+  }catch(e){busyOff();out.textContent=t('aifail');}
 };
 
 
@@ -1529,14 +1598,14 @@ document.getElementById('ffile').onchange=async e=>{
   const files=[...e.target.files];if(!files.length)return;
   const drop=document.getElementById('fdrop');drop.classList.add('busy');
   const zh=LANG==='zh';
+  busyOn(zh?'正在估算营养':'Estimating nutrition', zh?'准备图片…':'Preparing image…');
   let ok=0,lastErr='';
   const sum={kcal:0,carb:0,pro:0,fat:0},descs=[];
   for(let n=0;n<files.length;n++){
-    document.getElementById('fdrop-t').innerHTML='<span class="spin"></span>'+
-      (zh?`正在估算 ${n+1}/${files.length}…`:`Estimating ${n+1}/${files.length}…`);
-    document.getElementById('fdrop-s').textContent='';
+    busyStep(15+(n/files.length)*70, zh?`压缩第 ${n+1}/${files.length} 张…`:`Compressing ${n+1}/${files.length}…`);
     try{
       const b64=await toJpeg(files[n]);
+      busyStep(25+(n/files.length)*70, zh?`AI 正在看第 ${n+1}/${files.length} 道菜…`:`AI reading dish ${n+1}/${files.length}…`);
       const o=await askClaude(b64,`Photo of a meal, likely Chinese/Asian food (rice, rice noodles, congee, salmon sashimi, shrimp, tofu, greens, Greek yogurt, tremella soup, jiuniang/fermented rice, toast, fruit).
 
 Estimate the nutrition of what is shown. Return ONLY raw JSON, no markdown:
@@ -1554,6 +1623,7 @@ JSON only.`);
       ok++;
     }catch(err){lastErr=err.message||String(err);}
   }
+  busyOff();
   if(ok){
     // Add to whatever is already typed in, so several photos build one meal.
     const add=(id,v)=>{const el=document.getElementById(id);const cur=+el.value||0;el.value=Math.round(cur+v);};
