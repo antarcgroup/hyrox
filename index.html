@@ -87,7 +87,12 @@
   .ex:first-child{border-top:none;padding-top:4px}
   .exhead{display:flex;align-items:center;gap:10px}
   .icbx{width:21px;height:21px;flex-shrink:0;cursor:pointer;accent-color:var(--ok)}
-  .exn{flex:1;font-size:17px;font-weight:700;cursor:pointer;line-height:1.35}
+  .exn{font-size:17px;font-weight:700;line-height:1.35;outline:none;border-bottom:1px dashed transparent;
+    padding:1px 2px;border-radius:3px;min-width:40px}
+  .exn:hover{border-bottom-color:var(--line)}
+  .exn:focus{background:#fff;border-bottom-color:var(--ink)}
+  .exhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tipbtn.vid{font-size:11px;margin-left:auto}
   .ex.exdone .exn{text-decoration:line-through;color:var(--mute)}
   .tipbtn{flex-shrink:0;width:26px;height:26px;border:1px solid var(--line);background:none;border-radius:6px;
     font:inherit;font-size:15px;font-weight:700;color:var(--mute);cursor:pointer;line-height:1;padding:0}
@@ -448,16 +453,16 @@ const S={};
 S.liftA={
  zh:{t:'力量 · 下肢 + 对比配对',
   ex:[
-   {n:'弹力带侧走',k:'lift',tgt:'2组 × 15m',tip:'臀中肌激活。带子放膝盖上方,小步横向走,别让膝盖内塌。'},
-   {n:'侧卧外展',k:'lift',tgt:'2组 × 15次/侧',tip:'慢，感受臀部外侧发力，不是腰在代偿。'},
+   {n:'弹力带侧走',k:'lift',tgt:'2组 × 15米',tip:'臀中肌激活。带子放膝盖上方,小步横向走,别让膝盖内塌。'},
+   {n:'侧卧外展',k:'lift',tgt:'2组 × 15次 每侧',tip:'慢，感受臀部外侧发力，不是腰在代偿。'},
    {n:'落地稳定',k:'lift',tgt:'2组 × 5次',tip:'跳起,稳稳落地,停住3秒。练的是减速控制 — 波比跳远和弓步都要用。'},
-   {n:'深蹲',k:'lift',tgt:'4组 × 5次 · 重',tip:'留1-2次余力,不练到力竭。练到力竭会毁掉第二天的跑步。'},
-   {n:'硬拉 / 六角杠',k:'lift',tgt:'4组 × 4次 · 重',tip:'后链主课。背保持中立,别塌腰。'},
-   {n:'臀推 → 雪橇推',k:'lift',tgt:'臀推 4×6 → 雪橇推 12.5m ×3',tip:'对比配对:先重后专项。臀推完休息约2分钟再推雪橇 — 让疲劳散掉,把神经激活留下。'},
-   {n:'保加利亚分腿蹲 → 弓步',k:'lift',tgt:'3组 × 8次/腿 → 行走弓步 20m',tip:'直接对应比赛的沙袋弓步。'},
-   {n:'HSR提踵',k:'lift',tgt:'3组 × 6-8次 · 重',tip:'3秒上,3秒下。屈膝和直膝各做。要更重不是更多次 — 你20次后提不高,是力量储备不足。'},
+   {n:'深蹲',k:'lift',tgt:'4组 × 5次 重量大',tip:'留1-2次余力,不练到力竭。练到力竭会毁掉第二天的跑步。'},
+   {n:'硬拉 / 六角杠',k:'lift',tgt:'4组 × 4次 重量大',tip:'后链主课。背保持中立,别塌腰。'},
+   {n:'臀推 → 雪橇推',k:'lift',tgt:'臀推 4组 × 6次，接雪橇推 3趟 × 12.5米',tip:'对比配对:先重后专项。臀推完休息约2分钟再推雪橇 — 让疲劳散掉,把神经激活留下。'},
+   {n:'保加利亚分腿蹲 → 弓步',k:'lift',tgt:'3组 × 8次 每腿，接行走弓步 20米',tip:'直接对应比赛的沙袋弓步。'},
+   {n:'HSR提踵',k:'lift',tgt:'3组 × 6至8次 重量大',tip:'3秒上,3秒下。屈膝和直膝各做。要更重不是更多次 — 你20次后提不高,是力量储备不足。'},
    {n:'脚尖上抬',k:'lift',tgt:'2组 × 15次',tip:'胫骨前肌。管背屈和落地稳定,之前完全没练过。'},
-   {n:'哥本哈根内收',k:'lift',tgt:'2组 × 8次/侧',tip:'内收肌是你的明确弱项。起步保守 — 这个动作很容易做过头,会酸好几天。'}
+   {n:'哥本哈根内收',k:'lift',tgt:'2组 × 8次 每侧',tip:'内收肌是你的明确弱项。起步保守 — 这个动作很容易做过头,会酸好几天。'}
   ],
   why:'大重量低次数,是围绝经期保骨保肌的关键。'},
  en:{t:'Strength · Lower + contrast pairs',
@@ -479,12 +484,12 @@ S.liftA={
 S.liftB={
  zh:{t:'力量 · 上肢/全身 + 对比配对',
   ex:[
-   {n:'蚌式',k:'lift',tgt:'2组 × 15次/侧',tip:'臀中肌热身。'},
+   {n:'蚌式',k:'lift',tgt:'2组 × 15次 每侧',tip:'臀中肌热身。'},
    {n:'单腿平衡',k:'lift',tgt:'2组 × 30秒',tip:'踝关节稳定。闭眼会更难。'},
    {n:'站姿推举',k:'lift',tgt:'4组 × 5次',tip:'过头推力量 — 滑雪机和墙球都要用。'},
    {n:'引体 / 划船',k:'lift',tgt:'4组 × 6次',tip:'拉力 — 对应雪橇拉。'},
-   {n:'罗马尼亚硬拉 → 绳索拉',k:'lift',tgt:'RDL 4×5 → 绳索拉 ×3',tip:'对比配对:后链 + 水平拉,直接对应雪橇拉。'},
-   {n:'农夫行走',k:'lift',tgt:'3组 × 40m · 重',tip:'比赛是 2×16kg 走200m。握力衰竭之前换手,不是之后。'},
+   {n:'罗马尼亚硬拉 → 绳索拉',k:'lift',tgt:'罗马尼亚硬拉 4组 × 5次，接绳索拉 3组',tip:'对比配对:后链 + 水平拉,直接对应雪橇拉。'},
+   {n:'农夫行走',k:'lift',tgt:'3组 × 40米 重量大',tip:'比赛是 2×16kg 走200m。握力衰竭之前换手,不是之后。'},
    {n:'原地弹跳',k:'lift',tgt:'3组 × 20次',tip:'脚踝像弹簧,膝盖别弯太多。练的是肌腱刚度 — 跑步经济性靠跟腱储能回弹,这和HSR是两种刺激。'},
    {n:'跳绳',k:'lift',tgt:'3组 × 30秒',tip:'同上,顺带也是骨密度刺激。'}
   ],
@@ -506,10 +511,10 @@ S.liftB={
 S.pila={
  zh:{t:'普拉提 + 拳击',
   ex:[
-   {n:'普拉提',k:'lift',tgt:'教练课 · 肩 / 髋 / 内收肌',tip:'保留。它处理的是你的具体弱项,不是你的力量或骨骼方案。'},
-   {n:'拳击',k:'lift',tgt:'体能 + 乐趣',tip:'心率会进三区。这天已经是中等强度日 — 别再叠加高强度。'},
-   {n:'X-plank',k:'lift',tgt:'2组 × 20秒/侧',tip:'侧板 + 上腿抬起。同时练臀中肌和稳定性,也是个自测动作。'},
-   {n:'弹力带足外翻',k:'lift',tgt:'2组 × 15次/侧',tip:'腓骨肌。踝关节侧向稳定,落地时用得上。'}
+   {n:'普拉提',k:'lift',tgt:'教练课，肩 髋 内收肌',tip:'保留。它处理的是你的具体弱项,不是你的力量或骨骼方案。'},
+   {n:'拳击',k:'lift',tgt:'体能',tip:'心率会进三区。这天已经是中等强度日 — 别再叠加高强度。'},
+   {n:'X-plank',k:'lift',tgt:'2组 × 20秒 每侧',tip:'侧板 + 上腿抬起。同时练臀中肌和稳定性,也是个自测动作。'},
+   {n:'弹力带足外翻',k:'lift',tgt:'2组 × 15次 每侧',tip:'腓骨肌。踝关节侧向稳定,落地时用得上。'}
   ],
   why:'这天已经是中等强度,别再叠加高强度。'},
  en:{t:'Pilates + Boxing',
@@ -533,7 +538,7 @@ const easy=(m,extra)=>({
   ex:[
    {n:'轻松跑',k:'run',tgt:`${m} 分钟 · 心率 125–143 · 配速 7'30"–8'20"`,
     tip:'慢到你觉得"太慢"为止。心率压不到143就走路 — 这条没得商量,你的老毛病就是轻松跑太快。\n\n开手表节拍器,步频目标 172–175。你基线只有 154–165,偏低 — 步频低等于跨步过大、触地时间长、每步都在刹车,只能用肌肉硬扛而不是让跟腱弹回来,心率自然飙。这是你最快见效的杠杆:别一步到位,先设 165 适应一周,再到 170。'+(extra?' '+extra.zh:'')},
-   {n:'加速跑',k:'int',tgt:'4–6 次 × 20秒',tip:'放松地快,不是冲刺。\n\n20秒太短,心率来不及爬上去 — 所以别看心率区间,那不是有用指标。真正要记的是:峰值心率(图表最高点)和1分钟恢复心率(降到多少)。恢复越快,自主神经越健康。你上次1分钟降了28,这是好数字。'},
+   {n:'加速跑',k:'int',tgt:'4至6次 × 20秒',tip:'放松地快,不是冲刺。\n\n20秒太短,心率来不及爬上去 — 所以别看心率区间,那不是有用指标。真正要记的是:峰值心率(图表最高点)和1分钟恢复心率(降到多少)。恢复越快,自主神经越健康。你上次1分钟降了28,这是好数字。'},
   ],
   why:'这一块唯一的目标:不断。会觉得太简单 — 那正是重点。'},
  en:{t:'Easy run + strides',
@@ -549,7 +554,7 @@ const long=m=>({
  zh:{t:'长轻松跑',
   ex:[
    {n:'长轻松跑',k:'run',tgt:`${m} 分钟 · 心率 125–143`,tip:'全程能正常说话。这是建有氧基础的一课,不是比谁快。'},
-   {n:'内收肌训练',k:'lift',tgt:'哥本哈根 2组 × 8次/侧',tip:'跑后补。'}
+   {n:'内收肌训练',k:'lift',tgt:'哥本哈根 2组 × 8次 每侧',tip:'跑后补。'}
   ],
   why:'有氧基础是其他一切的地基。'},
  en:{t:'Long easy run',
@@ -837,11 +842,17 @@ function renderEx(w,i,e,n){
   return `<div class="ex ${done?'exdone':''}">
     <div class="exhead">
       <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${key}',${n})">
-      <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.nameChanged?`<span class="plan">${zh?'计划':'plan'} ${e.planN}</span>`:''}</span>
+      <span class="exn" contenteditable="true" spellcheck="false"
+        onfocus="this.dataset.was=this.textContent.trim()"
+        onblur="renameEx('${key}',${n},this)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+      >${e.n}</span>
+      ${e.nameChanged?`<span class="plan">${zh?'计划':'plan'} ${e.planN}</span>`:''}
+      <button class="tipbtn vid" onclick="vid('${(e.planN||e.n).replace(/'/g,"\\'")}','${e.n.replace(/'/g,"\\'")}')" title="${zh?'看动作视频':'Watch a demo'}">▶</button>
       ${(e.k==='run'||e.k==='int')?`<button class="tipbtn cam" onclick="shotFor('${key}',${n})" title="${zh?'上传手表截图':'Upload watch screenshot'}">📷</button>`:''}
       ${e.tip?`<button class="tipbtn" onclick="this.parentElement.parentElement.classList.toggle('showtip')">＋</button>`:''}
     </div>
-    <div class="extgt">${e.tgt}${e.tgtChanged?`<span class="plan">${zh?'计划':'plan'} ${e.planT}</span>`:''}</div>
+    <div class="extgt">${e.planT||e.tgt}</div>
     ${e.tip?`<div class="extip">${e.tip}</div>`:''}
     <div class="exf ${filled?'on':''}">${chips}${rpe}</div>
   </div>`;
@@ -966,33 +977,64 @@ async function togItem(key,n){
 
 /* Tap an exercise to change it — weights, sets, whatever you actually did.
    The edit sticks; it is not overwritten by the original plan. */
-async function editItem(key,n){
+/* Rename an exercise inline. The plan name is always kept for comparison. */
+async function renameEx(key,n,el){
+  const v=el.textContent.trim();
+  const was=el.dataset.was||'';
+  if(v===was)return;
   const [w,i]=key.split('-').map(Number);
   const cur=exFor(w,i)[n];
-  const zh=LANG==='zh';
-
-  const nm=prompt(
-    zh?`动作名称。留空恢复原计划：${cur.planN}`
-      :`Exercise name. Leave empty to restore the plan: ${cur.planN}`,
-    cur.n);
-  if(nm===null)return;
-
-  const tg=prompt(
-    zh?`组数次数重量。留空恢复原计划：${cur.planT}`
-      :`Sets, reps, load. Leave empty to restore the plan: ${cur.planT}`,
-    cur.tgt);
-  if(tg===null)return;
 
   DB.edits[key]=DB.edits[key]||{};
-  const o={};
-  if(nm.trim() && nm.trim()!==cur.planN) o.n=nm.trim();
-  if(tg.trim() && tg.trim()!==cur.planT) o.tgt=tg.trim();
+  const prev=DB.edits[key][n];
+  const o=(prev&&typeof prev==='object')?{...prev}:{};
+
+  if(!v||v===cur.planN) delete o.n;      // empty or same as plan = restore plan
+  else o.n=v;
 
   if(Object.keys(o).length) DB.edits[key][n]=o;
   else delete DB.edits[key][n];
   if(!Object.keys(DB.edits[key]).length) delete DB.edits[key];
 
   await persist();render();
+}
+
+/* Search terms for a demo video. English searches return far better results,
+   so map the planned names; anything the coach substitutes is searched as typed. */
+const VID={
+ '弹力带侧走':'banded lateral walk glute med',
+ '侧卧外展':'side lying hip abduction exercise',
+ '落地稳定':'landing mechanics stick the landing drill',
+ '深蹲':'barbell back squat technique',
+ '硬拉 / 六角杠':'trap bar deadlift technique',
+ '臀推 → 雪橇推':'hip thrust and sled push hyrox',
+ '保加利亚分腿蹲 → 弓步':'bulgarian split squat technique',
+ 'HSR提踵':'heavy slow resistance calf raise achilles',
+ '脚尖上抬':'tibialis anterior raise',
+ '哥本哈根内收':'copenhagen adduction exercise',
+ '蚌式':'clamshell exercise glute medius',
+ '单腿平衡':'single leg balance exercise',
+ '站姿推举':'standing overhead press technique',
+ '引体 / 划船':'pull up and barbell row technique',
+ '罗马尼亚硬拉 → 绳索拉':'romanian deadlift technique',
+ '农夫行走':'farmers carry hyrox technique',
+ '原地弹跳':'pogo hops ankle stiffness drill',
+ '跳绳':'skipping rope technique running',
+ 'X-plank':'side plank with leg raise',
+ '弹力带足外翻':'banded ankle eversion peroneal',
+ '普拉提':'pilates for runners',
+ '拳击':'boxing conditioning workout',
+ '轻松跑':'easy run zone 2 heart rate',
+ '加速跑':'running strides technique',
+ '砖式循环':'hyrox compromised running brick workout',
+ '热身':'running warm up routine',
+ '主课':'threshold running workout',
+ '放松':'running cool down'
+};
+function vid(planName,actualName){
+  // Prefer the mapped English term; fall back to whatever the exercise is called now.
+  const q=VID[planName]||actualName||planName;
+  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank','noopener');
 }
 
 /* ---------- zones tab ---------- */
