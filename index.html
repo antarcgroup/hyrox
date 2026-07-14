@@ -92,6 +92,7 @@
   .tipbtn{flex-shrink:0;width:26px;height:26px;border:1px solid var(--line);background:none;border-radius:6px;
     font:inherit;font-size:15px;font-weight:700;color:var(--mute);cursor:pointer;line-height:1;padding:0}
   .tipbtn:hover{border-color:var(--ink);color:var(--ink)}
+  .tipbtn.cam{font-size:13px}
   .extgt{font-size:15px;color:var(--mute);margin:3px 0 0 31px;font-variant-numeric:tabular-nums}
   .extip{display:none;font-size:14px;line-height:1.6;color:#41403A;margin:8px 0 0 31px;
     padding:9px 12px;background:#fff;border-left:3px solid var(--line);border-radius:0 7px 7px 0}
@@ -231,6 +232,7 @@
 
 </div>
 
+<input type="file" id="exshot" accept="image/*" multiple style="display:none">
 <div class="mask" id="mask">
   <div class="modal">
     <h3 id="m-t"></h3>
@@ -789,6 +791,7 @@ function renderEx(w,i,e,n){
     <div class="exhead">
       <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${key}',${n})">
       <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.edited?`<span class="ied">${zh?'已改':'edited'}</span>`:''}</span>
+      ${e.k==='run'?`<button class="tipbtn cam" onclick="shotFor('${key}',${n})" title="${zh?'上传手表截图':'Upload watch screenshot'}">📷</button>`:''}
       ${e.tip?`<button class="tipbtn" onclick="this.parentElement.parentElement.classList.toggle('showtip')">＋</button>`:''}
     </div>
     <div class="extgt">${e.tgt}</div>
@@ -811,6 +814,59 @@ function lgTxt(l){const p=[];
   return p.join(' · ')||'✓';}
 
 async function tog(key){const id=`${ME}|${key}`;DB.done[id]=!DB.done[id];await persist();render();}
+
+
+/* Upload a watch screenshot directly onto one exercise. */
+let shotTarget=null;
+function shotFor(key,n){
+  shotTarget={key,n};
+  document.getElementById('exshot').click();
+}
+document.getElementById('exshot').onchange=async e=>{
+  const files=[...e.target.files];
+  if(!files.length||!shotTarget)return;
+  const {key,n}=shotTarget;
+  const zh=LANG==='zh';
+  const id=`${ME}|${key}|${n}`;
+  const banner=document.getElementById('sync');
+  banner.textContent=zh?'正在读截图…':'Reading screenshot…';banner.className='sync';
+  const got={};let err='';
+  for(const f of files){
+    try{
+      const b64=await toJpeg(f);
+      const o=await askClaude(b64,`Screenshot from a running watch or fitness app.
+Return ONLY raw JSON, no markdown:
+{"km":"4.03","min":"30.6","pace":"7'35\"","hr":"139","spm":"154"}
+Rules:
+- km = distance in kilometres, number only
+- min = duration in MINUTES as a decimal (30:35 -> "30.6")
+- pace = AVERAGE pace like 7'35"
+- hr = AVERAGE heart rate, number only (NOT max)
+- spm = AVERAGE CADENCE in steps/min ("Cadence" / "步频"), number only
+Use "" if you cannot read a value. JSON only.`);
+      ['km','min','pace','hr','spm'].forEach(k=>{if(o[k]&&!got[k])got[k]=o[k];});
+    }catch(x){err=x.message||String(x);}
+  }
+  e.target.value='';shotTarget=null;
+  if(Object.keys(got).length){
+    DB.ex[id]=DB.ex[id]||{};
+    const map={km:'dist',min:'min',pace:'pace',hr:'hr',spm:'spm'};
+    Object.entries(map).forEach(([f,t])=>{if(got[f])DB.ex[id][t]=got[f];});
+    DB.items[id]=true;
+    await persist();render();
+    const b=[];
+    if(got.km)b.push(got.km+'km');
+    if(got.pace)b.push(got.pace);
+    if(got.hr)b.push((zh?'心率':'HR')+got.hr);
+    if(got.spm)b.push((zh?'步频':'cad')+got.spm);
+    banner.textContent='✓ '+b.join(' · ');banner.className='sync good';
+    setTimeout(paintSync,4000);
+  }else{
+    banner.textContent=(zh?'✕ 读不出来':'✕ Could not read')+(err?' — '+err:'');
+    banner.className='sync bad';
+    setTimeout(paintSync,5000);
+  }
+};
 
 /* Save one field of one exercise. */
 async function setEx(key,n,f,v){
@@ -1202,8 +1258,17 @@ Use "" for anything you genuinely cannot read. JSON only.`);
     if(got.hr)bits.push((zh?'心率':'HR')+got.hr);
     if(got.spm)bits.push((zh?'步频':'cad')+got.spm);
     document.getElementById('drop-t').textContent='✓ '+bits.join(' · ');
-    document.getElementById('drop-s').textContent=zh?'已填入上面的表格 — 核对一下':'Filled into the fields above — check them';
-    render();
+    document.getElementById('drop-s').textContent=zh?'正在填入…':'Filling in…';
+    drop.classList.remove('busy');
+    e.target.value='';
+    // Close the modal so she can SEE the numbers land in the exercise fields.
+    setTimeout(()=>{
+      document.getElementById('mask').classList.remove('on');
+      render();
+      const el=document.getElementById('wk'+curWeek());
+      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+    },700);
+    return;
   }else{
     document.getElementById('drop-t').textContent=zh?'✕ 没读出来':'✕ Could not read it';
     document.getElementById('drop-s').textContent=lastErr?(zh?'原因: ':'Reason: ')+lastErr:(zh?'手动填一下':'Fill it in manually');
