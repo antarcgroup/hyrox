@@ -771,7 +771,9 @@ function renderEx(w,i,e,n){
 
   // Which fields to show depends on the exercise type.
   const f = e.k==='run'
-    ? [['dist',zh?'距离':'Dist',zh?'km':'km'],['pace',zh?'配速':'Pace',"6'30\""],['hr',zh?'心率':'HR','bpm']]
+    ? [['dist',zh?'距离':'Dist','km'],['min',zh?'时间':'Time',zh?'分':'min'],
+       ['pace',zh?'配速':'Pace',"6'30\""],['hr',zh?'心率':'HR','bpm'],
+       ['spm',zh?'步频':'Cad','spm']]
     : [['sets',zh?'组数':'Sets','4'],['reps',zh?'次数':'Reps','5'],['kg',zh?'重量':'Load','kg']];
 
   const filled=f.some(([k])=>d[k])||d.rpe;
@@ -1134,50 +1136,74 @@ async function askClaude(b64,prompt){
   return JSON.parse(txt.slice(a,b+1));
 }
 
-/* ---------- OCR: workout screenshots (multi-file, HEIC-safe) ---------- */
+/* ---------- OCR: watch screenshots -> straight into the exercise fields ---------- */
 document.getElementById('drop').onclick=()=>document.getElementById('file').click();
 document.getElementById('file').onchange=async e=>{
   const files=[...e.target.files];if(!files.length)return;
   const drop=document.getElementById('drop');drop.classList.add('busy');
   const zh=LANG==='zh';
   let ok=0,lastErr='';
+  const got={};
+
   for(let n=0;n<files.length;n++){
     document.getElementById('drop-t').innerHTML='<span class="spin"></span>'+
       (zh?`正在读取 ${n+1}/${files.length}…`:`Reading ${n+1}/${files.length}…`);
     document.getElementById('drop-s').textContent='';
     try{
       const b64=await toJpeg(files[n]);
-      const o=await askClaude(b64,`Workout screenshot from a running watch or fitness app. Extract the data.
-Return ONLY raw JSON, no markdown:
-{"km":"3.81","min":"24.3","pace":"6'22\"","hr":"153","load":"","note":""}
-Rules: km=distance in km. min=duration in minutes (decimal). pace=avg pace like 6'22". hr=AVERAGE heart rate (not max). load=weights/sets if it's a strength screenshot, else "". note=anything notable such as cadence or elevation, else "". Use "" for anything you cannot read. JSON only.`);
-      // Merge across multiple screenshots: fill blanks, don't overwrite good data.
-      ['km','min','pace','hr','load'].forEach(k=>{
-        const el=document.getElementById('f-'+k);
-        if(o[k]&&!el.value)el.value=o[k];
-      });
-      if(o.note){const c=gv('note');document.getElementById('f-note').value=c?c+' · '+o.note:o.note;}
-      // Also drop the numbers straight into the day's first run exercise.
-      try{
-        const [w,i]=curKey.split('-').map(Number);
-        const ex=exFor(w,i);
-        const n=ex.findIndex(e=>e.k==='run');
-        if(n>=0){
-          const id=`${ME}|${curKey}|${n}`;
-          DB.ex[id]=DB.ex[id]||{};
-          if(o.km)DB.ex[id].dist=o.km;
-          if(o.pace)DB.ex[id].pace=o.pace;
-          if(o.hr)DB.ex[id].hr=o.hr;
-          DB.items[id]=true;
-          await persist();
-        }
-      }catch(_){}
+      const o=await askClaude(b64,`Screenshot from a running watch or fitness app (Apple Fitness, COROS, Garmin, etc).
+Extract the workout data. Return ONLY raw JSON, no markdown, no commentary:
+
+{"km":"4.03","min":"30.6","pace":"7'35\"","hr":"139","spm":"154","load":"","note":""}
+
+Rules:
+- km  = distance in kilometres, number only
+- min = duration in MINUTES as a decimal (e.g. 30:35 -> "30.6")
+- pace = AVERAGE pace, format like 7'35"
+- hr  = AVERAGE heart rate, number only. NOT max heart rate.
+- spm = AVERAGE CADENCE in steps per minute, number only. Look for "Cadence" / "步频" / "spm".
+- load = sets/reps/weight if this is a STRENGTH screenshot, else ""
+- note = other notable details (elevation, power, ground contact time, temperature), else ""
+Use "" for anything you genuinely cannot read. JSON only.`);
+
+      ['km','min','pace','hr','spm','load'].forEach(k=>{if(o[k]&&!got[k])got[k]=o[k];});
+      if(o.note)got.note=got.note?got.note+' · '+o.note:o.note;
       ok++;
     }catch(err){lastErr=err.message||String(err);}
   }
+
   if(ok){
-    document.getElementById('drop-t').textContent=zh?`✓ 读了 ${ok}/${files.length} 张 — 检查一下数字`:`✓ Read ${ok}/${files.length} — check the numbers`;
-    document.getElementById('drop-s').textContent=zh?'可以再传,或直接保存':'Add more, or just save';
+    // Fill the modal fields...
+    ['km','min','pace','hr','load'].forEach(k=>{
+      const el=document.getElementById('f-'+k);
+      if(got[k]&&el&&!el.value)el.value=got[k];
+    });
+    if(got.spm){const c=gv('note');document.getElementById('f-note').value=(c?c+' · ':'')+(zh?'步频 ':'Cadence ')+got.spm;}
+    if(got.note){const c=gv('note');document.getElementById('f-note').value=(c?c+' · ':'')+got.note;}
+
+    // ...and, more importantly, straight into the day's first RUN exercise.
+    try{
+      const [w,i]=curKey.split('-').map(Number);
+      const ex=exFor(w,i);
+      const n=ex.findIndex(x=>x.k==='run');
+      if(n>=0){
+        const id=`${ME}|${curKey}|${n}`;
+        DB.ex[id]=DB.ex[id]||{};
+        const map={km:'dist',min:'min',pace:'pace',hr:'hr',spm:'spm'};
+        Object.entries(map).forEach(([from,to])=>{if(got[from])DB.ex[id][to]=got[from];});
+        DB.items[id]=true;
+        await persist();
+      }
+    }catch(_){}
+
+    const bits=[];
+    if(got.km)bits.push(got.km+'km');
+    if(got.pace)bits.push(got.pace);
+    if(got.hr)bits.push((zh?'心率':'HR')+got.hr);
+    if(got.spm)bits.push((zh?'步频':'cad')+got.spm);
+    document.getElementById('drop-t').textContent='✓ '+bits.join(' · ');
+    document.getElementById('drop-s').textContent=zh?'已填入上面的表格 — 核对一下':'Filled into the fields above — check them';
+    render();
   }else{
     document.getElementById('drop-t').textContent=zh?'✕ 没读出来':'✕ Could not read it';
     document.getElementById('drop-s').textContent=lastErr?(zh?'原因: ':'Reason: ')+lastErr:(zh?'手动填一下':'Fill it in manually');
