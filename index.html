@@ -278,20 +278,33 @@ const NAMES={lulu:'Lulu',yelu:'Ye Lu'};
 
 /* ---------- shared cloud storage (Netlify Blobs) ---------- */
 const DATA_API='/api/data';
-let DB={done:{},logs:{},meals:{}};
+let DB=normalise(null);
 let syncState='ok';
+
+/* Old saved data may predate newer fields. Always fill in what's missing,
+   so a schema change can never blank the page. */
+function normalise(d){
+  d=d||{};
+  return {
+    done : d.done  && typeof d.done  === 'object' ? d.done  : {},
+    logs : d.logs  && typeof d.logs  === 'object' ? d.logs  : {},
+    items: d.items && typeof d.items === 'object' ? d.items : {},
+    edits: d.edits && typeof d.edits === 'object' ? d.edits : {},
+    meals: d.meals && typeof d.meals === 'object' ? d.meals : {}
+  };
+}
 
 async function load(){
   try{
     const r=await fetch(DATA_API,{cache:'no-store'});
     if(!r.ok)throw new Error('http '+r.status);
     const d=await r.json();
-    DB={done:d.done||{},logs:d.logs||{},meals:d.meals||{}};
+    DB=normalise(d);
     syncState='ok';
   }catch(e){
     syncState='err';
     // Fall back to a local copy so a network blip doesn't look like data loss.
-    try{const l=localStorage.getItem('hyrox_backup');if(l)DB=JSON.parse(l);}catch(_){}
+    try{const l=localStorage.getItem('hyrox_backup');if(l)DB=normalise(JSON.parse(l));}catch(_){}
   }
   paintSync();
 }
