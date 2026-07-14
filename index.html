@@ -81,18 +81,34 @@
   .dttl.done{text-decoration:line-through;color:var(--mute)}
   .ddet{font-size:16px;color:#33322D;margin-top:8px;line-height:1.7;letter-spacing:.01em}
 
-  /* per-exercise checklist */
-  .items{margin-top:10px}
-  .isec{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);margin:12px 0 5px}
-  .isec:first-child{margin-top:2px}
-  .item{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
-  .icbx{width:20px;height:20px;flex-shrink:0;margin-top:1px;cursor:pointer;accent-color:var(--ok)}
-  .itxt{flex:1;font-size:16px;line-height:1.5;cursor:pointer;border-bottom:1px dashed transparent}
-  .itxt:hover{border-bottom-color:var(--line)}
-  .item.idone .itxt{text-decoration:line-through;color:var(--mute)}
-  .ied{font-size:10px;font-weight:800;letter-spacing:.05em;background:var(--line);color:var(--ink);padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:1px}
+  /* per-exercise cards */
+  .items{margin-top:12px}
+  .ex{border-top:1px solid var(--line);padding:11px 0}
+  .ex:first-child{border-top:none;padding-top:4px}
+  .exhead{display:flex;align-items:center;gap:10px}
+  .icbx{width:21px;height:21px;flex-shrink:0;cursor:pointer;accent-color:var(--ok)}
+  .exn{flex:1;font-size:17px;font-weight:700;cursor:pointer;line-height:1.35}
+  .ex.exdone .exn{text-decoration:line-through;color:var(--mute)}
+  .tipbtn{flex-shrink:0;width:26px;height:26px;border:1px solid var(--line);background:none;border-radius:6px;
+    font:inherit;font-size:15px;font-weight:700;color:var(--mute);cursor:pointer;line-height:1;padding:0}
+  .tipbtn:hover{border-color:var(--ink);color:var(--ink)}
+  .extgt{font-size:15px;color:var(--mute);margin:3px 0 0 31px;font-variant-numeric:tabular-nums}
+  .extip{display:none;font-size:14px;line-height:1.6;color:#41403A;margin:8px 0 0 31px;
+    padding:9px 12px;background:#fff;border-left:3px solid var(--line);border-radius:0 7px 7px 0}
+  .ex.showtip .extip{display:block}
+  .exf{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 0 31px;opacity:.55}
+  .exf.on,.ex:hover .exf,.ex.exdone .exf{opacity:1}
+  .fchip{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);
+    border-radius:7px;padding:4px 8px}
+  .fchip span{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+  .fchip input,.fchip select{width:62px;border:none;background:none;padding:2px 0;font:inherit;font-size:15px;
+    font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .fchip select{width:auto;max-width:96px}
+  .fchip input:focus,.fchip select:focus{outline:none}
+  .ied{font-size:10px;font-weight:800;background:var(--line);color:var(--ink);padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:2px}
   .iprog{font-size:12px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
   .iprog.full{color:var(--ok)}
+  @media(max-width:560px){.extgt,.extip,.exf{margin-left:0}.fchip input{width:52px}}
   .dwhy{font-size:14px;color:var(--mute);margin-top:7px;padding-left:11px;border-left:2px solid var(--line);line-height:1.45}
   .logbtn{background:none;border:1px solid var(--line);border-radius:7px;padding:6px 12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--mute);white-space:nowrap;margin-top:2px}
   .logbtn:hover{border-color:var(--ink);color:var(--ink)}
@@ -289,6 +305,7 @@ function normalise(d){
     done : d.done  && typeof d.done  === 'object' ? d.done  : {},
     logs : d.logs  && typeof d.logs  === 'object' ? d.logs  : {},
     items: d.items && typeof d.items === 'object' ? d.items : {},
+    ex   : d.ex    && typeof d.ex    === 'object' ? d.ex    : {},
     edits: d.edits && typeof d.edits === 'object' ? d.edits : {},
     meals: d.meals && typeof d.meals === 'object' ? d.meals : {}
   };
@@ -385,113 +402,273 @@ const BLOCKS=[
 const blockOf=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1]);
 
 /* ---------- sessions ---------- */
-const S={
- liftA:{zh:['力量 · 下肢 + 对比配对','热身 8分钟\n• 弹力带侧走 2×15m\n• 侧卧外展 2×15/侧\n• 落地稳定 2×5 — 跳起,稳稳落地,停3秒\n\n主课\n• 深蹲 4×5 — 重,留1-2次余力\n• 硬拉或六角杠 4×4\n• 臀推 4×6 → 雪橇推 12.5m ×3\n• 保加利亚分腿蹲 3×8/腿 → 行走弓步 20m\n\n收尾\n• HSR提踵 3×6-8 — 重!3秒上,3秒下\n• 屈膝和直膝各做一组\n• 脚尖上抬 2×15 — 练胫骨前肌\n• 哥本哈根内收 2×8/侧','大重量低次数,是围绝经期保骨保肌的关键。提踵要更重,不是更多次 — 你20次后提不高,说明力量储备不足。'],
-   en:['Strength · Lower + contrast pairs','Warm-up 8min\n• Banded lateral walk 2×15m\n• Side-lying abduction 2×15/side\n• Stick-the-landing 2×5 — jump, land, hold 3s\n\nMain\n• Squat 4×5 — heavy, leave 1-2 reps in reserve\n• Deadlift or trap-bar 4×4\n• Hip thrust 4×6 → Sled push 12.5m ×3\n• Bulgarian split squat 3×8/leg → Walking lunge 20m\n\nFinish\n• HSR calf raise 3×6-8 — HEAVY. 3s up, 3s down\n• Do both bent-knee and straight-knee\n• Tib raises 2×15\n• Copenhagen adduction 2×8/side','Heavy and low-rep is what protects bone and muscle in perimenopause. Calf raises must get heavier, not longer — you lose height after 20 reps, which means low strength reserve.']},
- liftB:{zh:['力量 · 上肢/全身 + 对比配对','热身\n• 蚌式 2×15/侧\n• 单腿平衡 2×30秒\n\n主课\n• 站姿推举 4×5\n• 引体或划船 4×6\n• 罗马尼亚硬拉 4×5 → 绳索拉 ×3\n• 农夫行走 3×40m — 重\n\n肌腱刚度收尾\n• 原地弹跳 3×20 — 脚踝像弹簧,膝盖别弯太多\n• 跳绳 3×30秒','弹跳练的是肌腱刚度。跑步经济性靠跟腱像弹簧一样储能回弹 — 这和HSR是两种不同刺激,两个都要。顺带也是骨密度刺激。'],
-   en:['Strength · Upper/full + contrast pairs','Warm-up\n• Clamshells 2×15/side\n• Single-leg balance 2×30s\n\nMain\n• Overhead press 4×5\n• Pull-ups or rows 4×6\n• RDL 4×5 → Cable pull ×3\n• Farmers carry 3×40m — heavy\n\nTendon stiffness finish\n• Pogo hops 3×20 — ankles like springs, minimal knee bend\n• Skipping rope 3×30s','Pogo hops build tendon stiffness. Running economy depends on the Achilles storing and returning energy like a spring — a different stimulus from HSR, and you need both. Doubles as bone loading.']},
- pila:{zh:['普拉提 + 拳击','普拉提 · 教练课\n• 肩 / 髋 / 内收肌\n\n拳击\n• 体能 + 乐趣\n\n自己补充\n• X-plank 2×20秒/侧 — 侧板,上腿抬起\n• 弹力带足外翻 2×15/侧 — 练腓骨肌','这天已经是中等强度,别再叠加高强度。X-plank 同时练臀中肌和稳定性。'],
-   en:['Pilates + Boxing','Pilates · with your coach\n• Shoulders / hips / adductors\n\nBoxing\n• Conditioning + fun\n\nAdd yourself\n• X-plank 2×20s/side — side plank, top leg raised\n• Banded eversion 2×15/side — peroneals','Already a moderate day — don\'t stack more intensity on it. X-plank trains glute med and stability together.']},
- rest:{zh:['休息','• 散步\n• 拉伸\n• 睡觉','恢复是训练的一部分,不是偷懒。'],
-   en:['Rest','• Walk\n• Stretch\n• Sleep','Recovery is part of the training, not a day off from it.']}
+/* ============================================================
+   SESSION MODEL
+   Each session = { t: title, ex: [exercises], why: coaching note }
+   Each exercise = {
+     n  : name (the only thing you tick)
+     k  : 'run' | 'lift'   -> decides which fields you log
+     tgt: target string shown under the name
+     tip: optional note (NOT tickable, collapsed under ⊕)
+   }
+   ============================================================ */
+
+const S={};
+
+S.liftA={
+ zh:{t:'力量 · 下肢 + 对比配对',
+  ex:[
+   {n:'弹力带侧走',k:'lift',tgt:'2组 × 15m',tip:'臀中肌激活。带子放膝盖上方,小步横向走,别让膝盖内塌。'},
+   {n:'侧卧外展',k:'lift',tgt:'2组 × 15次/侧',tip:'慢，感受臀部外侧发力，不是腰在代偿。'},
+   {n:'落地稳定',k:'lift',tgt:'2组 × 5次',tip:'跳起,稳稳落地,停住3秒。练的是减速控制 — 波比跳远和弓步都要用。'},
+   {n:'深蹲',k:'lift',tgt:'4组 × 5次 · 重',tip:'留1-2次余力,不练到力竭。练到力竭会毁掉第二天的跑步。'},
+   {n:'硬拉 / 六角杠',k:'lift',tgt:'4组 × 4次 · 重',tip:'后链主课。背保持中立,别塌腰。'},
+   {n:'臀推 → 雪橇推',k:'lift',tgt:'臀推 4×6 → 雪橇推 12.5m ×3',tip:'对比配对:先重后专项。臀推完休息约2分钟再推雪橇 — 让疲劳散掉,把神经激活留下。'},
+   {n:'保加利亚分腿蹲 → 弓步',k:'lift',tgt:'3组 × 8次/腿 → 行走弓步 20m',tip:'直接对应比赛的沙袋弓步。'},
+   {n:'HSR提踵',k:'lift',tgt:'3组 × 6-8次 · 重',tip:'3秒上,3秒下。屈膝和直膝各做。要更重不是更多次 — 你20次后提不高,是力量储备不足。'},
+   {n:'脚尖上抬',k:'lift',tgt:'2组 × 15次',tip:'胫骨前肌。管背屈和落地稳定,之前完全没练过。'},
+   {n:'哥本哈根内收',k:'lift',tgt:'2组 × 8次/侧',tip:'内收肌是你的明确弱项。起步保守 — 这个动作很容易做过头,会酸好几天。'}
+  ],
+  why:'大重量低次数,是围绝经期保骨保肌的关键。'},
+ en:{t:'Strength · Lower + contrast pairs',
+  ex:[
+   {n:'Banded lateral walk',k:'lift',tgt:'2 × 15m',tip:'Glute med activation. Band above knees, small steps, don\'t let knees cave.'},
+   {n:'Side-lying abduction',k:'lift',tgt:'2 × 15/side',tip:'Slow. Feel the outer hip, not the lower back compensating.'},
+   {n:'Stick-the-landing',k:'lift',tgt:'2 × 5',tip:'Jump, land, hold 3s. Trains deceleration — needed for burpee broad jumps and lunges.'},
+   {n:'Squat',k:'lift',tgt:'4 × 5 · heavy',tip:'Leave 1-2 reps in reserve. Never to failure — it wrecks the next day\'s run.'},
+   {n:'Deadlift / trap-bar',k:'lift',tgt:'4 × 4 · heavy',tip:'Posterior chain. Keep a neutral spine.'},
+   {n:'Hip thrust → Sled push',k:'lift',tgt:'Thrust 4×6 → Sled 12.5m ×3',tip:'Contrast pair. Rest ~2 min between — let fatigue clear, keep the neural potentiation.'},
+   {n:'Bulgarian split squat → Lunge',k:'lift',tgt:'3 × 8/leg → 20m walking lunge',tip:'Maps directly to the race sandbag lunges.'},
+   {n:'HSR calf raise',k:'lift',tgt:'3 × 6-8 · HEAVY',tip:'3s up, 3s down. Bent-knee and straight-knee. Heavier, not longer — you lose height after 20 reps.'},
+   {n:'Tib raises',k:'lift',tgt:'2 × 15',tip:'Tibialis anterior. Drives dorsiflexion and landing stability. You\'ve never trained it.'},
+   {n:'Copenhagen adduction',k:'lift',tgt:'2 × 8/side',tip:'Adductors are your known weak link. Start conservative — this one is easy to overdo.'}
+  ],
+  why:'Heavy and low-rep is what protects bone and muscle in perimenopause.'}
 };
-const easy=(m,extra)=>({zh:['轻松跑 + 加速跑',`• ${m} 分钟轻松跑\n• 心率 125–143,二区\n• 配速约 7\'30"–8\'20"\n• 慢到你觉得太慢为止\n• 心率压不下来就走路\n\n跑后\n• 4–6 × 20秒加速跑 — 放松,不是冲刺\n\n步频\n• 开手表节拍器,目标 172–175\n• 你现在165,偏低`+(extra?'\n\n'+extra.zh:''),'心率压不到143就走路。步频低等于触地久,肌肉多做功,心率就飙 — 提步频是最快的杠杆。'],
-  en:['Easy run + strides',`• ${m} min easy\n• HR 125–143, Zone 2\n• Pace ~7\'30"–8\'20"\n• Slow enough that it feels too slow\n• Walk if HR won\'t come down\n\nAfter\n• 4–6 × 20s strides — relaxed, not sprints\n\nCadence\n• Watch metronome, target 172–175\n• Yours is 165 — too low`+(extra?'\n\n'+extra.en:''),'If HR won\'t stay under 143, walk. Low cadence means long ground contact, more muscular work, spiking HR — cadence is the fastest lever you have.']});
-const long=m=>({zh:['长轻松跑',`• ${m} 分钟持续轻松跑\n• 心率二区 125–143\n• 全程能正常说话\n\n补充\n• 内收肌训练`,'这是建有氧基础的一课,不是比谁快。'],
-  en:['Long easy run',`• ${m} min continuous easy\n• Zone 2, HR 125–143\n• You should be able to talk the whole way\n\nAdd\n• Adductor work`,'This builds the aerobic base. It is not a race.']});
 
-
-const T={
- 5:{zh:['阈值 · 巡航间歇 · 第一次','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 4分钟 @ 6\'30"–6\'45"/km\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟','你人生第一次阈值课。心率会到156–165,会不舒服,这是正常的。宁慢勿快。'],en:['Threshold · cruise intervals · first ever','Warm-up\n• 10 min easy\n\nMain\n• 4 × 4 min @ 6\'30"–6\'45"/km\n• 90s jog between\n\nCool-down\n• 10 min','Your first-ever threshold session. HR will hit 156–165 and it will feel uncomfortable. That is normal. Err on the slow side.']},
- 6:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 5分钟 @ 6\'30"–6\'45"\n• 组间 75秒 慢跑\n\n放松\n• 10 分钟','配速要能均匀撑完。第一组别冲。'],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 4 × 5 min @ 6\'30"–6\'45"\n• 75s jog between\n\nCool-down\n• 10 min','Even splits. Do not blow the first rep.']},
- 7:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 7分钟 @ 6\'30"–6\'45"\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟',''],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 3 × 7 min @ 6\'30"–6\'45"\n• 90s jog between\n\nCool-down\n• 10 min','']},
- 8:{zh:['减量周 · 轻阈值','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 4分钟 @ 6\'30"–6\'45"\n• 组间 90秒 慢跑\n\n放松\n• 10 分钟','减量周。保强度,砍容量。'],en:['Deload · light threshold','Warm-up\n• 10 min easy\n\nMain\n• 3 × 4 min @ 6\'30"–6\'45"\n• 90s jog between\n\nCool-down\n• 10 min','Deload week. Keep intensity, cut volume.']},
- 9:{zh:['阈值 · 巡航间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 3 × 8分钟 @ 6\'30"–6\'45"\n• 组间 60秒 慢跑\n\n放松\n• 10 分钟',''],en:['Threshold · cruise intervals','Warm-up\n• 10 min easy\n\nMain\n• 3 × 8 min @ 6\'30"–6\'45"\n• 60s jog between\n\nCool-down\n• 10 min','']},
- 10:{zh:['阈值 · 长段落','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 12分钟 @ 6\'30"–6\'45"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','第2块收官。能均匀跑完,就可以进第3块。'],en:['Threshold · long reps','Warm-up\n• 10 min easy\n\nMain\n• 2 × 12 min @ 6\'30"–6\'45"\n• 2 min jog between\n\nCool-down\n• 10 min','End of Block 2. Even splits means you are cleared for Block 3.']},
- 11:{zh:['最大摄氧 · 间歇 · 第一次','热身\n• 12 分钟轻松跑\n\n主课\n• 5 × 2分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','心率会到165以上。新刺激,会很难受。这是正常的。'],en:['VO2max · intervals · first','Warm-up\n• 12 min easy\n\nMain\n• 5 × 2 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','HR will go above 165. New stimulus, will feel bad. Normal.']},
- 12:{zh:['最大摄氧 · 间歇','热身\n• 12 分钟轻松跑\n\n主课\n• 5 × 3分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟',''],en:['VO2max · intervals','Warm-up\n• 12 min easy\n\nMain\n• 5 × 3 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','']},
- 13:{zh:['阈值 · 维持','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 15分钟 @ 6\'25"–6\'40"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','阈值配速这时候该变快了。测测看。'],en:['Threshold · maintain','Warm-up\n• 10 min easy\n\nMain\n• 2 × 15 min @ 6\'25"–6\'40"\n• 2 min jog between\n\nCool-down\n• 10 min','Threshold pace should be dropping by now. Check it.']},
- 14:{zh:['减量周 · 轻间歇','热身\n• 10 分钟轻松跑\n\n主课\n• 4 × 2分钟 @ 6\'00"–6\'15"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','减量周。'],en:['Deload · light intervals','Warm-up\n• 10 min easy\n\nMain\n• 4 × 2 min @ 6\'00"–6\'15"\n• 2 min jog between\n\nCool-down\n• 10 min','Deload week.']},
- 15:{zh:['最大摄氧 · 间歇','热身\n• 12 分钟轻松跑\n\n主课\n• 4 × 4分钟 @ 6\'00"–6\'15"\n• 组间 2分半 慢跑\n\n放松\n• 10 分钟',''],en:['VO2max · intervals','Warm-up\n• 12 min easy\n\nMain\n• 4 × 4 min @ 6\'00"–6\'15"\n• 2.5 min jog between\n\nCool-down\n• 10 min','']},
- 16:{zh:['阈值 · 长段落','热身\n• 10 分钟轻松跑\n\n主课\n• 2 × 15分钟 @ 6\'20"–6\'35"\n• 组间 2分钟 慢跑\n\n放松\n• 10 分钟','第3块收官。'],en:['Threshold · long reps','Warm-up\n• 10 min easy\n\nMain\n• 2 × 15 min @ 6\'20"–6\'35"\n• 2 min jog between\n\nCool-down\n• 10 min','End of Block 3.']},
- 17:{zh:['比赛配速 · 1公里重复','热身\n• 12 分钟\n\n主课\n• 6 × 1公里 @ 6\'30"–6\'50"\n• 每组之间走200m,或做一个站点\n\n放松\n• 10 分钟','这就是比赛日的配速。记住这个感觉。'],en:['Race pace · 1km repeats','Warm-up\n• 12 min\n\nMain\n• 6 × 1km @ 6\'30"–6\'50"\n• 200m walk or one station between\n\nCool-down\n• 10 min','This is race-day pace. Memorise how it feels.']},
- 18:{zh:['比赛配速 · 1公里重复','热身\n• 12 分钟\n\n主课\n• 8 × 1公里 @ 6\'30"–6\'50"\n• 每组之间走200m,或做一个站点\n\n放松\n• 10 分钟','最接近比赛的一课。8个1公里,和比赛一样。'],en:['Race pace · 1km repeats','Warm-up\n• 12 min\n\nMain\n• 8 × 1km @ 6\'30"–6\'50"\n• 200m walk or one station between\n\nCool-down\n• 10 min','Closest thing to the race. 8 × 1km, same as race day.']},
- 19:{zh:['比赛配速 · 锐化','热身\n• 12 分钟\n\n主课\n• 5 × 1公里 @ 6\'25"–6\'45"\n• 组间走200m\n\n放松\n• 10 分钟','开始减量。保强度,砍量。'],en:['Race pace · sharpening','Warm-up\n• 12 min\n\nMain\n• 5 × 1km @ 6\'25"–6\'45"\n• 200m walk between\n\nCool-down\n• 10 min','Taper begins. Keep intensity, cut volume.']},
- 20:{zh:['减量 · 短锐化','热身\n• 10 分钟\n\n主课\n• 4 × 800m @ 比赛配速\n• 组间走2分钟\n\n放松\n• 10 分钟','最后一次高强度。之后只保鲜。'],en:['Taper · short sharpening','Warm-up\n• 10 min\n\nMain\n• 4 × 800m @ race pace\n• 2 min walk between\n\nCool-down\n• 10 min','Last hard session. After this, just stay sharp.']},
- 21:{zh:['比赛周 · 抖动跑','• 20 分钟轻松跑\n• 中间穿插 4 × 20秒比赛配速\n\n就这些。别加。','会觉得练太少。那是对的。'],en:['Race week · shakeout','• 20 min easy\n• 4 × 20s at race pace mixed in\n\nThat is all. Do not add more.','It will feel like too little. That is correct.']}
+S.liftB={
+ zh:{t:'力量 · 上肢/全身 + 对比配对',
+  ex:[
+   {n:'蚌式',k:'lift',tgt:'2组 × 15次/侧',tip:'臀中肌热身。'},
+   {n:'单腿平衡',k:'lift',tgt:'2组 × 30秒',tip:'踝关节稳定。闭眼会更难。'},
+   {n:'站姿推举',k:'lift',tgt:'4组 × 5次',tip:'过头推力量 — 滑雪机和墙球都要用。'},
+   {n:'引体 / 划船',k:'lift',tgt:'4组 × 6次',tip:'拉力 — 对应雪橇拉。'},
+   {n:'罗马尼亚硬拉 → 绳索拉',k:'lift',tgt:'RDL 4×5 → 绳索拉 ×3',tip:'对比配对:后链 + 水平拉,直接对应雪橇拉。'},
+   {n:'农夫行走',k:'lift',tgt:'3组 × 40m · 重',tip:'比赛是 2×16kg 走200m。握力衰竭之前换手,不是之后。'},
+   {n:'原地弹跳',k:'lift',tgt:'3组 × 20次',tip:'脚踝像弹簧,膝盖别弯太多。练的是肌腱刚度 — 跑步经济性靠跟腱储能回弹,这和HSR是两种刺激。'},
+   {n:'跳绳',k:'lift',tgt:'3组 × 30秒',tip:'同上,顺带也是骨密度刺激。'}
+  ],
+  why:'上肢为主,减少对第二天跑步的干扰。'},
+ en:{t:'Strength · Upper/full + contrast pairs',
+  ex:[
+   {n:'Clamshells',k:'lift',tgt:'2 × 15/side',tip:'Glute med warm-up.'},
+   {n:'Single-leg balance',k:'lift',tgt:'2 × 30s',tip:'Ankle stability. Harder with eyes closed.'},
+   {n:'Overhead press',k:'lift',tgt:'4 × 5',tip:'Overhead strength — feeds the SkiErg and wall balls.'},
+   {n:'Pull-ups / rows',k:'lift',tgt:'4 × 6',tip:'Pulling strength — maps to the sled pull.'},
+   {n:'RDL → Cable pull',k:'lift',tgt:'RDL 4×5 → Cable pull ×3',tip:'Contrast pair: posterior chain + horizontal pull = sled pull.'},
+   {n:'Farmers carry',k:'lift',tgt:'3 × 40m · heavy',tip:'Race is 2×16kg for 200m. Swap BEFORE grip fails, not after.'},
+   {n:'Pogo hops',k:'lift',tgt:'3 × 20',tip:'Ankles like springs, minimal knee bend. Builds tendon stiffness — a different stimulus from HSR, and you need both.'},
+   {n:'Skipping rope',k:'lift',tgt:'3 × 30s',tip:'Same purpose. Doubles as bone loading.'}
+  ],
+  why:'Upper-focused to reduce interference with the next day\'s run.'}
 };
-const brick=n=>({zh:['砖式 · HYROX疲劳跑',`${n} 轮,中间不休息:
 
-• 跑 1公里 @ 6'45"–7'00"
-• 接一个站点 — 墙球50 / 沙袋弓步50m / 雪橇 / 波比×10
-• 直接接下一个1公里`,'练的是在累腿上跑步。比赛就是这个感觉。'],
-  en:['Brick · compromised running',`${n} rounds, no rest between:
+S.pila={
+ zh:{t:'普拉提 + 拳击',
+  ex:[
+   {n:'普拉提',k:'lift',tgt:'教练课 · 肩 / 髋 / 内收肌',tip:'保留。它处理的是你的具体弱项,不是你的力量或骨骼方案。'},
+   {n:'拳击',k:'lift',tgt:'体能 + 乐趣',tip:'心率会进三区。这天已经是中等强度日 — 别再叠加高强度。'},
+   {n:'X-plank',k:'lift',tgt:'2组 × 20秒/侧',tip:'侧板 + 上腿抬起。同时练臀中肌和稳定性,也是个自测动作。'},
+   {n:'弹力带足外翻',k:'lift',tgt:'2组 × 15次/侧',tip:'腓骨肌。踝关节侧向稳定,落地时用得上。'}
+  ],
+  why:'这天已经是中等强度,别再叠加高强度。'},
+ en:{t:'Pilates + Boxing',
+  ex:[
+   {n:'Pilates',k:'lift',tgt:'With your coach · shoulders / hips / adductors',tip:'Keep it. It addresses your specific deficits — it is not your strength or bone programme.'},
+   {n:'Boxing',k:'lift',tgt:'Conditioning + fun',tip:'HR drifts into Zone 3. This is already a moderate day — don\'t stack more on it.'},
+   {n:'X-plank',k:'lift',tgt:'2 × 20s/side',tip:'Side plank + top leg raised. Trains glute med and stability, and works as a self-test.'},
+   {n:'Banded eversion',k:'lift',tgt:'2 × 15/side',tip:'Peroneals. Lateral ankle stability for landing.'}
+  ],
+  why:'Already a moderate day — don\'t stack more intensity on it.'}
+};
 
-• Run 1km @ 6'45"–7'00"
-• One station — 50 wall balls / 50m sandbag lunge / sled / 10 burpees
-• Straight into the next 1km`,'This trains running on dead legs. That IS the race.']});
-const sim={zh:['搭档模拟 · Lulu + Ye Lu',`• 完整或半程模拟
-• 4跑+4站,或 8跑+8站
+S.rest={
+ zh:{t:'休息',ex:[],why:'恢复是训练的一部分,不是偷懒。散步、拉伸、睡觉。'},
+ en:{t:'Rest',ex:[],why:'Recovery is part of the training, not a day off. Walk, stretch, sleep.'}
+};
 
-重点
-• 分工
-• 交接
-• 配速同步
+/* ---------- runs ---------- */
+const easy=(m,extra)=>({
+ zh:{t:'轻松跑 + 加速跑',
+  ex:[
+   {n:'轻松跑',k:'run',tgt:`${m} 分钟 · 心率 125–143 · 配速 7'30"–8'20"`,
+    tip:'慢到你觉得"太慢"为止。心率压不到143就走路 — 这条没得商量,你的老毛病就是轻松跑太快。'+(extra?' '+extra.zh:'')},
+   {n:'加速跑',k:'run',tgt:'4–6 次 × 20秒',tip:'放松地快,不是冲刺。练神经募集和跑姿,不增加有氧压力。'},
+   {n:'步频',k:'run',tgt:'目标 172–175 spm',tip:'开手表节拍器。你现在165偏低 — 步频低等于触地久、肌肉多做功、心率就飙。这是最快的杠杆。'}
+  ],
+  why:'这一块唯一的目标:不断。会觉得太简单 — 那正是重点。'},
+ en:{t:'Easy run + strides',
+  ex:[
+   {n:'Easy run',k:'run',tgt:`${m} min · HR 125–143 · pace 7'30"–8'20"`,
+    tip:'Slow enough that it feels "too slow". If HR won\'t stay under 143, walk. Non-negotiable — running easy days too hard is the old habit.'+(extra?' '+extra.en:'')},
+   {n:'Strides',k:'run',tgt:'4–6 × 20s',tip:'Relaxed and fast, not sprints. Trains recruitment and form without aerobic cost.'},
+   {n:'Cadence',k:'run',tgt:'Target 172–175 spm',tip:'Use the watch metronome. Yours is 165 — low cadence means long ground contact, more muscular work, spiking HR. Fastest lever you have.'}
+  ],
+  why:'The only job this block: don\'t stop. It will feel too easy — that is the point.'}
+});
 
-记录
-• 每个1公里分段
-• 每站用时`,'不协调的换人,8个站累计能丢40–80秒。'],
-  en:['Partner simulation · Lulu + Ye Lu',`• Full or half sim
-• 4 runs + 4 stations, or 8+8
+const long=m=>({
+ zh:{t:'长轻松跑',
+  ex:[
+   {n:'长轻松跑',k:'run',tgt:`${m} 分钟 · 心率 125–143`,tip:'全程能正常说话。这是建有氧基础的一课,不是比谁快。'},
+   {n:'内收肌训练',k:'lift',tgt:'哥本哈根 2组 × 8次/侧',tip:'跑后补。'}
+  ],
+  why:'有氧基础是其他一切的地基。'},
+ en:{t:'Long easy run',
+  ex:[
+   {n:'Long easy run',k:'run',tgt:`${m} min · HR 125–143`,tip:'You should be able to talk the whole way. This builds the aerobic base. It is not a race.'},
+   {n:'Adductor work',k:'lift',tgt:'Copenhagen 2 × 8/side',tip:'After the run.'}
+  ],
+  why:'The aerobic base is the foundation everything else sits on.'}
+});
 
-Focus
-• Splits
-• Transitions
-• Pace sync
+/* threshold / VO2 builder */
+const q=(zt,zw,et,ew,warm,main,cool,mtip,mtipEn)=>({
+ zh:{t:zt,ex:[
+   {n:'热身',k:'run',tgt:`${warm} 分钟轻松`,tip:'别跳过。冷着上阈值容易受伤。'},
+   {n:'主课',k:'run',tgt:main.zh,tip:mtip},
+   {n:'放松',k:'run',tgt:`${cool} 分钟轻松`,tip:''}
+ ],why:zw},
+ en:{t:et,ex:[
+   {n:'Warm-up',k:'run',tgt:`${warm} min easy`,tip:'Don\'t skip it. Going into threshold cold invites injury.'},
+   {n:'Main set',k:'run',tgt:main.en,tip:mtipEn},
+   {n:'Cool-down',k:'run',tgt:`${cool} min easy`,tip:''}
+ ],why:ew}
+});
 
-Log
-• Every 1km split
-• Time per station`,'Sloppy transitions cost 40–80s across 8 stations.']};
-const raceday={zh:['🏁 比赛日 · 12月5日',`HYROX 女子双人 Open
+const T={};
+T[5]=q('阈值 · 巡航间歇 · 第一次','你人生第一次阈值课。',
+       'Threshold · cruise intervals · first ever','Your first-ever threshold session.',
+       10,{zh:`4组 × 4分钟 @ 6'30"–6'45" · 组间90秒慢跑`,en:`4 × 4 min @ 6'30"–6'45" · 90s jog`},10,
+       '心率会到156–165,会不舒服,这是正常的。宁慢勿快 — 第一组别冲。',
+       'HR will hit 156–165 and feel uncomfortable. Normal. Err slow — don\'t blow the first rep.');
+T[6]=q('阈值 · 巡航间歇','','Threshold · cruise intervals','',10,
+       {zh:`4组 × 5分钟 @ 6'30"–6'45" · 组间75秒慢跑`,en:`4 × 5 min @ 6'30"–6'45" · 75s jog`},10,
+       '配速要能均匀撑完。','Even splits.');
+T[7]=q('阈值 · 巡航间歇','','Threshold · cruise intervals','',10,
+       {zh:`3组 × 7分钟 @ 6'30"–6'45" · 组间90秒慢跑`,en:`3 × 7 min @ 6'30"–6'45" · 90s jog`},10,'','');
+T[8]=q('减量周 · 轻阈值','减量周。保强度,砍容量。','Deload · light threshold','Deload. Keep intensity, cut volume.',10,
+       {zh:`3组 × 4分钟 @ 6'30"–6'45" · 组间90秒慢跑`,en:`3 × 4 min @ 6'30"–6'45" · 90s jog`},10,'','');
+T[9]=q('阈值 · 巡航间歇','','Threshold · cruise intervals','',10,
+       {zh:`3组 × 8分钟 @ 6'30"–6'45" · 组间60秒慢跑`,en:`3 × 8 min @ 6'30"–6'45" · 60s jog`},10,'','');
+T[10]=q('阈值 · 长段落','第2块收官。','Threshold · long reps','End of Block 2.',10,
+       {zh:`2组 × 12分钟 @ 6'30"–6'45" · 组间2分钟慢跑`,en:`2 × 12 min @ 6'30"–6'45" · 2 min jog`},10,
+       '能均匀跑完,就可以进第3块。','Even splits means you are cleared for Block 3.');
+T[11]=q('最大摄氧 · 间歇 · 第一次','新刺激。','VO2max · intervals · first','New stimulus.',12,
+       {zh:`5组 × 2分钟 @ 6'00"–6'15" · 组间2分钟慢跑`,en:`5 × 2 min @ 6'00"–6'15" · 2 min jog`},10,
+       '心率会到165以上,会很难受。这是正常的。','HR will go above 165 and feel bad. Normal.');
+T[12]=q('最大摄氧 · 间歇','','VO2max · intervals','',12,
+       {zh:`5组 × 3分钟 @ 6'00"–6'15" · 组间2分钟慢跑`,en:`5 × 3 min @ 6'00"–6'15" · 2 min jog`},10,'','');
+T[13]=q('阈值 · 维持','','Threshold · maintain','',10,
+       {zh:`2组 × 15分钟 @ 6'25"–6'40" · 组间2分钟慢跑`,en:`2 × 15 min @ 6'25"–6'40" · 2 min jog`},10,
+       '阈值配速这时候该变快了。测测看。','Threshold pace should be dropping by now. Check it.');
+T[14]=q('减量周 · 轻间歇','减量周。','Deload · light intervals','Deload week.',10,
+       {zh:`4组 × 2分钟 @ 6'00"–6'15" · 组间2分钟慢跑`,en:`4 × 2 min @ 6'00"–6'15" · 2 min jog`},10,'','');
+T[15]=q('最大摄氧 · 间歇','','VO2max · intervals','',12,
+       {zh:`4组 × 4分钟 @ 6'00"–6'15" · 组间2分半慢跑`,en:`4 × 4 min @ 6'00"–6'15" · 2.5 min jog`},10,'','');
+T[16]=q('阈值 · 长段落','第3块收官。','Threshold · long reps','End of Block 3.',10,
+       {zh:`2组 × 15分钟 @ 6'20"–6'35" · 组间2分钟慢跑`,en:`2 × 15 min @ 6'20"–6'35" · 2 min jog`},10,'','');
+T[17]=q('比赛配速 · 1公里重复','','Race pace · 1km repeats','',12,
+       {zh:`6组 × 1公里 @ 6'30"–6'50" · 组间走200m或做一个站点`,en:`6 × 1km @ 6'30"–6'50" · 200m walk or one station between`},10,
+       '这就是比赛日的配速。记住这个感觉。','This is race-day pace. Memorise how it feels.');
+T[18]=q('比赛配速 · 1公里重复','','Race pace · 1km repeats','',12,
+       {zh:`8组 × 1公里 @ 6'30"–6'50" · 组间走200m或做一个站点`,en:`8 × 1km @ 6'30"–6'50" · 200m walk or one station between`},10,
+       '最接近比赛的一课。8个1公里,和比赛一样。','Closest thing to the race. 8 × 1km, same as race day.');
+T[19]=q('比赛配速 · 锐化','开始减量。','Race pace · sharpening','Taper begins.',12,
+       {zh:`5组 × 1公里 @ 6'25"–6'45" · 组间走200m`,en:`5 × 1km @ 6'25"–6'45" · 200m walk`},10,
+       '保强度,砍量。','Keep intensity, cut volume.');
+T[20]=q('减量 · 短锐化','最后一次高强度。','Taper · short sharpening','Last hard session.',10,
+       {zh:`4组 × 800m @ 比赛配速 · 组间走2分钟`,en:`4 × 800m @ race pace · 2 min walk`},10,
+       '之后只保鲜。','After this, just stay sharp.');
+T[21]={
+ zh:{t:'比赛周 · 抖动跑',ex:[
+   {n:'抖动跑',k:'run',tgt:'20分钟轻松 + 4 × 20秒比赛配速',tip:'就这些。别加。会觉得练太少 — 那是对的。'}
+ ],why:'那种"我该再练一次"的冲动,正是把人送进伤病悬崖的东西。'},
+ en:{t:'Race week · shakeout',ex:[
+   {n:'Shakeout',k:'run',tgt:'20 min easy + 4 × 20s at race pace',tip:'That is all. It will feel like too little — that is correct.'}
+ ],why:'That urge to "add one more session" is exactly what drives people off the injury cliff.'}
+};
 
-配速纪律
-• 前2个1公里宁可慢5秒
-• 跑5到8最难 — 那时你会想放弃,但你练过了
+const brick=n=>({
+ zh:{t:'砖式 · HYROX疲劳跑',ex:[
+   {n:'砖式循环',k:'run',tgt:`${n} 轮 · 1公里 @ 6'45"–7'00" + 1个站点`,
+    tip:'站点任选:墙球50 / 沙袋弓步50m / 雪橇 / 波比×10。中间不休息,直接接下一个1公里。'},
+   {n:'记录分段',k:'run',tgt:'每个1公里的用时',tip:'看后面几轮掉速多少 — 那就是比赛会发生的事。'}
+ ],why:'练的是在累腿上跑步。比赛就是这个感觉。'},
+ en:{t:'Brick · compromised running',ex:[
+   {n:'Brick rounds',k:'run',tgt:`${n} rounds · 1km @ 6'45"–7'00" + one station`,
+    tip:'Station: 50 wall balls / 50m sandbag lunge / sled / 10 burpees. No rest — straight into the next km.'},
+   {n:'Log the splits',k:'run',tgt:'Time each 1km',tip:'Watch how much you fade in the later rounds — that is what race day will do.'}
+ ],why:'This trains running on dead legs. That IS the race.'}
+});
 
-搭档
-• 保持在一起
-• 分开超过15秒罚3分钟`,'你从7月13日走到这里。相信训练。'],
-  en:['🏁 Race day · 5 Dec',`HYROX Women's Doubles Open
+const sim={
+ zh:{t:'搭档模拟 · Lulu + Ye Lu',ex:[
+   {n:'半程或完整模拟',k:'run',tgt:'4跑+4站 或 8跑+8站',tip:'重点是分工、交接、配速同步 — 不是拼时间。'},
+   {n:'演练交接',k:'lift',tgt:'每站的"你做我做"分块',tip:'不协调的换人,8个站累计能丢40–80秒。'},
+   {n:'记录',k:'run',tgt:'每个1公里分段 + 每站用时',tip:'这些数字决定比赛日的分工方案。'}
+ ],why:'双人赛配速由慢的一方决定。你们必须一起练。'},
+ en:{t:'Partner simulation · Lulu + Ye Lu',ex:[
+   {n:'Half or full sim',k:'run',tgt:'4 runs + 4 stations, or 8+8',tip:'Focus on splits, transitions, pace sync — not on the clock.'},
+   {n:'Rehearse transitions',k:'lift',tgt:'"You go, I go" blocks per station',tip:'Sloppy swaps cost 40–80s across 8 stations.'},
+   {n:'Log it',k:'run',tgt:'Every 1km split + time per station',tip:'These numbers decide your race-day split plan.'}
+ ],why:'In doubles, pace is set by the slower partner. You must train together.'}
+};
 
-Pacing
-• Go 5s slower on the first two 1kms
-• Runs 5–8 hurt most. You will want to quit. You trained for this.
+const raceday={
+ zh:{t:'🏁 比赛日 · 12月5日',ex:[
+   {n:'HYROX 女子双人 Open',k:'run',tgt:'8 × 1公里 + 8站',
+    tip:'配速纪律:前2个1公里宁可慢5秒。跑5到8最难 — 那时你会想放弃,但你练过了。和搭档保持在一起,分开超过15秒罚3分钟。'}
+ ],why:'你从7月13日走到这里。相信训练。'},
+ en:{t:'🏁 Race day · 5 Dec',ex:[
+   {n:'HYROX Women\'s Doubles Open',k:'run',tgt:'8 × 1km + 8 stations',
+    tip:'Pacing: go 5s slower on the first two kms. Runs 5–8 hurt most — you will want to quit, but you trained for this. Stay with your partner: more than 15s apart = 3 min penalty.'}
+ ],why:'You started 13 July. Trust the training.'}
+};
 
-Partner
-• Stay together
-• More than 15s apart = 3 min penalty`,'You started 13 July. Trust the training.']};
-
-
-/* ---------- build 21 weeks ---------- */
+/* ---------- build the 21 weeks ---------- */
 const PLAN=[];
 for(let w=1;w<=21;w++){
   const dl=[4,8,14,20].includes(w);
   let mon,fri,sat;
+
   if(w<=4)mon=easy(w<=2?30:35);
   else if(w<=10)mon=easy(35);
   else if(w<=16)mon=easy(dl?30:40);
   else if(w<=19)mon=easy(35);
   else if(w===20)mon=easy(25);
-  else mon={zh:['赛前 · 轻松走跑','20分钟轻松,心率二区以下\n拉伸、松动、别练新东西','储备,不是消耗。'],en:['Pre-race · easy shakeout','20 min easy, below Z2\nStretch, mobilise, nothing new','Store energy. Don\'t spend it.']};
+  else mon={
+    zh:{t:'赛前 · 轻松抖动',ex:[{n:'抖动跑',k:'run',tgt:'20分钟 · 二区以下',tip:'拉伸、松动、别练新东西。储备,不是消耗。'}],why:'储备,不是消耗。'},
+    en:{t:'Pre-race · easy shakeout',ex:[{n:'Shakeout',k:'run',tgt:'20 min · below Z2',tip:'Stretch, mobilise, nothing new. Store energy, don\'t spend it.'}],why:'Store energy. Don\'t spend it.'}
+  };
 
-  if(w<=4)fri=easy(w<=2?35:40,{zh:'这一块不做强度 — 先把连续性建起来',en:'No intensity this block — build consistency first'});
+  if(w<=4)fri=easy(w<=2?35:40,{zh:'这一块不做强度 — 先把连续性建起来。',en:'No intensity this block — build consistency first.'});
   else fri=T[w];
 
   if(w<=4)sat=long(w<=2?45:55);
   else if(w<=10)sat=long(dl?40:60);
   else if(w<=16)sat=(w%2===1)?brick(Math.min(w-10,6)):long(dl?40:60);
   else if(w<=19)sat=sim;
-  else if(w===20)sat={zh:['减量 · 短轻松跑','30分钟轻松 @ 二区\n和搭档过一遍分工计划',''],en:['Taper · short easy run','30 min easy @ Z2\nWalk through the split plan with your partner','']};
+  else if(w===20)sat={
+    zh:{t:'减量 · 短轻松跑',ex:[
+      {n:'轻松跑',k:'run',tgt:'30分钟 · 二区',tip:''},
+      {n:'过分工计划',k:'lift',tgt:'和搭档',tip:'把每站怎么分、谁先谁后,最后确认一遍。'}
+    ],why:'减量周。别练新东西。'},
+    en:{t:'Taper · short easy run',ex:[
+      {n:'Easy run',k:'run',tgt:'30 min · Z2',tip:''},
+      {n:'Walk the split plan',k:'lift',tgt:'With your partner',tip:'Final confirmation of who does what, and in what order.'}
+    ],why:'Taper week. Nothing new.'}
+  };
   else sat=raceday;
 
   PLAN.push({w,dl,days:[
@@ -499,6 +676,7 @@ for(let w=1;w<=21;w++){
     {...S.liftB,k:'lift'},{...fri,k:'run'},{...sat,k:w===21?'run':'lift'},{...S.rest,k:'rest'}
   ]});
 }
+
 const dateOf=(w,d)=>{const x=new Date(START);x.setDate(x.getDate()+(w-1)*7+d);return x;};
 const fmt=x=>LANG==='zh'?`${x.getMonth()+1}月${x.getDate()}日`:`${x.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]}`;
 const curWeek=()=>{const t=new Date();t.setHours(0,0,0,0);return Math.max(1,Math.min(21,Math.floor((t-START)/864e5/7)+1));};
@@ -537,8 +715,8 @@ function render(){
     }).length;
     const rows=wk.days.map((d,i)=>{
       const key=`${wk.w}-${i}`,id=`${ME}|${key}`;
-      const x=d[LANG],rest=d.k==='rest';
-      const items=itemsFor(wk.w,i);
+      const x=d[LANG]||{},rest=d.k==='rest';
+      const items=exFor(wk.w,i);
       const total=items.length;
       const dn=items.filter((_,n)=>DB.items[`${ME}|${key}|${n}`]).length;
       const ok=total?dn===total:!!DB.done[id];
@@ -551,9 +729,9 @@ function render(){
             <span class="ddate">${fmt(dateOf(wk.w,i))}</span>
             ${total?`<span class="iprog ${ok?'full':''}">${dn}/${total}</span>`:''}
           </div>
-          <div class="dttl ${ok?'done':''}">${x[0]}</div>
+          <div class="dttl ${ok?'done':''}">${x.t||''}</div>
           ${renderItems(wk.w,i)}
-          ${x[2]?`<div class="dwhy">${x[2]}</div>`:''}
+          ${x.why?`<div class="dwhy">${x.why}</div>`:''}
           ${both?`<div class="logs">${both}</div>`:''}
           ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎ 编辑记录':'+ 记录数据'}</button>`:''}
         </div>
@@ -574,48 +752,53 @@ function render(){
 
 
 /* Turn plain session text into readable blocks: headings bold, bullets indented. */
-/* Parse a session body into structured items.
-   Lines starting with • are tickable exercises; other lines are section headings. */
-function parseItems(body){
-  const out=[];let sec='';
-  body.split('\n').forEach(l=>{
-    const t=l.trim();
-    if(!t)return;
-    if(t.startsWith('•')){
-      out.push({sec,txt:t.replace(/^•\s*/,'')});
-    }else{
-      sec=t;
-    }
-  });
-  return out;
-}
-
-/* The plan text, with any edits the athlete has made applied on top. */
-function itemsFor(w,i){
+/* Exercises for a day, with any edits the athlete made applied on top. */
+const itemsFor=(w,i)=>exFor(w,i);
+function exFor(w,i){
   const d=PLAN[w-1].days[i];
-  const base=parseItems(d[LANG][1]);
-  const edits=(DB.edits&&DB.edits[`${w}-${i}`])||{};
-  return base.map((it,n)=>({...it, txt: edits[n]!==undefined?edits[n]:it.txt, edited: edits[n]!==undefined}));
+  const base=(d[LANG]&&d[LANG].ex)||[];
+  const ed=(DB.edits&&DB.edits[`${w}-${i}`])||{};
+  return base.map((e,n)=>({...e, tgt: ed[n]!==undefined?ed[n]:e.tgt, edited: ed[n]!==undefined}));
 }
 
-/* Render the tickable checklist for one day. */
+/* One tickable exercise, with its own log fields and a collapsible note. */
+function renderEx(w,i,e,n){
+  const key=`${w}-${i}`;
+  const id=`${ME}|${key}|${n}`;
+  const done=!!DB.items[id];
+  const d=DB.ex[id]||{};
+  const zh=LANG==='zh';
+
+  // Which fields to show depends on the exercise type.
+  const f = e.k==='run'
+    ? [['dist',zh?'距离':'Dist',zh?'km':'km'],['pace',zh?'配速':'Pace',"6'30\""],['hr',zh?'心率':'HR','bpm']]
+    : [['sets',zh?'组数':'Sets','4'],['reps',zh?'次数':'Reps','5'],['kg',zh?'重量':'Load','kg']];
+
+  const filled=f.some(([k])=>d[k])||d.rpe;
+  const chips=f.map(([k,lb,ph])=>
+    `<label class="fchip"><span>${lb}</span><input value="${d[k]||''}" placeholder="${ph}"
+      onchange="setEx('${key}',${n},'${k}',this.value)"></label>`).join('');
+
+  const rpes=zh?['','很轻松','轻松','刚好','偏累','很吃力']:['','Very easy','Easy','Just right','Hard','Very hard'];
+  const rpe=`<label class="fchip"><span>${zh?'感受':'RPE'}</span><select onchange="setEx('${key}',${n},'rpe',this.value)">
+    ${rpes.map(r=>`<option ${d.rpe===r?'selected':''}>${r}</option>`).join('')}</select></label>`;
+
+  return `<div class="ex ${done?'exdone':''}">
+    <div class="exhead">
+      <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${key}',${n})">
+      <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.edited?`<span class="ied">${zh?'已改':'edited'}</span>`:''}</span>
+      ${e.tip?`<button class="tipbtn" onclick="this.parentElement.parentElement.classList.toggle('showtip')">＋</button>`:''}
+    </div>
+    <div class="extgt">${e.tgt}</div>
+    ${e.tip?`<div class="extip">${e.tip}</div>`:''}
+    <div class="exf ${filled?'on':''}">${chips}${rpe}</div>
+  </div>`;
+}
+
 function renderItems(w,i){
-  const items=itemsFor(w,i);
-  if(!items.length)return '';
-  let html='',lastSec=null;
-  items.forEach((it,n)=>{
-    const id=`${ME}|${w}-${i}|${n}`;
-    const done=!!DB.items[id];
-    if(it.sec!==lastSec&&it.sec){
-      html+=`<div class="isec">${it.sec}</div>`;
-      lastSec=it.sec;
-    }
-    html+=`<div class="item ${done?'idone':''}">
-      <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${w}-${i}',${n})">
-      <span class="itxt" onclick="editItem('${w}-${i}',${n})">${it.txt}${it.edited?'<span class="ied">已改</span>':''}</span>
-    </div>`;
-  });
-  return `<div class="items">${html}</div>`;
+  const ex=exFor(w,i);
+  if(!ex.length)return '';
+  return `<div class="items">${ex.map((e,n)=>renderEx(w,i,e,n)).join('')}</div>`;
 }
 
 function lgTxt(l){const p=[];
@@ -626,6 +809,16 @@ function lgTxt(l){const p=[];
   return p.join(' · ')||'✓';}
 
 async function tog(key){const id=`${ME}|${key}`;DB.done[id]=!DB.done[id];await persist();render();}
+
+/* Save one field of one exercise. */
+async function setEx(key,n,f,v){
+  const id=`${ME}|${key}|${n}`;
+  DB.ex[id]=DB.ex[id]||{};
+  if(v&&v.trim())DB.ex[id][f]=v.trim(); else delete DB.ex[id][f];
+  if(!Object.keys(DB.ex[id]).length)delete DB.ex[id];
+  await persist();
+  // Don't re-render: it would blur the field the athlete is typing in.
+}
 
 /* Tick a single exercise. */
 async function togItem(key,n){
@@ -638,9 +831,9 @@ async function togItem(key,n){
    The edit sticks; it is not overwritten by the original plan. */
 async function editItem(key,n){
   const [w,i]=key.split('-').map(Number);
-  const cur=itemsFor(w,i)[n];
+  const cur=exFor(w,i)[n];
   const zh=LANG==='zh';
-  const v=prompt(zh?'改成:\n（清空并确定 = 恢复原计划）':'Change to:\n(empty = restore original)',cur.txt);
+  const v=prompt(zh?`${cur.n} — 改成:\n清空并确定 = 恢复原计划`:`${cur.n} — change to:\n(empty = restore original)`,cur.tgt);
   if(v===null)return;
   DB.edits[key]=DB.edits[key]||{};
   if(v.trim()===''){delete DB.edits[key][n];}
@@ -872,8 +1065,8 @@ let curKey=null;
 function openLog(key){
   curKey=key;
   const [w,i]=key.split('-').map(Number);
-  const d=PLAN[w-1].days[i][LANG];
-  document.getElementById('m-t').textContent=d[0];
+  const d=PLAN[w-1].days[i][LANG]||{};
+  document.getElementById('m-t').textContent=d.t||'';
   document.getElementById('m-s').textContent=`${NAMES[ME]} · W${w} ${t('wd')[i]} · ${fmt(dateOf(w,i))}`;
   const l=DB.logs[`${ME}|${key}`]||{};
   ['km','min','pace','hr','load','rpe','note'].forEach(k=>document.getElementById('f-'+k).value=l[k]||'');
@@ -964,6 +1157,21 @@ Rules: km=distance in km. min=duration in minutes (decimal). pace=avg pace like 
         if(o[k]&&!el.value)el.value=o[k];
       });
       if(o.note){const c=gv('note');document.getElementById('f-note').value=c?c+' · '+o.note:o.note;}
+      // Also drop the numbers straight into the day's first run exercise.
+      try{
+        const [w,i]=curKey.split('-').map(Number);
+        const ex=exFor(w,i);
+        const n=ex.findIndex(e=>e.k==='run');
+        if(n>=0){
+          const id=`${ME}|${curKey}|${n}`;
+          DB.ex[id]=DB.ex[id]||{};
+          if(o.km)DB.ex[id].dist=o.km;
+          if(o.pace)DB.ex[id].pace=o.pace;
+          if(o.hr)DB.ex[id].hr=o.hr;
+          DB.items[id]=true;
+          await persist();
+        }
+      }catch(_){}
       ok++;
     }catch(err){lastErr=err.message||String(err);}
   }
@@ -1000,8 +1208,8 @@ document.getElementById('run-ai').onclick=async()=>{
   out.innerHTML='<span class="spin"></span>'+(LANG==='zh'?'正在读你们的训练数据…':'Reading your data…');
   const rows=all.map(([k,l])=>{
     const [p,key]=k.split('|');const [w,i]=key.split('-').map(Number);
-    const d=PLAN[w-1].days[i].zh;
-    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${d[0]} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
+    const d=PLAN[w-1].days[i].zh||{};
+    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${d.t||''} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
   }).join('\n');
 
   // nutrition rows, grouped per day
@@ -1040,6 +1248,9 @@ Lulu 60kg。已知问题:**系统性碳水摄入不足**。她之前的饮食记
 
 【实际训练记录】
 ${rows}
+
+【每个动作的实际数据 — 重量/配速/心率/感受】
+${exRows||'(还没有逐项记录)'}
 
 【实际饮食记录】
 ${foodRows}
