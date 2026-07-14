@@ -80,6 +80,19 @@
   .dttl{font-size:17px;font-weight:800;margin-top:6px}
   .dttl.done{text-decoration:line-through;color:var(--mute)}
   .ddet{font-size:16px;color:#33322D;margin-top:8px;line-height:1.7;letter-spacing:.01em}
+
+  /* per-exercise checklist */
+  .items{margin-top:10px}
+  .isec{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);margin:12px 0 5px}
+  .isec:first-child{margin-top:2px}
+  .item{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+  .icbx{width:20px;height:20px;flex-shrink:0;margin-top:1px;cursor:pointer;accent-color:var(--ok)}
+  .itxt{flex:1;font-size:16px;line-height:1.5;cursor:pointer;border-bottom:1px dashed transparent}
+  .itxt:hover{border-bottom-color:var(--line)}
+  .item.idone .itxt{text-decoration:line-through;color:var(--mute)}
+  .ied{font-size:10px;font-weight:800;letter-spacing:.05em;background:var(--line);color:var(--ink);padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:1px}
+  .iprog{font-size:12px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
+  .iprog.full{color:var(--ok)}
   .dwhy{font-size:14px;color:var(--mute);margin-top:7px;padding-left:11px;border-left:2px solid var(--line);line-height:1.45}
   .logbtn{background:none;border:1px solid var(--line);border-radius:7px;padding:6px 12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--mute);white-space:nowrap;margin-top:2px}
   .logbtn:hover{border-color:var(--ink);color:var(--ink)}
@@ -488,7 +501,12 @@ function render(){
   const days=Math.max(0,Math.ceil((RACE-now)/864e5));
   document.getElementById('cd-d').textContent=days;
   document.getElementById('cd-w').textContent=Math.ceil(days/7);
-  const mine=Object.keys(DB.done).filter(k=>k.startsWith(ME+'|')&&DB.done[k]).length;
+  let mine=0;
+  for(let w=1;w<=21;w++)for(let i=0;i<7;i++){
+    const it=itemsFor(w,i);
+    if(!it.length)continue;
+    if(it.every((_,x)=>DB.items[`${ME}|${w}-${i}|${x}`]))mine++;
+  }
   document.getElementById('cd-done').textContent=mine;
   document.getElementById('cd-rate').textContent=Math.round(mine/(21*6)*100)+'%';
 
@@ -499,22 +517,33 @@ function render(){
 
   document.getElementById('weeks').innerHTML=PLAN.map(wk=>{
     const b=blockOf(wk.w)[LANG],isNow=wk.w===cw;
-    const n=wk.days.filter((_,i)=>DB.done[`${ME}|${wk.w}-${i}`]).length;
+    const n=wk.days.filter((_,i)=>{
+      const it=itemsFor(wk.w,i);
+      if(!it.length)return !!DB.done[`${ME}|${wk.w}-${i}`];
+      return it.every((_,x)=>DB.items[`${ME}|${wk.w}-${i}|${x}`]);
+    }).length;
     const rows=wk.days.map((d,i)=>{
       const key=`${wk.w}-${i}`,id=`${ME}|${key}`;
-      const ok=!!DB.done[id],x=d[LANG],rest=d.k==='rest';
+      const x=d[LANG],rest=d.k==='rest';
+      const items=itemsFor(wk.w,i);
+      const total=items.length;
+      const dn=items.filter((_,n)=>DB.items[`${ME}|${key}|${n}`]).length;
+      const ok=total?dn===total:!!DB.done[id];
       const both=['lulu','yelu'].map(p=>{const l=DB.logs[`${p}|${key}`];
         return l?`<div class="lg ${p}"><span class="nm">${NAMES[p]}</span>${lgTxt(l)}${l.note?`<div class="fb">${l.note}</div>`:''}</div>`:'';}).join('');
       return `<div class="day ${ok?'done':''} ${rest?'rest':''}">
-        <input type="checkbox" class="cbx" ${ok?'checked':''} onchange="tog('${key}')">
         <div class="dmain">
-          <div class="dtop"><span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span><span class="ddate">${fmt(dateOf(wk.w,i))}</span></div>
+          <div class="dtop">
+            <span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span>
+            <span class="ddate">${fmt(dateOf(wk.w,i))}</span>
+            ${total?`<span class="iprog ${ok?'full':''}">${dn}/${total}</span>`:''}
+          </div>
           <div class="dttl ${ok?'done':''}">${x[0]}</div>
-          <div class="ddet">${fmtBody(x[1])}</div>
+          ${renderItems(wk.w,i)}
           ${x[2]?`<div class="dwhy">${x[2]}</div>`:''}
           ${both?`<div class="logs">${both}</div>`:''}
+          ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎ 编辑记录':'+ 记录数据'}</button>`:''}
         </div>
-        ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎':'+'}</button>`:''}
       </div>`;
     }).join('');
     return `<div class="week ${isNow?'open now':''}" id="wk${wk.w}">
@@ -532,14 +561,48 @@ function render(){
 
 
 /* Turn plain session text into readable blocks: headings bold, bullets indented. */
-function fmtBody(s){
-  return s.split('\n').map(l=>{
+/* Parse a session body into structured items.
+   Lines starting with • are tickable exercises; other lines are section headings. */
+function parseItems(body){
+  const out=[];let sec='';
+  body.split('\n').forEach(l=>{
     const t=l.trim();
-    if(!t)return '<div style="height:7px"></div>';
-    if(t.startsWith('•'))
-      return `<div style="padding-left:2px">${t}</div>`;
-    return `<div style="font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:4px">${t}</div>`;
-  }).join('');
+    if(!t)return;
+    if(t.startsWith('•')){
+      out.push({sec,txt:t.replace(/^•\s*/,'')});
+    }else{
+      sec=t;
+    }
+  });
+  return out;
+}
+
+/* The plan text, with any edits the athlete has made applied on top. */
+function itemsFor(w,i){
+  const d=PLAN[w-1].days[i];
+  const base=parseItems(d[LANG][1]);
+  const edits=(DB.edits&&DB.edits[`${w}-${i}`])||{};
+  return base.map((it,n)=>({...it, txt: edits[n]!==undefined?edits[n]:it.txt, edited: edits[n]!==undefined}));
+}
+
+/* Render the tickable checklist for one day. */
+function renderItems(w,i){
+  const items=itemsFor(w,i);
+  if(!items.length)return '';
+  let html='',lastSec=null;
+  items.forEach((it,n)=>{
+    const id=`${ME}|${w}-${i}|${n}`;
+    const done=!!DB.items[id];
+    if(it.sec!==lastSec&&it.sec){
+      html+=`<div class="isec">${it.sec}</div>`;
+      lastSec=it.sec;
+    }
+    html+=`<div class="item ${done?'idone':''}">
+      <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${w}-${i}',${n})">
+      <span class="itxt" onclick="editItem('${w}-${i}',${n})">${it.txt}${it.edited?'<span class="ied">已改</span>':''}</span>
+    </div>`;
+  });
+  return `<div class="items">${html}</div>`;
 }
 
 function lgTxt(l){const p=[];
@@ -550,6 +613,28 @@ function lgTxt(l){const p=[];
   return p.join(' · ')||'✓';}
 
 async function tog(key){const id=`${ME}|${key}`;DB.done[id]=!DB.done[id];await persist();render();}
+
+/* Tick a single exercise. */
+async function togItem(key,n){
+  const id=`${ME}|${key}|${n}`;
+  DB.items[id]=!DB.items[id];
+  await persist();render();
+}
+
+/* Tap an exercise to change it — weights, sets, whatever you actually did.
+   The edit sticks; it is not overwritten by the original plan. */
+async function editItem(key,n){
+  const [w,i]=key.split('-').map(Number);
+  const cur=itemsFor(w,i)[n];
+  const zh=LANG==='zh';
+  const v=prompt(zh?'改成:\n（清空并确定 = 恢复原计划）':'Change to:\n(empty = restore original)',cur.txt);
+  if(v===null)return;
+  DB.edits[key]=DB.edits[key]||{};
+  if(v.trim()===''){delete DB.edits[key][n];}
+  else{DB.edits[key][n]=v.trim();}
+  if(!Object.keys(DB.edits[key]).length)delete DB.edits[key];
+  await persist();render();
+}
 
 /* ---------- zones tab ---------- */
 function renderZones(){
