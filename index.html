@@ -106,6 +106,8 @@
     font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
   .fchip select{width:auto;max-width:96px}
   .fchip input:focus,.fchip select:focus{outline:none}
+  .plan{display:inline-block;font-size:11px;font-weight:700;color:var(--mute);background:var(--line);
+    padding:1px 7px;border-radius:4px;margin-left:8px;letter-spacing:.02em;vertical-align:1px}
   .ied{font-size:10px;font-weight:800;background:var(--line);color:var(--ink);padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:2px}
   .iprog{font-size:12px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums;margin-left:auto}
   .iprog.full{color:var(--ok)}
@@ -784,7 +786,22 @@ function exFor(w,i){
   const d=PLAN[w-1].days[i];
   const base=(d[LANG]&&d[LANG].ex)||[];
   const ed=(DB.edits&&DB.edits[`${w}-${i}`])||{};
-  return base.map((e,n)=>({...e, tgt: ed[n]!==undefined?ed[n]:e.tgt, edited: ed[n]!==undefined}));
+  return base.map((e,n)=>{
+    const v=ed[n];
+    // The plan name and target are always kept, so plan vs actual stays comparable.
+    const planN=e.n, planT=e.tgt;
+    if(v===undefined)return {...e, planN, planT, edited:false};
+    const o=(typeof v==='string')?{tgt:v}:v;   // tolerate the old string format
+    return {
+      ...e,
+      n   : o.n   !==undefined ? o.n   : planN,
+      tgt : o.tgt !==undefined ? o.tgt : planT,
+      planN, planT,
+      edited: true,
+      nameChanged: o.n!==undefined && o.n!==planN,
+      tgtChanged : o.tgt!==undefined && o.tgt!==planT
+    };
+  });
 }
 
 /* One tickable exercise, with its own log fields and a collapsible note. */
@@ -820,11 +837,11 @@ function renderEx(w,i,e,n){
   return `<div class="ex ${done?'exdone':''}">
     <div class="exhead">
       <input type="checkbox" class="icbx" ${done?'checked':''} onchange="togItem('${key}',${n})">
-      <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.edited?`<span class="ied">${zh?'已改':'edited'}</span>`:''}</span>
+      <span class="exn" onclick="editItem('${key}',${n})">${e.n}${e.nameChanged?`<span class="plan">${zh?'计划':'plan'} ${e.planN}</span>`:''}</span>
       ${(e.k==='run'||e.k==='int')?`<button class="tipbtn cam" onclick="shotFor('${key}',${n})" title="${zh?'上传手表截图':'Upload watch screenshot'}">📷</button>`:''}
       ${e.tip?`<button class="tipbtn" onclick="this.parentElement.parentElement.classList.toggle('showtip')">＋</button>`:''}
     </div>
-    <div class="extgt">${e.tgt}</div>
+    <div class="extgt">${e.tgt}${e.tgtChanged?`<span class="plan">${zh?'计划':'plan'} ${e.planT}</span>`:''}</div>
     ${e.tip?`<div class="extip">${e.tip}</div>`:''}
     <div class="exf ${filled?'on':''}">${chips}${rpe}</div>
   </div>`;
@@ -953,12 +970,28 @@ async function editItem(key,n){
   const [w,i]=key.split('-').map(Number);
   const cur=exFor(w,i)[n];
   const zh=LANG==='zh';
-  const v=prompt(zh?`${cur.n} — 改成:\n清空并确定 = 恢复原计划`:`${cur.n} — change to:\n(empty = restore original)`,cur.tgt);
-  if(v===null)return;
+
+  const nm=prompt(
+    zh?`动作名称。留空恢复原计划：${cur.planN}`
+      :`Exercise name. Leave empty to restore the plan: ${cur.planN}`,
+    cur.n);
+  if(nm===null)return;
+
+  const tg=prompt(
+    zh?`组数次数重量。留空恢复原计划：${cur.planT}`
+      :`Sets, reps, load. Leave empty to restore the plan: ${cur.planT}`,
+    cur.tgt);
+  if(tg===null)return;
+
   DB.edits[key]=DB.edits[key]||{};
-  if(v.trim()===''){delete DB.edits[key][n];}
-  else{DB.edits[key][n]=v.trim();}
-  if(!Object.keys(DB.edits[key]).length)delete DB.edits[key];
+  const o={};
+  if(nm.trim() && nm.trim()!==cur.planN) o.n=nm.trim();
+  if(tg.trim() && tg.trim()!==cur.planT) o.tgt=tg.trim();
+
+  if(Object.keys(o).length) DB.edits[key][n]=o;
+  else delete DB.edits[key][n];
+  if(!Object.keys(DB.edits[key]).length) delete DB.edits[key];
+
   await persist();render();
 }
 
@@ -1376,6 +1409,22 @@ document.getElementById('run-ai').onclick=async()=>{
     if(!mealsByDay[id])mealsByDay[id]=[];
     mealsByDay[id].push(m);
   });
+  // Per-exercise data, including where the coach swapped an exercise out.
+  const exRows=Object.entries(DB.ex||{}).map(([id,v])=>{
+    const [p,key,n]=id.split('|');
+    const [w,i]=key.split('-').map(Number);
+    if(!PLAN[w-1])return '';
+    const planEx=((PLAN[w-1].days[i].zh||{}).ex||[])[+n];
+    if(!planEx)return '';
+    const ed=(DB.edits&&DB.edits[key]&&DB.edits[key][+n])||null;
+    const actualN=(ed&&typeof ed==='object'&&ed.n)?ed.n:planEx.n;
+    const swapped=actualN!==planEx.n;
+    const L={dist:'距离',min:'时长',pace:'配速',hr:'心率',spm:'步频',hrmax:'峰值心率',hrrec:'1分恢复心率',sets:'组数',reps:'次数',kg:'重量',rpe:'感受'};
+    const bits=Object.entries(v).map(([k,x])=>`${L[k]||k}:${x}`).join(' ');
+    const label=swapped?`${actualN}，原计划是${planEx.n}`:actualN;
+    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | ${label} | ${bits}`;
+  }).filter(Boolean).join('\n');
+
   const foodRows=Object.entries(mealsByDay).map(([id,ms])=>{
     const [p,day]=id.split('|');const [w,i]=day.split('-').map(Number);
     const t=totals(ms);const load=dayLoad(w,i);const T=TARGETS[load];
@@ -1391,7 +1440,8 @@ document.getElementById('run-ai').onclick=async()=>{
 - 核心诊断:2025年半马 2:36:06,均配 7'11" 但均心率 158(88%最大心率)= 有氧效率差。配速分布:恢复区90%,阈值区 0% —— 从未练过阈值("100/0"而非"80/20")
 - 2025年跑量断续,练一阵停一阵 —— 连续性是她最大的敌人
 - 2026年7月12日基线:3.81km @ 6'22" / 心率153 —— 比一年前好,但"轻松跑"仍偏快
-- 弱点:踝背屈受限、内收肌薄弱
+- 弱点:内收肌薄弱。踝背屈实测12-15cm，正常，不是问题。真正的问题是小腿力量储备不足，单腿提踵20次后提不高，以及步频过低。
+- 步频:基线只有154-165，目标172-175。这是她跑步经济性最直接的杠杆。
 
 【Ye Lu — 搭档】
 - 数据从她的记录里看,不做假设
@@ -1405,7 +1455,7 @@ Lulu 60kg。已知问题:**系统性碳水摄入不足**。她之前的饮食记
 【实际训练记录】
 ${rows}
 
-【每个动作的实际数据 — 重量/配速/心率/感受】
+【每个动作的实际数据】
 ${exRows||'(还没有逐项记录)'}
 
 【实际饮食记录】
@@ -1420,7 +1470,13 @@ ${foodRows}
 6. **双人配速差距** — 两人跑步水平差多少?谁是瓶颈?数据不够就说不够。
 7. **下一步** — 具体调整什么。给数字。
 
-诚实、直接。做得好就说好;在重蹈覆辙就现在点破。不要为了鼓励而粉饰数据。如果碳水持续不足,这件事要放在最前面说 —— 它比任何训练细节都重要。`;
+【关于动作替换】
+有些动作可能被教练换掉了。记录里若写着"原计划是X"，说明当天做的不是计划里的动作。请评估这个替换对训练效果的影响。比如深蹲换成腿举，后链和核心的刺激会减少。若替换频繁到偏离了计划意图，直接指出。
+
+【写作要求】
+不要使用括号。不要使用破折号。用逗号和句号断句。
+诚实、直接。做得好就说好，在重蹈覆辙就现在点破，不要为了鼓励而粉饰数据。
+如果碳水持续不足，这件事放在最前面说，它比任何训练细节都重要。`;
 
   try{
     const r=await fetch(API,{method:"POST",
