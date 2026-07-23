@@ -93,6 +93,9 @@
   .exn:focus{background:#fff;border-bottom-color:var(--ink)}
   .exhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .tipbtn.vid{font-size:11px;margin-left:auto}
+  .daybtn{background:none;border:1px solid var(--line);border-radius:5px;width:24px;height:22px;
+    font:inherit;font-size:12px;color:var(--mute);cursor:pointer;padding:0;line-height:1}
+  .daybtn:hover{border-color:var(--ink);color:var(--ink);background:#fff}
   .ex.exdone .exn{text-decoration:line-through;color:var(--mute)}
   .tipbtn{flex-shrink:0;width:26px;height:26px;border:1px solid var(--line);background:none;border-radius:6px;
     font:inherit;font-size:15px;font-weight:700;color:var(--mute);cursor:pointer;line-height:1;padding:0}
@@ -340,7 +343,9 @@ function normalise(d){
     done : d.done  && typeof d.done  === 'object' ? d.done  : {},
     logs : d.logs  && typeof d.logs  === 'object' ? d.logs  : {},
     items: d.items && typeof d.items === 'object' ? d.items : {},
-    ex   : d.ex    && typeof d.ex    === 'object' ? d.ex    : {},
+    ex     : d.ex     && typeof d.ex     === 'object' ? d.ex     : {},
+    dayMap : d.dayMap && typeof d.dayMap === 'object' ? d.dayMap : {},
+    custom : d.custom && typeof d.custom === 'object' ? d.custom : {},
     edits: d.edits && typeof d.edits === 'object' ? d.edits : {},
     meals: d.meals && typeof d.meals === 'object' ? d.meals : {}
   };
@@ -746,9 +751,12 @@ function render(){
       if(!it.length)return !!DB.done[`${ME}|${wk.w}-${i}`];
       return it.every((_,x)=>DB.items[`${ME}|${wk.w}-${i}|${x}`]);
     }).length;
-    const rows=wk.days.map((d,i)=>{
+    const rows=wk.days.map((d0,i)=>{
       const key=`${wk.w}-${i}`,id=`${ME}|${key}`;
+      const d=dayOf(wk.w,i);
       const x=d[LANG]||{},rest=d.k==='rest';
+      const moved=isMoved(wk.w,i);
+      const planT=plannedTitle(wk.w,i);
       const items=exFor(wk.w,i);
       const total=items.length;
       const dn=items.filter((_,n)=>DB.items[`${ME}|${key}|${n}`]).length;
@@ -760,9 +768,11 @@ function render(){
           <div class="dtop">
             <span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span>
             <span class="ddate">${fmt(dateOf(wk.w,i))}</span>
+            <button class="daybtn" onclick="moveDay(${wk.w},${i})" title="${LANG==='zh'?'换到别的星期':'Move to another day'}">⇄</button>
+            <button class="daybtn" onclick="customDay(${wk.w},${i})" title="${LANG==='zh'?'自己填这天':'Write your own'}">✎</button>
             ${total?`<span class="iprog ${ok?'full':''}">${dn}/${total}</span>`:''}
           </div>
-          <div class="dttl ${ok?'done':''}">${x.t||''}</div>
+          <div class="dttl ${ok?'done':''}">${x.t||''}${moved&&planT&&planT!==x.t?`<span class="plan">${LANG==='zh'?'原计划':'planned'} ${planT}</span>`:''}</div>
           ${renderItems(wk.w,i)}
           ${x.why?`<div class="dwhy">${x.why}</div>`:''}
           ${both?`<div class="logs">${both}</div>`:''}
@@ -786,9 +796,85 @@ function render(){
 
 /* Turn plain session text into readable blocks: headings bold, bullets indented. */
 /* Exercises for a day, with any edits the athlete made applied on top. */
+
+/* ---------- Weekly flexibility ----------
+   dayMap : {"3-5": 6}  -> week 3, Saturday now shows what Sunday planned
+   custom : {"3-5": {t, ex:[...]}} -> a fully user-defined day
+   The original plan is always retained for plan-vs-actual comparison. */
+function slotOf(w,i){
+  const m=(DB.dayMap||{})[`${w}-${i}`];
+  return (m===undefined)?i:m;
+}
+/* The session shown on week w, weekday i. */
+function dayOf(w,i){
+  const c=(DB.custom||{})[`${w}-${i}`];
+  if(c)return {custom:true, k:c.k||'lift', zh:{t:c.t,ex:c.ex||[],why:c.why||''}, en:{t:c.t,ex:c.ex||[],why:c.why||''}};
+  const src=slotOf(w,i);
+  return PLAN[w-1].days[src];
+}
+/* What the plan originally had here, for the comparison label. */
+function plannedTitle(w,i){
+  const d=PLAN[w-1].days[i];
+  return ((d&&d[LANG])||{}).t||'';
+}
+function isMoved(w,i){
+  const c=(DB.custom||{})[`${w}-${i}`];
+  if(c)return true;
+  return slotOf(w,i)!==i;
+}
+
+/* Swap two weekdays within a week. */
+async function moveDay(w,i){
+  const zh=LANG==='zh';
+  const names=t('wd');
+  const opts=names.map((n,x)=>`${x+1} ${n}`).join('\n');
+  const v=prompt(zh?`把这天的训练挪到星期几。\n输入数字 1 到 7。\n\n${opts}`
+                   :`Move this session to which weekday.\nEnter 1 to 7.\n\n${opts}`, String(i+1));
+  if(v===null)return;
+  const to=parseInt(v,10)-1;
+  if(isNaN(to)||to<0||to>6||to===i)return;
+  DB.dayMap=DB.dayMap||{};
+  const a=slotOf(w,i), b=slotOf(w,to);
+  DB.dayMap[`${w}-${i}`]=b;
+  DB.dayMap[`${w}-${to}`]=a;
+  // tidy: drop entries that are back to default
+  [`${w}-${i}`,`${w}-${to}`].forEach(k=>{
+    const idx=parseInt(k.split('-')[1],10);
+    if(DB.dayMap[k]===idx)delete DB.dayMap[k];
+  });
+  await persist();render();
+}
+
+/* Replace a day entirely with your own session, e.g. what the coach gave you. */
+async function customDay(w,i){
+  const zh=LANG==='zh';
+  const cur=(DB.custom||{})[`${w}-${i}`];
+  const title=prompt(zh?'这天的训练名称。留空恢复原计划。':'Name for this session. Empty restores the plan.',
+                     cur?cur.t:(zh?'教练课':'Coach session'));
+  if(title===null)return;
+  if(!title.trim()){
+    if(DB.custom)delete DB.custom[`${w}-${i}`];
+    await persist();render();return;
+  }
+  const body=prompt(zh?'动作清单，每行一个。\n例如\n深蹲 4组 × 5次\n卧推 3组 × 8次'
+                      :'One exercise per line.\nFor example\nSquat 4 x 5\nBench press 3 x 8',
+                    cur?cur.ex.map(e=>e.n+(e.tgt?' '+e.tgt:'')).join('\n'):'');
+  if(body===null)return;
+  const kind=prompt(zh?'类型。输入 run 或 lift。':'Type. Enter run or lift.', cur?cur.k:'lift');
+  if(kind===null)return;
+  const k=(kind||'').trim().toLowerCase()==='run'?'run':'lift';
+  const ex=body.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const m=l.match(/^(.+?)\s+((?:\d|\S*\d).*)$/);
+    return m?{n:m[1].trim(),k,tgt:m[2].trim(),tip:''}:{n:l,k,tgt:'',tip:''};
+  });
+  DB.custom=DB.custom||{};
+  DB.custom[`${w}-${i}`]={t:title.trim(),k,ex,why:zh?'你自己安排的训练。':'Your own session.'};
+  await persist();render();
+}
+
 const itemsFor=(w,i)=>exFor(w,i);
 function exFor(w,i){
-  const d=PLAN[w-1].days[i];
+  const d=dayOf(w,i);
   const base=(d[LANG]&&d[LANG].ex)||[];
   const ed=(DB.edits&&DB.edits[`${w}-${i}`])||{};
   return base.map((e,n)=>{
@@ -1439,8 +1525,12 @@ document.getElementById('run-ai').onclick=async()=>{
   out.innerHTML='<span class="spin"></span>'+(zh0?'正在读你们的训练数据…':'Reading your data…');
   const rows=all.map(([k,l])=>{
     const [p,key]=k.split('|');const [w,i]=key.split('-').map(Number);
-    const d=PLAN[w-1].days[i].zh||{};
-    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${d.t||''} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
+    const dd=dayOf(w,i);
+    const d=(dd&&dd.zh)||{};
+    const moved=isMoved(w,i);
+    const orig=((PLAN[w-1].days[i]||{}).zh||{}).t||'';
+    const label=moved&&orig&&orig!==d.t?`${d.t||''}，本周挪动过，这天原本是${orig}`:(d.t||'');
+    return `${NAMES[p]} | W${w} ${I.zh.wd[i]} | 计划:${label} | 实际:${lgTxt(l)}${l.note?' | 备注:'+l.note:''}`;
   }).join('\n');
 
   // nutrition rows, grouped per day
@@ -1456,7 +1546,8 @@ document.getElementById('run-ai').onclick=async()=>{
     const [p,key,n]=id.split('|');
     const [w,i]=key.split('-').map(Number);
     if(!PLAN[w-1])return '';
-    const planEx=((PLAN[w-1].days[i].zh||{}).ex||[])[+n];
+    const dd=dayOf(w,i);
+    const planEx=(((dd&&dd.zh)||{}).ex||[])[+n];
     if(!planEx)return '';
     const ed=(DB.edits&&DB.edits[key]&&DB.edits[key][+n])||null;
     const actualN=(ed&&typeof ed==='object'&&ed.n)?ed.n:planEx.n;
@@ -1511,6 +1602,9 @@ ${foodRows}
 5. **连续性** — 有没有断档?这是2025年失败的原因。
 6. **双人配速差距** — 两人跑步水平差多少?谁是瓶颈?数据不够就说不够。
 7. **下一步** — 具体调整什么。给数字。
+
+【关于日程调整】
+她的周计划会按实际情况挪动。力量训练由教练决定，跑步时间周五六日灵活。记录里若写着"本周挪动过"或出现自定义训练，说明当天做的不是原定安排。评估的重点是每周的总量和质量是否达标，不是有没有严格按星期几执行。若某类训练连续几周被挤掉，直接指出。
 
 【关于动作替换】
 有些动作可能被教练换掉了。记录里若写着"原计划是X"，说明当天做的不是计划里的动作。请评估这个替换对训练效果的影响。比如深蹲换成腿举，后链和核心的刺激会减少。若替换频繁到偏离了计划意图，直接指出。
