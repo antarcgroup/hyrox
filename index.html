@@ -474,34 +474,32 @@ const blockOf=w=>BLOCKS.find(b=>w>=b.w[0]&&w<=b.w[1]);
 const S={};
 
 S.liftA={
- zh:{t:'力量 · 下肢 + 对比配对',
+ zh:{t:'HYROX 专项日 · 教练课',
   ex:[
-   {n:'弹力带侧走',k:'lift',tgt:'2组 × 15米',tip:'臀中肌激活。带子放膝盖上方,小步横向走,别让膝盖内塌。'},
-   {n:'侧卧外展',k:'lift',tgt:'2组 × 15次 每侧',tip:'慢，感受臀部外侧发力，不是腰在代偿。'},
-   {n:'落地稳定',k:'lift',tgt:'2组 × 5次',tip:'跳起,稳稳落地,停住3秒。练的是减速控制 — 波比跳远和弓步都要用。'},
-   {n:'深蹲',k:'lift',tgt:'4组 × 5次 重量大',tip:'留1-2次余力,不练到力竭。练到力竭会毁掉第二天的跑步。'},
-   {n:'硬拉 / 六角杠',k:'lift',tgt:'4组 × 4次 重量大',tip:'后链主课。背保持中立,别塌腰。'},
-   {n:'臀推 → 雪橇推',k:'lift',tgt:'臀推 4组 × 6次，接雪橇推 3趟 × 12.5米',tip:'对比配对:先重后专项。臀推完休息约2分钟再推雪橇 — 让疲劳散掉,把神经激活留下。'},
-   {n:'保加利亚分腿蹲 → 弓步',k:'lift',tgt:'3组 × 8次 每腿，接行走弓步 20米',tip:'直接对应比赛的沙袋弓步。'},
-   {n:'HSR提踵',k:'lift',tgt:'3组 × 6至8次 重量大',tip:'3秒上,3秒下。屈膝和直膝各做。要更重不是更多次 — 你20次后提不高,是力量储备不足。'},
-   {n:'脚尖上抬',k:'lift',tgt:'2组 × 15次',tip:'胫骨前肌。管背屈和落地稳定,之前完全没练过。'},
-   {n:'哥本哈根内收',k:'lift',tgt:'2组 × 8次 每侧',tip:'内收肌是你的明确弱项。起步保守 — 这个动作很容易做过头,会酸好几天。'}
+   {n:'深蹲 或 硬拉',k:'lift',tgt:'4组 × 5次 重量大',tip:'这一项是建议加的，需要先跟教练确认。\n\n为什么要加：你现在整堂课里没有一个双腿的、可以每周加重的轴向负荷动作。轮胎翻是重，但重量固定在100kg，而且是髋爆发不是最大力量。沙袋弓步只有10kg。\n\n骨密度需要的正是脊柱和髋上的轴向压缩负荷。LIFTMOR试验用的就是深蹲硬拉推举，5组×5次，超过85%最大重量，8个月后绝经后女性的腰椎和股骨颈骨密度显著改善。轮胎翻和弓步做不到这个。\n\n另一个理由是力量储备。比赛雪橇推102kg，你深蹲越强推起来越省力。你三年前深蹲能做60kg，现在大约45到55kg，目标是12月前回到60kg并且能做5次。\n\n放在开场做，神经系统最清醒的时候练最重的，15分钟，不影响后面的专项训练。'},
+   {n:'沙袋弓步',k:'lift',tgt:'10公斤，32米 × 3趟',tip:'直接对应比赛的100米沙袋弓步。注意膝盖不要内塌，这和你内收肌偏弱有关。'},
+   {n:'地雷管推举 双臂',k:'lift',tgt:'杆15公斤 加 10公斤，共25公斤，50次',tip:'一端固定的杠铃，双手推。斜向上的推力角度比垂直过头推更接近墙球的发力方向，对肩的压力也小。50次是很大的量，练的是上肢力量耐力，对应滑雪机和农夫行走。'},
+   {n:'轮胎翻',k:'lift',tgt:'100公斤，10次 × 2组',tip:'重负荷髋爆发动作，对后链和发力率有价值。局限是重量固定，没法每周递增，所以它不能替代深蹲硬拉。'},
+   {n:'划船',k:'run',tgt:'500米',tip:'比赛是1000米。注意腿先发力再拉手，顺序错了会很累。'},
+   {n:'滑雪机',k:'run',tgt:'500米',tip:'比赛是1000米。用核心和背发力下压，不要只用手臂。'},
+   {n:'波比跳',k:'lift',tgt:'32米 × 3趟',tip:'比赛是80米波比跳远。落地要控制，这也是你落地稳定训练的延伸。'},
+   {n:'HSR提踵',k:'lift',tgt:'3组 × 6至8次 重量大',tip:'3秒上，3秒下。屈膝和直膝各做。要更重不是更多次，你20次后提不高，说明力量储备不足。'},
+   {n:'哥本哈根内收',k:'lift',tgt:'2组 × 8次 每侧',tip:'内收肌是你的明确弱项。起步保守，这个动作很容易做过头，会酸好几天。'}
   ],
-  why:'大重量低次数,是围绝经期保骨保肌的关键。'},
- en:{t:'Strength · Lower + contrast pairs',
+  why:'这是教练安排的HYROX专项课，专项性很好。唯一的缺口是没有可递增的双腿大重量动作，第一项是建议补上的。'},
+ en:{t:'HYROX specific day · coach session',
   ex:[
-   {n:'Banded lateral walk',k:'lift',tgt:'2 × 15m',tip:'Glute med activation. Band above knees, small steps, don\'t let knees cave.'},
-   {n:'Side-lying abduction',k:'lift',tgt:'2 × 15/side',tip:'Slow. Feel the outer hip, not the lower back compensating.'},
-   {n:'Stick-the-landing',k:'lift',tgt:'2 × 5',tip:'Jump, land, hold 3s. Trains deceleration — needed for burpee broad jumps and lunges.'},
-   {n:'Squat',k:'lift',tgt:'4 × 5 · heavy',tip:'Leave 1-2 reps in reserve. Never to failure — it wrecks the next day\'s run.'},
-   {n:'Deadlift / trap-bar',k:'lift',tgt:'4 × 4 · heavy',tip:'Posterior chain. Keep a neutral spine.'},
-   {n:'Hip thrust → Sled push',k:'lift',tgt:'Thrust 4×6 → Sled 12.5m ×3',tip:'Contrast pair. Rest ~2 min between — let fatigue clear, keep the neural potentiation.'},
-   {n:'Bulgarian split squat → Lunge',k:'lift',tgt:'3 × 8/leg → 20m walking lunge',tip:'Maps directly to the race sandbag lunges.'},
-   {n:'HSR calf raise',k:'lift',tgt:'3 × 6-8 · HEAVY',tip:'3s up, 3s down. Bent-knee and straight-knee. Heavier, not longer — you lose height after 20 reps.'},
-   {n:'Tib raises',k:'lift',tgt:'2 × 15',tip:'Tibialis anterior. Drives dorsiflexion and landing stability. You\'ve never trained it.'},
-   {n:'Copenhagen adduction',k:'lift',tgt:'2 × 8/side',tip:'Adductors are your known weak link. Start conservative — this one is easy to overdo.'}
+   {n:'Squat or deadlift',k:'lift',tgt:'4 x 5 heavy',tip:'This one is a suggestion. Confirm with your coach first.\n\nWhy add it: nothing else in this session gives you a two-legged axial load you can progress week to week. The tyre flip is heavy but fixed at 100kg, and it is a hip-power movement rather than max strength. The sandbag lunge is only 10kg.\n\nBone needs axial compression through the spine and hips. LIFTMOR used exactly squat, deadlift and press at 5 sets of 5 above 85 percent of max, and postmenopausal women improved lumbar spine and femoral neck bone density over 8 months. Tyre flips and lunges do not deliver that.\n\nThe other reason is strength reserve. The race sled push is 102kg. The stronger your squat, the easier that feels. You squatted 60kg three years ago, you are probably 45 to 55kg now, and the target is back to 60kg for 5 reps by December.\n\nDo it first while your nervous system is fresh. 15 minutes, and it will not compromise the specific work that follows.'},
+   {n:'Sandbag lunges',k:'lift',tgt:'10kg, 32m x 3',tip:'Maps directly to the 100m race lunges. Watch that the knee does not cave, which relates to your weak adductors.'},
+   {n:'Landmine press, two hands',k:'lift',tgt:'15kg bar plus 10kg, 25kg total, 50 reps',tip:'Bar fixed at one end, pressed with both hands. The upward and forward angle is closer to the wall ball push than a vertical press, and easier on the shoulder. 50 reps is real volume, building the upper body endurance the ski and farmers carry demand.'},
+   {n:'Tyre flip',k:'lift',tgt:'100kg, 10 x 2',tip:'Heavy hip-dominant power work, good for the posterior chain and rate of force development. The limit is the fixed weight, so it cannot replace squats or deadlifts.'},
+   {n:'Row',k:'run',tgt:'500m',tip:'Race is 1000m. Legs first, then arms. Wrong order burns you out.'},
+   {n:'SkiErg',k:'run',tgt:'500m',tip:'Race is 1000m. Drive with core and lats, not just arms.'},
+   {n:'Burpee broad jumps',k:'lift',tgt:'32m x 3',tip:'Race is 80m. Control the landing, which extends your landing work.'},
+   {n:'HSR calf raise',k:'lift',tgt:'3 x 6-8 HEAVY',tip:'3s up, 3s down. Bent-knee and straight-knee. Heavier, not longer. You lose height after 20 reps, which means low strength reserve.'},
+   {n:'Copenhagen adduction',k:'lift',tgt:'2 x 8 per side',tip:'Adductors are your known weak link. Start conservative, this one is easy to overdo.'}
   ],
-  why:'Heavy and low-rep is what protects bone and muscle in perimenopause.'}
+  why:'This is your coach session and the specificity is good. The one gap is a progressable two-legged heavy lift, which the first item suggests adding.'}
 };
 
 S.liftB={
@@ -1188,6 +1186,13 @@ const VID={
  'HSR提踵':'heavy slow resistance calf raise achilles',
  '脚尖上抬':'tibialis anterior raise',
  '哥本哈根内收':'copenhagen adduction exercise',
+ '深蹲 或 硬拉':'barbell back squat and deadlift technique',
+ '沙袋弓步':'hyrox sandbag lunges technique',
+ '地雷管推举 双臂':'landmine press two handed technique',
+ '轮胎翻':'tyre flip technique',
+ '划船':'concept2 rowing technique hyrox',
+ '滑雪机':'skierg technique hyrox',
+ '波比跳':'burpee broad jump hyrox technique',
  '蚌式':'clamshell exercise glute medius',
  '单腿平衡':'single leg balance exercise',
  '站姿推举':'standing overhead press technique',
