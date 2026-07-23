@@ -67,17 +67,34 @@
   .wbody{display:none;border-top:1px solid var(--line)}
   .week.open .wbody{display:block}
 
-  .day{display:flex;gap:13px;padding:14px 17px;border-bottom:1px solid var(--line);align-items:flex-start}
-  .day:last-child{border-bottom:none}
   .day.done{background:#fff}
   .day.rest{opacity:.6}
   .cbx{width:23px;height:23px;flex-shrink:0;margin-top:3px;cursor:pointer;accent-color:var(--ink)}
   .dmain{flex:1;min-width:0}
-  .dtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
   .ddate{font-size:13px;color:var(--mute);font-weight:700;font-variant-numeric:tabular-nums}
   .dtype{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:4px;color:#fff}
   .t-run{background:var(--run)} .t-lift{background:var(--lift)} .t-move{background:var(--move)} .t-rest{background:var(--rest)}
   .dttl{font-size:17px;font-weight:800;margin-top:6px}
+  /* collapsed day rows */
+  .day{display:block;padding:0;border-bottom:1px solid var(--line);transition:background .15s}
+  .day:last-child{border-bottom:none}
+  .dtop{display:flex;align-items:center;gap:9px;padding:13px 16px;cursor:pointer;user-select:none;flex-wrap:nowrap}
+  .dtop:hover{background:#fff}
+  .grip{color:var(--line);font-size:15px;cursor:grab;flex-shrink:0;letter-spacing:-2px;touch-action:none}
+  .grip:active{cursor:grabbing}
+  .day:hover .grip{color:var(--mute)}
+  .dsum{flex:1;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .day.done .dsum{color:var(--mute);text-decoration:line-through}
+  .caret{color:var(--mute);font-size:12px;transition:transform .18s;flex-shrink:0}
+  .day.dopen .caret{transform:rotate(90deg)}
+  .dbody{display:none;padding:0 16px 15px 16px}
+  .day.dopen .dbody{display:block}
+  .day.dtoday{background:#fff}
+  .day.dtoday .dtop{border-left:3px solid var(--hot);padding-left:13px}
+  .day.dragging{opacity:.4}
+  .day.dragover{background:#fff;box-shadow:inset 0 3px 0 var(--hot)}
+  .dttl{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+
   .dttl.done{text-decoration:line-through;color:var(--mute)}
   .ddet{font-size:16px;color:#33322D;margin-top:8px;line-height:1.7;letter-spacing:.01em}
 
@@ -346,6 +363,7 @@ function normalise(d){
     ex     : d.ex     && typeof d.ex     === 'object' ? d.ex     : {},
     dayMap : d.dayMap && typeof d.dayMap === 'object' ? d.dayMap : {},
     custom : d.custom && typeof d.custom === 'object' ? d.custom : {},
+    openDays: d.openDays && typeof d.openDays === 'object' ? d.openDays : {},
     edits: d.edits && typeof d.edits === 'object' ? d.edits : {},
     meals: d.meals && typeof d.meals === 'object' ? d.meals : {}
   };
@@ -763,20 +781,30 @@ function render(){
       const ok=total?dn===total:!!DB.done[id];
       const both=['lulu','yelu'].map(p=>{const l=DB.logs[`${p}|${key}`];
         return l?`<div class="lg ${p}"><span class="nm">${NAMES[p]}</span>${lgTxt(l)}${l.note?`<div class="fb">${l.note}</div>`:''}</div>`:'';}).join('');
-      return `<div class="day ${ok?'done':''} ${rest?'rest':''}">
+      const today=sameDay(dateOf(wk.w,i),new Date());
+      const openDay=(DB.openDays&&DB.openDays[key])!==undefined?DB.openDays[key]:today;
+      return `<div class="day ${ok?'done':''} ${rest?'rest':''} ${openDay?'dopen':''} ${today?'dtoday':''}"
+        draggable="true" data-w="${wk.w}" data-i="${i}"
+        ondragstart="dragStart(event)" ondragover="dragOver(event)"
+        ondrop="dropDay(event)" ondragend="dragEnd(event)" ondragleave="dragLeave(event)">
         <div class="dmain">
-          <div class="dtop">
+          <div class="dtop" onclick="toggleDay('${key}')">
+            <span class="grip" title="${LANG==='zh'?'拖动换天':'Drag to move'}">⠿</span>
             <span class="dtype t-${d.k}">${t('wd')[i]} · ${t('klbl')[d.k]}</span>
             <span class="ddate">${fmt(dateOf(wk.w,i))}</span>
-            <button class="daybtn" onclick="moveDay(${wk.w},${i})" title="${LANG==='zh'?'换到别的星期':'Move to another day'}">⇄</button>
-            <button class="daybtn" onclick="customDay(${wk.w},${i})" title="${LANG==='zh'?'自己填这天':'Write your own'}">✎</button>
+            <span class="dsum">${x.t||''}</span>
             ${total?`<span class="iprog ${ok?'full':''}">${dn}/${total}</span>`:''}
+            <span class="caret">▸</span>
           </div>
-          <div class="dttl ${ok?'done':''}">${x.t||''}${moved&&planT&&planT!==x.t?`<span class="plan">${LANG==='zh'?'原计划':'planned'} ${planT}</span>`:''}</div>
-          ${renderItems(wk.w,i)}
-          ${x.why?`<div class="dwhy">${x.why}</div>`:''}
-          ${both?`<div class="logs">${both}</div>`:''}
-          ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎ 编辑记录':'+ 记录数据'}</button>`:''}
+          <div class="dbody">
+            <div class="dttl ${ok?'done':''}">${x.t||''}${moved&&planT&&planT!==x.t?`<span class="plan">${LANG==='zh'?'原计划':'planned'} ${planT}</span>`:''}
+              <button class="daybtn" onclick="event.stopPropagation();customDay(${wk.w},${i})" title="${LANG==='zh'?'自己填这天':'Write your own'}">✎</button>
+            </div>
+            ${renderItems(wk.w,i)}
+            ${x.why?`<div class="dwhy">${x.why}</div>`:''}
+            ${both?`<div class="logs">${both}</div>`:''}
+            ${!rest?`<button class="logbtn ${DB.logs[id]?'has':''}" onclick="openLog('${key}')">${DB.logs[id]?'✎ 编辑记录':'+ 记录数据'}</button>`:''}
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -796,6 +824,90 @@ function render(){
 
 /* Turn plain session text into readable blocks: headings bold, bullets indented. */
 /* Exercises for a day, with any edits the athlete made applied on top. */
+
+
+/* ---------- collapse / expand a day ---------- */
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+async function toggleDay(key){
+  DB.openDays=DB.openDays||{};
+  const el=document.querySelector(`.day[data-w="${key.split('-')[0]}"][data-i="${key.split('-')[1]}"]`);
+  const now=el?el.classList.contains('dopen'):false;
+  DB.openDays[key]=!now;
+  if(el)el.classList.toggle('dopen',!now);   // instant, no full re-render
+  persist();
+}
+
+/* ---------- drag one day onto another to swap ---------- */
+let dragSrc=null;
+function dragStart(e){
+  const el=e.currentTarget;
+  dragSrc={w:+el.dataset.w,i:+el.dataset.i};
+  el.classList.add('dragging');
+  try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','x');}catch(_){}
+}
+function dragOver(e){
+  if(!dragSrc)return;
+  const el=e.currentTarget;
+  if(+el.dataset.w!==dragSrc.w)return;      // only within the same week
+  e.preventDefault();
+  el.classList.add('dragover');
+}
+function dragLeave(e){e.currentTarget.classList.remove('dragover');}
+function dragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.day.dragover').forEach(x=>x.classList.remove('dragover'));
+}
+async function dropDay(e){
+  e.preventDefault();
+  const el=e.currentTarget;
+  el.classList.remove('dragover');
+  if(!dragSrc)return;
+  const w=+el.dataset.w, to=+el.dataset.i;
+  if(w!==dragSrc.w||to===dragSrc.i){dragSrc=null;return;}
+  await swapDays(w,dragSrc.i,to);
+  dragSrc=null;
+}
+async function swapDays(w,i,to){
+  DB.dayMap=DB.dayMap||{};
+  const a=slotOf(w,i), b=slotOf(w,to);
+  DB.dayMap[`${w}-${i}`]=b;
+  DB.dayMap[`${w}-${to}`]=a;
+  [[`${w}-${i}`,i],[`${w}-${to}`,to]].forEach(([k,idx])=>{
+    if(DB.dayMap[k]===idx)delete DB.dayMap[k];
+  });
+  await persist();render();
+}
+
+/* ---------- touch drag for phones ---------- */
+let tDrag=null;
+document.addEventListener('touchstart',e=>{
+  const g=e.target.closest('.grip');
+  if(!g)return;
+  const day=g.closest('.day');
+  if(!day)return;
+  tDrag={w:+day.dataset.w,i:+day.dataset.i,el:day};
+  day.classList.add('dragging');
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(!tDrag)return;
+  e.preventDefault();
+  const t=e.touches[0];
+  const over=document.elementFromPoint(t.clientX,t.clientY);
+  const day=over&&over.closest?over.closest('.day'):null;
+  document.querySelectorAll('.day.dragover').forEach(x=>x.classList.remove('dragover'));
+  if(day&&+day.dataset.w===tDrag.w&&+day.dataset.i!==tDrag.i)day.classList.add('dragover');
+},{passive:false});
+document.addEventListener('touchend',async()=>{
+  if(!tDrag)return;
+  const target=document.querySelector('.day.dragover');
+  tDrag.el.classList.remove('dragging');
+  document.querySelectorAll('.day.dragover').forEach(x=>x.classList.remove('dragover'));
+  const src=tDrag; tDrag=null;
+  if(target){
+    const to=+target.dataset.i;
+    if(to!==src.i)await swapDays(src.w,src.i,to);
+  }
+});
 
 /* ---------- Weekly flexibility ----------
    dayMap : {"3-5": 6}  -> week 3, Saturday now shows what Sunday planned
@@ -821,28 +933,6 @@ function isMoved(w,i){
   const c=(DB.custom||{})[`${w}-${i}`];
   if(c)return true;
   return slotOf(w,i)!==i;
-}
-
-/* Swap two weekdays within a week. */
-async function moveDay(w,i){
-  const zh=LANG==='zh';
-  const names=t('wd');
-  const opts=names.map((n,x)=>`${x+1} ${n}`).join('\n');
-  const v=prompt(zh?`把这天的训练挪到星期几。\n输入数字 1 到 7。\n\n${opts}`
-                   :`Move this session to which weekday.\nEnter 1 to 7.\n\n${opts}`, String(i+1));
-  if(v===null)return;
-  const to=parseInt(v,10)-1;
-  if(isNaN(to)||to<0||to>6||to===i)return;
-  DB.dayMap=DB.dayMap||{};
-  const a=slotOf(w,i), b=slotOf(w,to);
-  DB.dayMap[`${w}-${i}`]=b;
-  DB.dayMap[`${w}-${to}`]=a;
-  // tidy: drop entries that are back to default
-  [`${w}-${i}`,`${w}-${to}`].forEach(k=>{
-    const idx=parseInt(k.split('-')[1],10);
-    if(DB.dayMap[k]===idx)delete DB.dayMap[k];
-  });
-  await persist();render();
 }
 
 /* Replace a day entirely with your own session, e.g. what the coach gave you. */
