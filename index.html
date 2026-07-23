@@ -230,11 +230,6 @@
     </div>
   </div>
 
-  <div class="who">
-    <span class="lb" data-i="who"></span>
-    <button data-p="lulu" class="on">Lulu</button>
-    <button data-p="yelu">Ye Lu</button>
-  </div>
 
   <div class="countdown">
     <div class="cd"><b id="cd-w">—</b><span data-i="cdw"></span></div>
@@ -344,8 +339,9 @@
 <script>
 const API='/.netlify/functions/claude';
 const RACE=new Date(2026,11,5), START=new Date(2026,6,13);
-let LANG='zh', ME='lulu';
-const NAMES={lulu:'Lulu',yelu:'Ye Lu'};
+let LANG='zh';
+const ME='lulu';
+const NAMES={lulu:'Lulu'};
 
 /* ---------- shared cloud storage (Netlify Blobs) ---------- */
 const DATA_API='/api/data';
@@ -413,8 +409,8 @@ function paintSync(){
 
 /* ---------- i18n ---------- */
 const I={
- zh:{eyebrow:'HYROX 女子双人 · OPEN 组',h1:'21 周 · 通向 12.5',sub:'2026年7月13日 → 12月5日 · Lulu & Ye Lu · 首次参赛',
-  who:'当前身份',cdw:'剩余周数',cdd:'剩余天数',cdn:'已完成',cdr:'完成率',
+ zh:{eyebrow:'HYROX 混合双人 · OPEN 组',h1:'21 周 · 通向 12.5',sub:'2026年7月13日 → 12月5日 · 首次参赛 · 男子Open重量',
+cdw:'剩余周数',cdd:'剩余天数',cdn:'已完成',cdr:'完成率',
   tab1:'训练日历',tab2:'我的区间',tab3:'训练原理',tab4:'AI 分析',
   aih:'AI 训练分析',ais:'读你们两人的真实数据,告诉你计划有没有在起作用',aibtn:'分析训练数据',
   ainote:'分析会看:同配速下心率有没有下降(有氧效率)、轻松跑是不是又跑太快、有没有断档、阈值有没有推进、以及你们两人的配速差距和双人赛分工。记录越多越准。',
@@ -430,8 +426,8 @@ const I={
   aifew:'数据还不够。\n\n先去记录几次训练 — 至少 2 周(4-6 次课),我才能看出趋势。\n\n最有价值的是跑步记录:配速 + 心率。这两个数字放在一起,才能告诉我有氧效率有没有在改善。',
   aifail:'分析失败了,再试一次。',
   stat:['已记录','累计公里','跑步记录','平均心率'],tab5:'营养'},
- en:{eyebrow:'HYROX WOMEN\'S DOUBLES · OPEN',h1:'21 Weeks to 12.5',sub:'13 Jul → 5 Dec 2026 · Lulu & Ye Lu · First race',
-  who:'Logging as',cdw:'weeks left',cdd:'days left',cdn:'sessions done',cdr:'completion',
+ en:{eyebrow:'HYROX MIXED DOUBLES · OPEN',h1:'21 Weeks to 12.5',sub:'13 Jul → 5 Dec 2026 · First race · Men\'s Open loads',
+cdw:'weeks left',cdd:'days left',cdn:'sessions done',cdr:'completion',
   tab1:'Calendar',tab2:'My Zones',tab3:'Why This Plan',tab4:'AI Analysis',
   aih:'AI Training Analysis',ais:'Reads both your real data and tells you if the plan is working',aibtn:'Analyse our data',
   ainote:'It checks: is HR falling at the same pace (aerobic efficiency), are easy runs too fast again, are there gaps, is threshold pace improving, and the pace gap between you two for doubles strategy. More logs = better analysis.',
@@ -476,8 +472,8 @@ const S={};
 S.liftA={
  zh:{t:'HYROX 专项日 · 教练课',
   ex:[
-   {n:'深蹲 或 硬拉',k:'lift',tgt:'4组 × 5次 重量大',tip:'这一项是建议加的，需要先跟教练确认。\n\n为什么要加：你现在整堂课里没有一个双腿的、可以每周加重的轴向负荷动作。轮胎翻是重，但重量固定在100kg，而且是髋爆发不是最大力量。沙袋弓步只有10kg。\n\n骨密度需要的正是脊柱和髋上的轴向压缩负荷。LIFTMOR试验用的就是深蹲硬拉推举，5组×5次，超过85%最大重量，8个月后绝经后女性的腰椎和股骨颈骨密度显著改善。轮胎翻和弓步做不到这个。\n\n另一个理由是力量储备。比赛雪橇推102kg，你深蹲越强推起来越省力。你三年前深蹲能做60kg，现在大约45到55kg，目标是12月前回到60kg并且能做5次。\n\n放在开场做，神经系统最清醒的时候练最重的，15分钟，不影响后面的专项训练。'},
-   {n:'沙袋弓步',k:'lift',tgt:'10公斤，32米 × 3趟',tip:'直接对应比赛的100米沙袋弓步。注意膝盖不要内塌，这和你内收肌偏弱有关。'},
+   {n:'深蹲 或 硬拉',k:'lift',tgt:'4组 × 5次 重量大',tip:'混合双人改用男子Open重量之后，这一项从建议变成了必须。尽快和教练确认。\n\n为什么要加：你现在整堂课里没有一个双腿的、可以每周加重的轴向负荷动作。轮胎翻是重，但重量固定在100kg，而且是髋爆发不是最大力量。沙袋弓步只有10kg。\n\n骨密度需要的正是脊柱和髋上的轴向压缩负荷。LIFTMOR试验用的就是深蹲硬拉推举，5组×5次，超过85%最大重量，8个月后绝经后女性的腰椎和股骨颈骨密度显著改善。轮胎翻和弓步做不到这个。\n\n比赛雪橇推是152公斤，不是102公斤。沙袋弓步20公斤，不是10公斤。农夫行走每手24公斤。这些重量需要真正的力量储备。\n\n你三年前深蹲能做60公斤，现在大约45到55公斤。目标是12月前回到60公斤并且能做5次，越高越好。深蹲越强，推152公斤的雪橇占你极限的比例就越低。\n\n放在开场做，神经系统最清醒的时候练最重的，15分钟，不影响后面的专项训练。'},
+   {n:'沙袋弓步',k:'lift',tgt:'逐步加到20公斤，32米 × 3趟',tip:'比赛是20公斤走100米。你现在练10公斤，需要在赛前逐步加到20公斤。注意膝盖不要内塌，这和你内收肌偏弱有关。'},
    {n:'地雷管推举 双臂',k:'lift',tgt:'杆15公斤 加 10公斤，共25公斤，50次',tip:'一端固定的杠铃，双手推。斜向上的推力角度比垂直过头推更接近墙球的发力方向，对肩的压力也小。50次是很大的量，练的是上肢力量耐力，对应滑雪机和农夫行走。'},
    {n:'轮胎翻',k:'lift',tgt:'100公斤，10次 × 2组',tip:'重负荷髋爆发动作，对后链和发力率有价值。局限是重量固定，没法每周递增，所以它不能替代深蹲硬拉。'},
    {n:'划船',k:'run',tgt:'500米',tip:'比赛是1000米。注意腿先发力再拉手，顺序错了会很累。'},
@@ -489,8 +485,8 @@ S.liftA={
   why:'这是教练安排的HYROX专项课，专项性很好。唯一的缺口是没有可递增的双腿大重量动作，第一项是建议补上的。'},
  en:{t:'HYROX specific day · coach session',
   ex:[
-   {n:'Squat or deadlift',k:'lift',tgt:'4 x 5 heavy',tip:'This one is a suggestion. Confirm with your coach first.\n\nWhy add it: nothing else in this session gives you a two-legged axial load you can progress week to week. The tyre flip is heavy but fixed at 100kg, and it is a hip-power movement rather than max strength. The sandbag lunge is only 10kg.\n\nBone needs axial compression through the spine and hips. LIFTMOR used exactly squat, deadlift and press at 5 sets of 5 above 85 percent of max, and postmenopausal women improved lumbar spine and femoral neck bone density over 8 months. Tyre flips and lunges do not deliver that.\n\nThe other reason is strength reserve. The race sled push is 102kg. The stronger your squat, the easier that feels. You squatted 60kg three years ago, you are probably 45 to 55kg now, and the target is back to 60kg for 5 reps by December.\n\nDo it first while your nervous system is fresh. 15 minutes, and it will not compromise the specific work that follows.'},
-   {n:'Sandbag lunges',k:'lift',tgt:'10kg, 32m x 3',tip:'Maps directly to the 100m race lunges. Watch that the knee does not cave, which relates to your weak adductors.'},
+   {n:'Squat or deadlift',k:'lift',tgt:'4 x 5 heavy',tip:'This one is a suggestion. Confirm with your coach first.\n\nWhy add it: nothing else in this session gives you a two-legged axial load you can progress week to week. The tyre flip is heavy but fixed at 100kg, and it is a hip-power movement rather than max strength. The sandbag lunge is only 10kg.\n\nBone needs axial compression through the spine and hips. LIFTMOR used exactly squat, deadlift and press at 5 sets of 5 above 85 percent of max, and postmenopausal women improved lumbar spine and femoral neck bone density over 8 months. Tyre flips and lunges do not deliver that.\n\nThe race sled push is 152kg, not 102kg. Sandbag lunges are 20kg, not 10kg. Farmers carry is 24kg per hand. Those loads need real strength reserve.\n\nYou squatted 60kg three years ago and are probably 45 to 55kg now. Target is back to 60kg for 5 reps by December, and higher if possible. The stronger your squat, the smaller a fraction of your max that 152kg sled represents.\n\nDo it first while your nervous system is fresh. 15 minutes, and it will not compromise the specific work that follows.'},
+   {n:'Sandbag lunges',k:'lift',tgt:'build toward 20kg, 32m x 3',tip:'Maps directly to the 100m race lunges. Watch that the knee does not cave, which relates to your weak adductors.'},
    {n:'Landmine press, two hands',k:'lift',tgt:'15kg bar plus 10kg, 25kg total, 50 reps',tip:'Bar fixed at one end, pressed with both hands. The upward and forward angle is closer to the wall ball push than a vertical press, and easier on the shoulder. 50 reps is real volume, building the upper body endurance the ski and farmers carry demand.'},
    {n:'Tyre flip',k:'lift',tgt:'100kg, 10 x 2',tip:'Heavy hip-dominant power work, good for the posterior chain and rate of force development. The limit is the fixed weight, so it cannot replace squats or deadlifts.'},
    {n:'Row',k:'run',tgt:'500m',tip:'Race is 1000m. Legs first, then arms. Wrong order burns you out.'},
@@ -656,7 +652,7 @@ T[21]={
 const brick=n=>({
  zh:{t:'砖式 · HYROX疲劳跑',ex:[
    {n:'砖式循环',k:'run',tgt:`${n} 轮 · 1公里 @ 6'45"–7'00" + 1个站点`,
-    tip:'站点任选:墙球50 / 沙袋弓步50m / 雪橇 / 波比×10。中间不休息,直接接下一个1公里。'},
+    tip:'站点任选，墙球50次用6公斤球，沙袋弓步50米，雪橇，或波比10次。中间不休息，直接接下一个1公里。'},
    {n:'记录分段',k:'run',tgt:'每个1公里的用时',tip:'看后面几轮掉速多少 — 那就是比赛会发生的事。'}
  ],why:'练的是在累腿上跑步。比赛就是这个感觉。'},
  en:{t:'Brick · compromised running',ex:[
@@ -667,12 +663,12 @@ const brick=n=>({
 });
 
 const sim={
- zh:{t:'搭档模拟 · Lulu + Ye Lu',ex:[
+ zh:{t:'搭档模拟',ex:[
    {n:'半程或完整模拟',k:'run',tgt:'4跑+4站 或 8跑+8站',tip:'重点是分工、交接、配速同步 — 不是拼时间。'},
    {n:'演练交接',k:'lift',tgt:'每站的"你做我做"分块',tip:'不协调的换人,8个站累计能丢40–80秒。'},
    {n:'记录',k:'run',tgt:'每个1公里分段 + 每站用时',tip:'这些数字决定比赛日的分工方案。'}
  ],why:'双人赛配速由慢的一方决定。你们必须一起练。'},
- en:{t:'Partner simulation · Lulu + Ye Lu',ex:[
+ en:{t:'Partner simulation',ex:[
    {n:'Half or full sim',k:'run',tgt:'4 runs + 4 stations, or 8+8',tip:'Focus on splits, transitions, pace sync — not on the clock.'},
    {n:'Rehearse transitions',k:'lift',tgt:'"You go, I go" blocks per station',tip:'Sloppy swaps cost 40–80s across 8 stations.'},
    {n:'Log it',k:'run',tgt:'Every 1km split + time per station',tip:'These numbers decide your race-day split plan.'}
@@ -681,11 +677,11 @@ const sim={
 
 const raceday={
  zh:{t:'🏁 比赛日 · 12月5日',ex:[
-   {n:'HYROX 女子双人 Open',k:'run',tgt:'8 × 1公里 + 8站',
+   {n:'HYROX 混合双人 Open',k:'run',tgt:'8 × 1公里 + 8站',
     tip:'配速纪律:前2个1公里宁可慢5秒。跑5到8最难 — 那时你会想放弃,但你练过了。和搭档保持在一起,分开超过15秒罚3分钟。'}
  ],why:'你从7月13日走到这里。相信训练。'},
  en:{t:'🏁 Race day · 5 Dec',ex:[
-   {n:'HYROX Women\'s Doubles Open',k:'run',tgt:'8 × 1km + 8 stations',
+   {n:'HYROX Mixed Doubles Open',k:'run',tgt:'8 × 1km + 8 stations',
     tip:'Pacing: go 5s slower on the first two kms. Runs 5–8 hurt most — you will want to quit, but you trained for this. Stay with your partner: more than 15s apart = 3 min penalty.'}
  ],why:'You started 13 July. Trust the training.'}
 };
@@ -777,7 +773,7 @@ function render(){
       const total=items.length;
       const dn=items.filter((_,n)=>DB.items[`${ME}|${key}|${n}`]).length;
       const ok=total?dn===total:!!DB.done[id];
-      const both=['lulu','yelu'].map(p=>{const l=DB.logs[`${p}|${key}`];
+      const both=['lulu'].map(p=>{const l=DB.logs[`${p}|${key}`];
         return l?`<div class="lg ${p}"><span class="nm">${NAMES[p]}</span>${lgTxt(l)}${l.note?`<div class="fb">${l.note}</div>`:''}</div>`:'';}).join('');
       const today=sameDay(dateOf(wk.w,i),new Date());
       const openDay=(DB.openDays&&DB.openDays[key])!==undefined?DB.openDays[key]:today;
@@ -1242,14 +1238,17 @@ function renderZones(){
   </div>
   <div class="note"><b>${zh?'完赛目标 1:40–1:50':'Finish target 1:40–1:50'}</b>${zh?'(冲刺 1:35)。网上那些 4\'30–5\'30/km 的基准是给已有基础的人看的。诚实的目标比虚高的目标更能带你到终点。':' (stretch 1:35). Those 4\'30–5\'30/km benchmarks online are for people with an existing base. An honest target gets you to the finish line; an inflated one gets you injured.'}</div></div>
 
-  <div class="panel"><h2>${zh?'比赛日重量 · 女子 Open':'Race-day loads · Women\'s Open'}</h2>
+  <div class="panel"><h2>${zh?'比赛日重量 · 混合双人 用男子Open':'Race-day loads · Mixed Doubles, Men\'s Open'}</h2>
+  <div class="ps">${zh?'混合双人所有站点用男子Open重量。比女子Open重了很多，见括号内原女子重量对比。':'Mixed Doubles uses Men\'s Open loads at every station. Substantially heavier than Women\'s Open.'}</div>
   <div class="zones">
-    <div class="z"><div class="t">${zh?'推雪橇':'Sled push'}</div><div class="v">102 kg</div><div class="n">50m (4×12.5m)</div></div>
-    <div class="z"><div class="t">${zh?'拉雪橇':'Sled pull'}</div><div class="v">78 kg</div><div class="n">50m (4×12.5m)</div></div>
-    <div class="z"><div class="t">${zh?'农夫行走':'Farmers carry'}</div><div class="v">2×16 kg</div><div class="n">200m</div></div>
-    <div class="z"><div class="t">${zh?'沙袋弓步':'Sandbag lunge'}</div><div class="v">10 kg</div><div class="n">100m</div></div>
-    <div class="z"><div class="t">${zh?'墙球':'Wall balls'}</div><div class="v">4 kg / 2.7m</div><div class="n">${zh?'按100次练(核实规则)':'train to 100 (verify rulebook)'}</div></div>
-  </div></div>`;
+    <div class="z" style="border-color:var(--hot);border-width:2px"><div class="t">${zh?'推雪橇':'Sled push'}</div><div class="v">152 kg</div><div class="n">${zh?'50米，原女子102公斤':'50m, was 102kg'}</div></div>
+    <div class="z" style="border-color:var(--hot);border-width:2px"><div class="t">${zh?'拉雪橇':'Sled pull'}</div><div class="v">103 kg</div><div class="n">${zh?'50米，原女子78公斤':'50m, was 78kg'}</div></div>
+    <div class="z"><div class="t">${zh?'农夫行走':'Farmers carry'}</div><div class="v">2×24 kg</div><div class="n">${zh?'200米，原2×16公斤':'200m, was 2x16kg'}</div></div>
+    <div class="z"><div class="t">${zh?'沙袋弓步':'Sandbag lunge'}</div><div class="v">20 kg</div><div class="n">${zh?'100米，原10公斤，翻倍':'100m, was 10kg, doubled'}</div></div>
+    <div class="z"><div class="t">${zh?'墙球':'Wall balls'}</div><div class="v">6 kg</div><div class="n">${zh?'100次，你投2.7米':'100 reps, you throw to 2.7m'}</div></div>
+    <div class="z"><div class="t">${zh?'滑雪机 划船 波比':'Ski, row, burpees'}</div><div class="v">${zh?'不变':'Same'}</div><div class="n">${zh?'1000米 1000米 80米':'1000m, 1000m, 80m'}</div></div>
+  </div>
+  <div class="note">${zh?'<b>墙球有来源不一致。</b>多数资料说混双两人都用6公斤球，各自投自己性别的高度，你是2.7米。但有一个来源说男女分别用9公斤和6公斤。报名后请在官方规则手册确认。<br><br><b>这个改变对训练的影响很大。</b>推152公斤和推102公斤是两件事，沙袋从10公斤变20公斤。深蹲和硬拉从建议变成必须，尽快和教练确认。<br><br><b>好消息是双人可以分工。</b>雪橇4趟12.5米，你们可以按能力分，不必对半。':'<b>Sources conflict on the wall ball.</b> Most say both partners use 6kg and throw to their own height, 2.7m for you. One source says 9kg and 6kg split by sex. Verify in the official rulebook after you register.<br><br><b>This change matters a lot for training.</b> Pushing 152kg is not the same as 102kg, and the sandbag doubles from 10kg to 20kg. Heavy squats and deadlifts move from optional to necessary.<br><br><b>The good news is doubles splits the work.</b> The sled is 4 lengths of 12.5m and you can divide it by capability, not evenly.'}</div></div>`;
 }
 
 /* ---------- why tab ---------- */
@@ -1660,7 +1659,7 @@ document.getElementById('run-ai').onclick=async()=>{
     return `${NAMES[p]} | W${w} ${I.zh.wd[i]} (${LOADNAME.zh[load]}) | 热量 ${Math.round(t.kcal)} | 碳水 ${Math.round(t.carb)}g (目标${T.carb[0]}-${T.carb[1]}) | 蛋白 ${Math.round(t.pro)}g | 脂肪 ${Math.round(t.fat)}g${flag}`;
   }).join('\n') || '(暂无饮食记录)';
 
-  const prompt=`你是运动科学教练,分析两位女性的 HYROX 双人赛(Open组)备赛数据。比赛:2026年12月5日。当前第 ${curWeek()} 周(共21周)。
+  const prompt=`你是运动科学教练，分析一位女性的 HYROX 混合双人赛 Open 组备赛数据。比赛:2026年12月5日。当前第 ${curWeek()} 周(共21周)。
 
 【Lulu — 48岁,围绝经期,首次参赛】
 - 实测最大心率 179。二区 125–143,阈值区 156–165
@@ -1671,8 +1670,9 @@ document.getElementById('run-ai').onclick=async()=>{
 - 弱点:内收肌薄弱。踝背屈实测12-15cm，正常，不是问题。真正的问题是小腿力量储备不足，单腿提踵20次后提不高，以及步频过低。
 - 步频:基线只有154-165，目标172-175。这是她跑步经济性最直接的杠杆。
 
-【Ye Lu — 搭档】
-- 数据从她的记录里看,不做假设
+【搭档】
+- 男性搭档，混合双人组。所有站点用男子Open重量，比女子Open重很多。推雪橇152公斤，拉雪橇103公斤，农夫每手24公斤，沙袋弓步20公斤，墙球6公斤。
+- 双人可以按能力分配各站的次数和距离，不必对半分。
 
 【关键规则】双人赛两人一起跑全部8km,<b>配速由慢的一方决定</b>。所以两人的配速差距是决定成绩的核心变量。
 
